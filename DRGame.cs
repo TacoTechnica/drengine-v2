@@ -1,33 +1,53 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DR_Engine_v2
+namespace DREngine
 {
-    public class Game1 : Game
+    public class DRGame : Game
     {
+        #region Util variables
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        public Game1()
+        #endregion
+
+        private static DRGame _instance = null;
+        public static DRGame Instance
         {
+            get
+            {
+                if (_instance == null) Debug.LogError("No Engine Instance, everything will blow up");
+                return _instance;
+            }
+        }
+
+        public DRGame()
+        {
+            _instance = this;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            this.Window.Title = "Game Engine Test";
+            this._graphics.SynchronizeWithVerticalRetrace = true;
+
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
+            // Init
             base.Initialize();
+
+            Debug.LogDebug("Game Initialize()");
         }
 
         protected override void LoadContent()
         {
+            // Init load
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
@@ -36,8 +56,9 @@ namespace DR_Engine_v2
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            // Update
             base.Update(gameTime);
         }
 
@@ -45,8 +66,7 @@ namespace DR_Engine_v2
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
-
+            // Draw
             base.Draw(gameTime);
         }
     }
