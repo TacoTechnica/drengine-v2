@@ -8,8 +8,8 @@ namespace DREngine
     public class DREditor : IDisposable
     {
         private bool _disposed = false;
-
         private DREditorWindow _window = null;
+        private const string STARTING_THEME = "themes/Material-Black-Lime/gtk-3.0/gtk.css";
 
         public DREditor()
         {
@@ -36,6 +36,11 @@ namespace DREngine
             _window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
             _window.Show();
             _window.DeleteEvent += WindowOnDeleteEvent;
+
+            if (STARTING_THEME != null && STARTING_THEME != "")
+            {
+                _window.SetTheme(STARTING_THEME);
+            }
 
             Application.Run();
         }

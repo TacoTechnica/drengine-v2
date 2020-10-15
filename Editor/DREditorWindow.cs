@@ -53,7 +53,51 @@ namespace DREngine.Editor
         /// </summary>
         public void SetTheme(string path)
         {
+            bool failed = false;
+            try
+            {
+                Gtk.CssProvider css_provider = new Gtk.CssProvider();
+                if (!css_provider.LoadFromPath(path))
+                {
+                    failed = true;
+                }
+                else
+                {
+                    Gtk.StyleContext.AddProviderForScreen(Gdk.Screen.Default, css_provider, 800);
+                }
+            }
+            catch (GLib.GException)
+            {
+                failed = true;
+            }
 
+            if (failed) {
+                AlertProblem("Failed to load theme",$"Invalid theme path: \"{path}\"\n\nMake sure the target is a valid gtk.css file!");
+            }
+        }
+
+        public void AlertProblem(string title, string message)
+        {
+            Debug.LogError($"Problem: {message}");
+            MessageDialog popup = new MessageDialog(
+                this,
+                DialogFlags.Modal,
+                MessageType.Error,
+                ButtonsType.Ok,
+                message
+            );
+            popup.Title = title;
+            popup.WindowPosition = WindowPosition.Center;
+            popup.ButtonReleaseEvent += (o, args) =>
+            {
+                popup.Dispose();
+            };
+            popup.Show();
+        }
+
+        public void AlertProblem(string message)
+        {
+            AlertProblem("Problem!", message);
         }
 
 #endregion
