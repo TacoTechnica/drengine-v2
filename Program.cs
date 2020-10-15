@@ -39,7 +39,11 @@ namespace DREngine
             // Set the root directory
             string thisFile = new StackTrace(true).GetFrame(0).GetFileName();
             int lastDir = thisFile.LastIndexOf("/");
-            thisFile = thisFile.Substring(0, lastDir);
+            if (lastDir != -1)
+            {
+                thisFile = thisFile.Substring(0, lastDir);
+            }
+
             RootDirectory = thisFile;
         }
 
