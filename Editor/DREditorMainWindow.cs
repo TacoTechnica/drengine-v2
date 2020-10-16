@@ -4,10 +4,10 @@ using MonoGame.Framework.Utilities.Deflate;
 
 namespace DREngine.Editor
 {
-    public class DREditorWindow : Gtk.Window
+    public class DREditorMainWindow : Gtk.Window
     {
 
-        public DREditorWindow() : base(WindowType.Toplevel)
+        public DREditorMainWindow() : base(WindowType.Toplevel)
         {
             // Make window is called externally.
         }
@@ -218,12 +218,12 @@ namespace DREngine.Editor
 
 #region Garbage stuff
 
-        public DREditorWindow(IntPtr raw) : base(raw)
+        public DREditorMainWindow(IntPtr raw) : base(raw)
         {
             Debug.LogError("Invalid constructor.");
         }
 
-        public DREditorWindow(int nothing) : base("Invalid")
+        public DREditorMainWindow(int nothing) : base("Invalid")
         {
             Debug.LogError("Invalid constructor.");
         }

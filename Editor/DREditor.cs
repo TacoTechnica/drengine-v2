@@ -8,12 +8,19 @@ namespace DREngine
     public class DREditor : IDisposable
     {
         private bool _disposed = false;
-        private DREditorWindow _window = null;
+        public DREditorMainWindow Window { get; private set; } = null;
+
+        // TODO: Make this set to nothing or a custom/licensed theme.
         private const string STARTING_THEME = "themes/Material-Black-Lime/gtk-3.0/gtk.css";
+
+        // Poo poo singleton
+        public static DREditor Instance = null;
 
         public DREditor()
         {
-            // Do nothing for now
+            // Poo poo singleton
+            if (Instance == null) Debug.LogError("Editor already initialized! Will see problems.");
+            Instance = this;
         }
         ~DREditor() {
             Dispose(false);
@@ -31,16 +38,19 @@ namespace DREngine
             // Init app
             Application.Init();
 
-            _window = new DREditorWindow();
-            _window.MakeWindow("DREditor InDev", 640, 480);
-            _window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
-            _window.Show();
-            _window.DeleteEvent += WindowOnDeleteEvent;
+            Window = new DREditorMainWindow();
+            Window.MakeWindow("DREditor InDev", 640, 480);
+            Window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
+            Window.Show();
+            Window.DeleteEvent += WindowOnDeleteEvent;
 
             if (STARTING_THEME != null && STARTING_THEME != "")
             {
-                _window.SetTheme(STARTING_THEME);
+                Window.SetTheme(STARTING_THEME);
             }
+
+            SubWindow test = new SubWindow("Test window");
+            test.ShowAll();
 
             Application.Run();
         }
@@ -50,7 +60,7 @@ namespace DREngine
             args.ExitApplication = false;
             Exception e = (Exception) args.ExceptionObject;
             // Error handling.
-            if (_window == null)
+            if (Window == null)
             {
                 Debug.LogError("Window not created yet, will print error to STDOUT.");
                 Debug.LogError(e.Message);
@@ -130,8 +140,8 @@ namespace DREngine
             {
                 // Dispose managed resources.
                 // ex: component.Dispose();
-                _window.Dispose();
-                _window.DeleteEvent -= WindowOnDeleteEvent;
+                Window.Dispose();
+                Window.DeleteEvent -= WindowOnDeleteEvent;
                 GLib.ExceptionManager.UnhandledException -= OnHandleExceptionEvent;
                 Application.Quit();
             }

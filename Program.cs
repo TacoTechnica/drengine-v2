@@ -19,8 +19,8 @@ namespace DREngine
 
 #region Main functions
 
-        private static void StartGame() {
-            using (var game = new DRGame()) {
+        private static void StartGame(string projectPath) {
+            using (var game = new DRGame(projectPath)) {
                 game.Run();
             }
         }
@@ -56,13 +56,19 @@ namespace DREngine
 
             // Parse args
             bool useGame = false;
+            string projectPath = null;
             var opts = new OptionSet() {
-                { "g|game", v => {useGame = true;} }
+                {
+                    "g|game", v => {
+                        useGame = true;
+                        projectPath = v;
+                    }
+                }
             };
             opts.Parse (args);
             // Run
             if (useGame) {
-                StartGame();
+                StartGame(projectPath);
             } else {
                 StartEditor();
             }
