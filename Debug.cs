@@ -18,7 +18,7 @@ namespace DREngine
             {
                 StackTrace strace = new StackTrace(2, true);
                 StackFrame sf = strace.GetFrame(0);
-                string path = sf.GetFileName().Substring(Program.RootDirectory.Length + 1);
+                string path = sf.GetFileName().Substring(Program.RootDirectory.Length + 1).Replace('\\', '/');
                 if (ShortenPath)
                 {
                     path = string.Join("/", GetShortenedStackPath(path.Split("/")));

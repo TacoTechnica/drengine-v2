@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NDesk.Options;
 using System.Diagnostics;
+using DREngine.Game;
 
 
 namespace DREngine
@@ -11,13 +12,13 @@ namespace DREngine
     /// </summary>
     public static class Program
     {
-#region Public Accessors
+        #region Public Accessors
 
         public static string RootDirectory { get; private set; }
 
-#endregion
+        #endregion
 
-#region Main functions
+        #region Main functions
 
         private static void StartGame(string projectPath) {
             using (var game = new DRGame(projectPath)) {
@@ -31,13 +32,13 @@ namespace DREngine
             }
         }
 
-#endregion
+        #endregion
 
-#region Program Utils
+        #region Program Utils
 
         private static void SetRootDirectory() {
             // Set the root directory
-            string thisFile = new StackTrace(true).GetFrame(0).GetFileName();
+            string thisFile = new StackTrace(true).GetFrame(0).GetFileName().Replace('\\', '/');
             int lastDir = thisFile.LastIndexOf("/");
             if (lastDir != -1)
             {
@@ -47,7 +48,7 @@ namespace DREngine
             RootDirectory = thisFile;
         }
 
-#endregion
+        #endregion
 
         [STAThread]
         static void Main(string[] args)
