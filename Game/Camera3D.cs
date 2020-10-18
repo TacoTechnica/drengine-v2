@@ -15,7 +15,7 @@ namespace DREngine.Game
     ///     - Whenever you add a GameObjectRender, it can have a layer. Thus it subscribes to be rendered
     ///     - by all of the cameras in those layers.
     /// </summary>
-    public class Camera3D : GameObject
+    public class Camera3D : GameObjectRender
     {
         public Vector3 Position;
         public Quaternion Rotation;
@@ -47,21 +47,30 @@ namespace DREngine.Game
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;
 
-        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game)
         {
             Position = pos;
             Rotation = rotation;
             Fov = fov;
-        }
 
-        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity, 90) { }
-
-        public override void Start()
-        {
+            Debug.Log("ADDED CAMERA");
             _camListReference = _game.SceneManager.Cameras.Add(this);
         }
 
+        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity) { }
+
+        public override void Start()
+        {
+            Debug.Log("Cam view projection SET");
+            UpdateViewAndProjection();
+        }
+
         public override void Update(float dt)
+        {
+            UpdateViewAndProjection();
+        }
+
+        private void UpdateViewAndProjection()
         {
             if (_needToUpdateProjection)
             {
@@ -77,13 +86,17 @@ namespace DREngine.Game
             Vector3 target = Position + Math.RotateVector(Vector3.Forward, Rotation);
             Vector3 up = Math.RotateVector(Vector3.Up, Rotation);
             _viewMat = Matrix.CreateLookAt(Position, target, up);
-
         }
 
         public override void OnDestroy()
         {
-            Debug.Log("Camera DESTROY!");
+            Debug.Log("deleted CAMERA");
             _camListReference = _game.SceneManager.Cameras.RemoveImmediate(_camListReference);
+        }
+
+        public override void Draw(GraphicsDevice g)
+        {
+            // NOTE: We are put here so that we can call start immediately.
         }
     }
 }

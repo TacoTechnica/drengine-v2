@@ -21,7 +21,16 @@ namespace DREngine.Game
             EnsureStarted();
             Draw(g);
         }
-
+        internal void DoPreDraw(GraphicsDevice g)
+        {
+            EnsureStarted();
+            PreDraw(g);
+        }
+        internal void DoPostDraw(GraphicsDevice g)
+        {
+            EnsureStarted();
+            PostDraw(g);
+        }
         #endregion
 
         #region Util
@@ -49,6 +58,14 @@ namespace DREngine.Game
         /// <param name="g"></param>
         public abstract void Draw(GraphicsDevice g);
 
+        public virtual void PreDraw(GraphicsDevice g)
+        {
+
+        }
+        public virtual void PostDraw(GraphicsDevice g)
+        {
+
+        }
 
         #endregion
 

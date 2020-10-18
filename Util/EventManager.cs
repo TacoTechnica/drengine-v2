@@ -18,7 +18,6 @@ namespace DREngine.Util
 
         public static EventManager operator -(EventManager e, Action a)
         {
-            // TODO: Make cleaner?
             e.RemoveListener(a);
             return e;
         }

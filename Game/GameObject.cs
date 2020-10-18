@@ -47,6 +47,8 @@ namespace DREngine.Game
             {
                 throw new InvalidOperationException($"Circular Parenting Detected when trying to add child! Child: {obj}, Parent: {this}");
             }
+            // Add all of our parents and ourselves to the child.
+            obj._parents.UnionWith(_parents);
             obj._parents.Add(this);
             _childObjects.Add(obj);
         }
@@ -57,7 +59,20 @@ namespace DREngine.Game
             EnsureStarted();
             Update(dt);
         }
-
+        internal void RunPreUpdate(float dt)
+        {
+            AssertAlive();
+            // Start before first tick
+            EnsureStarted();
+            PreUpdate(dt);
+        }
+        internal void RunPostUpdate(float dt)
+        {
+            AssertAlive();
+            // Start before first tick
+            EnsureStarted();
+            PreUpdate(dt);
+        }
         internal virtual void RunOnDestroy()
         {
             AssertAlive();
@@ -136,6 +151,15 @@ namespace DREngine.Game
         /// </summary>
         /// <param name="dt"> delta time in seconds </param>
         public  virtual void Update(float dt)
+        {
+
+        }
+
+        public virtual void PreUpdate(float dt)
+        {
+
+        }
+        public virtual void PostUpdate(float dt)
         {
 
         }

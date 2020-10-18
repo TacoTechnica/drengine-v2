@@ -12,15 +12,11 @@ namespace DREngine.Game
     {
         #region Util variables
 
-        // TODO: Make this changable depending on the game.
-        private string WindowTitle = "DREngine Draft (Running No Game)";
-
         public ProjectData GameProjectData = null;
 
         #endregion
 
-
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestDeletion())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestSceneManager0())
         {
 
             this._graphics.SynchronizeWithVerticalRetrace = true;

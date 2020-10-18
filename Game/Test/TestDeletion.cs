@@ -63,7 +63,7 @@ namespace DREngine.Game
             if (Input.IsPressed(Keys.J))
             {
                 Debug.Log("KABOOM");
-                _game.SceneManager.UnloadScene();
+                _game.SceneManager.UnloadSceneAtEndOfFrame();
             }
         }
 

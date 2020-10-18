@@ -90,11 +90,26 @@ namespace DREngine.Game
 
             UpdateBegan.InvokeAll();
 
+            // TODO: Make this a bit more efficient I guess?
+            SceneManager.GameObjects.LoopThroughAll(
+                (obj) =>
+                {
+                    obj.RunPreUpdate(dt);
+                }
+            );
+
+            SceneManager.GameObjects.LoopThroughAll(
+                (obj) =>
+                {
+                    obj.RunUpdate(dt);
+                }
+            );
+
             // Update all update-able objects.
             SceneManager.GameObjects.LoopThroughAllAndDeleteQueued(
                 (obj) =>
                 {
-                    obj.RunUpdate(dt);
+                    obj.RunPostUpdate(dt);
                 },
                 (obj) =>
                 {
@@ -111,10 +126,19 @@ namespace DREngine.Game
 
         protected override void Draw(GameTime gameTime)
         {
+
             // Draw all render-able objects.
             SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
             {
+                obj.PreDraw(_graphics.GraphicsDevice);
+            });
+            SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
+            {
                 obj.Draw(_graphics.GraphicsDevice);
+            });
+            SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
+            {
+                obj.PostDraw(_graphics.GraphicsDevice);
             });
 
             // Draw
