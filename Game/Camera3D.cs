@@ -21,8 +21,8 @@ namespace DREngine.Game
     /// </summary>
     public class Camera3D : GameObject
     {
-        private Vector3 _target;
-        private Vector3 _position;
+        public Vector3 Position;
+        public Quaternion Rotation;
 
         // Camera projection matrix
         private Matrix _projectionMat = Matrix.Identity;
@@ -35,20 +35,16 @@ namespace DREngine.Game
         // For use in GamePlus
         private LinkedListNode<Camera3D> _camListReference = null;
 
-        // TODO: Remove test code?
-        private bool _orbit = true;
-
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;
 
-        public Camera3D(GamePlus game, Vector3 pos, Vector3 target) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation) : base(game)
         {
-            _position = pos;
-            _target = target;
-
+            Position = pos;
+            Rotation = rotation;
         }
 
-        public Camera3D(GamePlus game) : this(game, Vector3.Forward * 100, Vector3.Zero) { }
+        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity) { }
 
         public override void Start()
         {
@@ -58,46 +54,23 @@ namespace DREngine.Game
                 1f, 1000f
             );
 
-            _viewMat = Matrix.CreateLookAt(_position, _target, Vector3.Up);
-
-            _camListReference = _game.AddInternalCamera(this);
+            _camListReference = _game.SceneManager.Cameras.Add(this);
         }
 
         public override void Update(float dt)
         {
-            int inX = (Keyboard.GetState().IsKeyDown(Keys.Right) ? 1 :
-                0) - (Keyboard.GetState().IsKeyDown(Keys.Left) ? 1 : 0);
-            int inY = (Keyboard.GetState().IsKeyDown(Keys.Down) ? 1 :
-                0) - (Keyboard.GetState().IsKeyDown(Keys.Up) ? 1 : 0);
-            int inZ = (Keyboard.GetState().IsKeyDown(Keys.OemPlus) ? 1 : 0) -
-                      (Keyboard.GetState().IsKeyDown(Keys.OemMinus) ? 1 : 0);
+            // TODO: Use a custom matrix so we don't do this math every damn frame,
+            //     instead just using the rotation directly.
+            Vector3 target = Position + Math.RotateVector(Vector3.Forward, Rotation);
+            Vector3 up = Math.RotateVector(Vector3.Up, Rotation);
+            _viewMat = Matrix.CreateLookAt(Position, target, up);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                _orbit = !_orbit;
-            }
-
-            Vector3 moveInput = 30f * new Vector3(inX, inY, inZ);
-
-            _position += moveInput * dt;
-            _target += moveInput * dt;
-
-            // Rotate camera
-            if (_orbit)
-            {
-                // Rotate a bit around the origin
-                Matrix rotationMat = Matrix.CreateRotationY(MathHelper.ToRadians(60) * dt);
-                _position = Vector3.Transform(_position, rotationMat);
-            }
-
-            // Update matrices
-            _viewMat = Matrix.CreateLookAt(_position, _target, Vector3.Up);
         }
 
         public override void OnDestroy()
         {
             Debug.Log("Camera DESTROY!");
-            _game.RemoveInternalCamera(_camListReference);
+            _camListReference = _game.SceneManager.Cameras.RemoveImmediate(_camListReference);
         }
     }
 }
