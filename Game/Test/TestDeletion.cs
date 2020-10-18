@@ -31,12 +31,20 @@ namespace DREngine.Game
 
         public void Update(float deltaTime)
         {
-            // Test basic camera rotation.
+            // Test basic camera rotation & FOV stuff
+
             if (Input.IsPressing(Keys.R))
             {
                 Vector3 e = Math.ToEuler(_cam.Rotation);
                 e.Y += 90f * deltaTime;
                 _cam.Rotation = Math.FromEuler(e);
+            }
+            if (Input.IsPressing(Keys.W))
+            {
+                _cam.Fov += 10f * deltaTime;
+            } else if (Input.IsPressing(Keys.S))
+            {
+                _cam.Fov -= 10f * deltaTime;
             }
 
             // Test deletion

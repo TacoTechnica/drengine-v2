@@ -11,10 +11,6 @@ namespace DREngine.Game
 {
     /// <summary>
     /// TODO:
-    ///     - Use rotation direction instead of target
-    ///     - Add camera controls (set fov, position and rotation)
-    ///
-    ///
     ///     - Add a simple "layer" system where you can create cameras that render layers
     ///     - Whenever you add a GameObjectRender, it can have a layer. Thus it subscribes to be rendered
     ///     - by all of the cameras in those layers.
@@ -30,7 +26,20 @@ namespace DREngine.Game
         // Camera view matrix
         private Matrix _viewMat;
 
-        private float _fov = 90;
+        private bool _needToUpdateProjection = true;
+        private float _fov = 0;
+        public float Fov
+        {
+            get
+            {
+                return _fov;
+            }
+            set
+            {
+                if (value != _fov) _needToUpdateProjection = true;
+                _fov = value;
+            }
+        }
 
         // For use in GamePlus
         private LinkedListNode<Camera3D> _camListReference = null;
@@ -38,27 +47,31 @@ namespace DREngine.Game
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;
 
-        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov) : base(game)
         {
             Position = pos;
             Rotation = rotation;
+            Fov = fov;
         }
 
-        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity) { }
+        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity, 90) { }
 
         public override void Start()
         {
-            _projectionMat = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(_fov),
-                _game.GraphicsDevice.Viewport.AspectRatio,
-                1f, 1000f
-            );
-
             _camListReference = _game.SceneManager.Cameras.Add(this);
         }
 
         public override void Update(float dt)
         {
+            if (_needToUpdateProjection)
+            {
+                _projectionMat = Matrix.CreatePerspectiveFieldOfView(
+                    MathHelper.ToRadians(Fov),
+                    _game.GraphicsDevice.Viewport.AspectRatio,
+                    1f, 1000f
+                );
+                _needToUpdateProjection = false;
+            }
             // TODO: Use a custom matrix so we don't do this math every damn frame,
             //     instead just using the rotation directly.
             Vector3 target = Position + Math.RotateVector(Vector3.Forward, Rotation);
