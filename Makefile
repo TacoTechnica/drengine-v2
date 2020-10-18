@@ -1,6 +1,6 @@
 # This is here to make command line Linux development easier
 
-EXECUTABLE="bin/Debug/netcoreapp3.1/DR\ Engine\ v2"
+EXECUTABLE="bin/Debug/netcoreapp3.1/DREngine"
 
 
 all: $(EXECUTABLE)
