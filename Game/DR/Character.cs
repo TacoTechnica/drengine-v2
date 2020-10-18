@@ -10,10 +10,6 @@ namespace DREngine.Game.DR
         {
         }
 
-        public Character(GamePlus game) : base(game)
-        {
-        }
-
         public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
         {
 

@@ -8,6 +8,7 @@ namespace DREngine.Game
 
         public Vector3 Position = Vector3.Zero;
         public Quaternion Rotation = Quaternion.Identity;
+        public Vector3 Scale = Vector3.One;
 
         private Matrix _cachedWorldMat = Matrix.Identity;
 
@@ -16,12 +17,11 @@ namespace DREngine.Game
             this.Position = position;
         }
 
-        public GameObjectRender3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity) { }
-
         public override void PreDraw(GraphicsDevice g)
         {
             Matrix rotMat = Matrix.CreateFromQuaternion(Rotation);
-            _cachedWorldMat = rotMat * Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
+            Matrix scaleMat = Matrix.CreateScale(Scale);
+            _cachedWorldMat = scaleMat * rotMat * Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
             _game.SceneManager.Cameras.LoopThroughAll((cam) =>
             {
                 PreDraw(cam, g, _cachedWorldMat);

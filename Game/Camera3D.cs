@@ -47,7 +47,7 @@ namespace DREngine.Game
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;
 
-        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos=default(Vector3), Quaternion rotation=default(Quaternion), float fov = 90) : base(game)
         {
             Position = pos;
             Rotation = rotation;

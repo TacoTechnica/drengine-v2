@@ -55,7 +55,6 @@ namespace DREngine.Game
         private BasicEffect _effect;
 
         public SimpleMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
-        public SimpleMeshRenderer(GamePlus game) : base(game) { }
 
         public override void Start()
         {
@@ -81,7 +80,7 @@ namespace DREngine.Game
             foreach (EffectPass pass in _effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                g.DrawPrimitives(PrimitiveType, 0, Vertices.Length);
+                g.DrawPrimitives(PrimitiveType, 0, Vertices.Length / 3);
             }
         }
 

@@ -16,7 +16,7 @@
         protected string _inputPath;
         public GamePath(string path)
         {
-            _inputPath = path;
+            _inputPath = path.Replace('\\', '/');
         }
 
         // Makes it so that we can use gamepaths instead of strings. Very handy.

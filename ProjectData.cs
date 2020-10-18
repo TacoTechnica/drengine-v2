@@ -38,6 +38,7 @@ namespace DREngine
 
         private const string CommentHeader = "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
+        // TODO: Use GamePath instead of a string. That will eliminate the need to pre-process it.
         public static void ReadFromFile(string fpath, out ProjectData data)
         {
             try

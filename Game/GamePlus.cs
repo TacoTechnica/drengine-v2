@@ -36,8 +36,10 @@ namespace DREngine.Game
         public SceneManager SceneManager { get; private set; }
 
         /// Events
-        public EventManager UpdateBegan { get; private set; }= new EventManager();
-        public EventManager UpdateFinished { get; private set; }= new EventManager();
+        public EventManager UpdateBegan { get; private set; } = new EventManager();
+        public EventManager UpdateFinished { get; private set; } = new EventManager();
+
+        public EventManager WhenSafeToLoad { get; private set; } = new EventManager();
 
         #endregion
 
@@ -59,6 +61,7 @@ namespace DREngine.Game
             _debugTimer.AutoReset = true;
 
             SceneManager = new SceneManager(this);
+
         }
 
 
@@ -78,6 +81,8 @@ namespace DREngine.Game
                 _lastDebugTime = DateTime.Now;
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
             }
+
+            WhenSafeToLoad.InvokeAll();
         }
 
         protected override void Update(GameTime gameTime)
@@ -121,6 +126,7 @@ namespace DREngine.Game
             base.Update(gameTime);
             _starter?.Update(dt);
 
+            WhenSafeToLoad.InvokeAll();
             UpdateFinished.InvokeAll();
         }
 

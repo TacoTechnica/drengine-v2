@@ -28,6 +28,5 @@ namespace DREngine.Game
         }
 
         public TestTriangleObject(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
-        public TestTriangleObject(GamePlus game) : base(game) { }
     }
 }
