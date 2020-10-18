@@ -20,7 +20,7 @@ namespace DREngine.Game
         #endregion
 
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestGame())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestDeletion())
         {
 
             this._graphics.SynchronizeWithVerticalRetrace = true;

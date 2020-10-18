@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
-using DREngine.Game;
+using DREngine.Util;
+using Gdk;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 
-namespace DREngine
+namespace DREngine.Game
 {
 
     /// <summary>
@@ -16,7 +17,7 @@ namespace DREngine
     /// </summary>
     public class GamePlus : Microsoft.Xna.Framework.Game
     {
-#region Util variables
+        #region Util variables
 
         protected GraphicsDeviceManager _graphics;
 
@@ -32,9 +33,13 @@ namespace DREngine
 
         public string WindowTitle;
 
-        private LinkedList<Camera3D> _cameras = new LinkedList<Camera3D>();
+        public SceneManager SceneManager { get; private set; }
 
-#endregion
+        /// Events
+        public EventManager UpdateBegan { get; private set; }= new EventManager();
+        public EventManager UpdateFinished { get; private set; }= new EventManager();
+
+        #endregion
 
 
         public GamePlus(string windowTitle = "Untitled Game", bool debugTitle = true, IGameStarter gameStarter = null)
@@ -43,39 +48,21 @@ namespace DREngine
             _starter = gameStarter;
             _debugTitle = debugTitle;
 
+            // MonoGame config
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             this.Window.Title = windowTitle;
 
+            // Debug config
             _debugTimer.Interval = 1000f;
             _debugTimer.AutoReset = true;
+
+            SceneManager = new SceneManager(this);
         }
 
-#region Public Access
 
-        // TODO: Get cameras by layer.
-        public IEnumerable<Camera3D> GetCameras()
-        {
-            return _cameras;
-        }
-
-        /// Camera access. CAMERA USE ONLY
-        public LinkedListNode<Camera3D> AddInternalCamera(Camera3D camera)
-        {
-            return _cameras.AddLast(camera);
-        }
-        public void RemoveInternalCamera(LinkedListNode<Camera3D> camnode)
-        {
-            _cameras.Remove(camnode);
-        }
-
-#endregion
-
-
-
-
-#region Universal Game Loop
+        #region Universal Game Loop
 
         protected override void Initialize()
         {
@@ -93,28 +80,51 @@ namespace DREngine
             }
         }
 
-
         protected override void Update(GameTime gameTime)
         {
             if (_debugTitle) ++_debugFrameCounter;
 
+            Input.UpdateState();
+
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            UpdateBegan.InvokeAll();
+
+            // Update all update-able objects.
+            SceneManager.GameObjects.LoopThroughAllAndDeleteQueued(
+                (obj) =>
+                {
+                    obj.RunUpdate(dt);
+                },
+                (obj) =>
+                {
+                    obj.RunOnDestroy();
+                }
+            );
 
             // Update
             base.Update(gameTime);
             _starter?.Update(dt);
+
+            UpdateFinished.InvokeAll();
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            // Draw all render-able objects.
+            SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
+            {
+                obj.Draw(_graphics.GraphicsDevice);
+            });
+
             // Draw
             base.Draw(gameTime);
             _starter?.Draw();
         }
 
-#endregion
+        #endregion
 
-#region Debug Util
+        #region Debug Util
 
         public void ShowMessagePopup(string message)
         {
@@ -133,12 +143,15 @@ namespace DREngine
             Process proc = Process.GetCurrentProcess();
             _currentMemoryBytes = proc.PrivateMemorySize64;
 
+            int objs = SceneManager.GameObjects.Count;
+            int rends = SceneManager.GameRenderObjects.Count;
+
             // Set window title
-            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB";
+            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB | {objs} Objects, {rends} Renderers";
 
             _lastDebugTime = DateTime.Now;
         }
 
-#endregion
+        #endregion
     }
 }

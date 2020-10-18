@@ -1,76 +1,44 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
-    public abstract class GameObjectRender : DrawableGameComponent, IGameObject
+    public abstract class GameObjectRender : GameObject, IGameObject
     {
-        protected GamePlus _game;
-        private bool _gottaStart = true;
-        public GameObjectRender(GamePlus game) : base(game)
+
+        private LinkedListNode<GameObjectRender> _renderAddedNode = null;
+
+        protected GameObjectRender(GamePlus game) : base(game)
         {
-            _game = game;
-            game.Components.Add(this);
-            _gottaStart = true;
-            Awake();
+            _renderAddedNode = game.SceneManager.GameRenderObjects.Add(this);
         }
 
-        ~GameObjectRender()
+        #region Internal Control
+
+        internal void DoDraw(GraphicsDevice g)
         {
-            _game.Components.Remove(this);
-        }
-
-
-#region GameComponent Hookups
-
-        public override void Update(GameTime gameTime)
-        {
-            // Start before first tick
-            if (_gottaStart)
-            {
-                Start();
-                _gottaStart = false;
-            }
-            Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            // Start before first draw
-            if (_gottaStart)
-            {
-                Start();
-                _gottaStart = false;
-            }
-            Draw(GraphicsDevice);
+            EnsureStarted();
+            Draw(g);
         }
 
         #endregion
 
-#region Interface
-        public virtual void Awake()
-        {
-
-        }
-
-        public  virtual void Start()
-        {
-
-        }
+        #region Util
 
         /// <summary>
-        ///
+        ///     When we are deleted, also delete ourselves off of the
+        ///     render thing.
         /// </summary>
-        /// <param name="dt"> delta time in seconds </param>
-        public  virtual void Update(float dt)
+        internal override void RunOnDestroy()
         {
-
+            _renderAddedNode = _game.SceneManager.GameRenderObjects.RemoveImmediate(_renderAddedNode);
+            base.RunOnDestroy();
         }
 
-        public virtual void OnDestroy()
-        {
+        #endregion
 
-        }
+        #region Object Functions
 
         /// <summary>
         /// Draws. Abstract cause we don't want to
@@ -82,6 +50,7 @@ namespace DREngine.Game
         public abstract void Draw(GraphicsDevice g);
 
 
-#endregion
+        #endregion
+
     }
 }

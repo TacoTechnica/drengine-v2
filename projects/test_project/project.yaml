@@ -1,0 +1,25 @@
+﻿# This file is auto generated. IT WILL BE OVERWRITTEN! Expect any of its changes to be lost.
+
+name: DR Engine v2 Test Project
+rooms:
+  room1: Rooms/room1.room
+  room2: Rooms/room2.room
+characters:
+  Nagito: Characters/nagito.chr
+  Obama: Characters/obama.chr
+sprites:
+  Nagito_standing: Sprites/Nagito/standing.png
+  Nagito_happy: Sprites/Nagito/happy.png
+  Nagito_HELLOHAJIME: Sprites/Nagito/HELLOHAJIME.png
+  Obama_standing: Sprites/Obama/standing.png
+sfx:
+  Crash: SFX/crash.wav
+va:
+  Nagito_hello: VA/Nagito/Hello.wav
+bgm:
+  Tasteful_Dread: BGM/Beautiful Dead.ogg
+dialogue:
+  Dialogue0: Dialogue/TestDialogue.dialogue
+  Trial0: Dialogue/Trial0.dialogue
+
+# etc. etc...
