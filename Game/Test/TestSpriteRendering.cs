@@ -16,7 +16,7 @@ namespace DREngine.Game
         public void Initialize(GamePlus game)
         {
             _game = game;
-            Sprite sprite = new Sprite(_game, new GamePath("G:/Documents/Random Programming/drengine-v2/projects/test_project/Sprites/Obama.png"));
+            Sprite sprite = new Sprite(_game, new EnginePath("projects/test_project/Sprites/Obama.png"));
             _cam = new Camera3D(_game, Vector3.Backward * 10, Math.FromEuler(0, 0, 0));
             _sr = new SpriteRenderer(_game, sprite, Vector3.Zero, Quaternion.Identity);
             _spriteBatch = new SpriteBatch(game.GraphicsDevice);
