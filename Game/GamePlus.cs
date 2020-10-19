@@ -31,6 +31,10 @@ namespace DREngine.Game
         private Timer _debugTimer = new Timer();
         private DateTime _lastDebugTime;
 
+        #endregion
+
+        #region Public Access
+
         public string WindowTitle;
 
         public SceneManager SceneManager { get; private set; }
@@ -41,8 +45,13 @@ namespace DREngine.Game
 
         public EventManager WhenSafeToLoad { get; private set; } = new EventManager();
 
-        #endregion
+        public float Time { get; private set; } = 0;
+        public float TimeScale = 1f;
+        public float UnscaledTime { get; private set; } = 0;
+        public float DeltaTime { get; private set; } = 0;
+        public float UnscaledDeltaTime { get; private set; } = 0;
 
+        #endregion
 
         public GamePlus(string windowTitle = "Untitled Game", bool debugTitle = true, IGameStarter gameStarter = null)
         {
@@ -91,7 +100,11 @@ namespace DREngine.Game
 
             Input.UpdateState();
 
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            UnscaledDeltaTime = DeltaTime;
+            DeltaTime *= TimeScale;
+            UnscaledTime += UnscaledDeltaTime;
+            Time += DeltaTime;
 
             UpdateBegan.InvokeAll();
 
@@ -99,14 +112,14 @@ namespace DREngine.Game
             SceneManager.GameObjects.LoopThroughAll(
                 (obj) =>
                 {
-                    obj.RunPreUpdate(dt);
+                    obj.RunPreUpdate(DeltaTime);
                 }
             );
 
             SceneManager.GameObjects.LoopThroughAll(
                 (obj) =>
                 {
-                    obj.RunUpdate(dt);
+                    obj.RunUpdate(DeltaTime);
                 }
             );
 
@@ -114,7 +127,7 @@ namespace DREngine.Game
             SceneManager.GameObjects.LoopThroughAllAndDeleteQueued(
                 (obj) =>
                 {
-                    obj.RunPostUpdate(dt);
+                    obj.RunPostUpdate(DeltaTime);
                 },
                 (obj) =>
                 {
@@ -124,7 +137,7 @@ namespace DREngine.Game
 
             // Update
             base.Update(gameTime);
-            _starter?.Update(dt);
+            _starter?.Update(DeltaTime);
 
             WhenSafeToLoad.InvokeAll();
             UpdateFinished.InvokeAll();

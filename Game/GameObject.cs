@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +19,8 @@ namespace DREngine.Game
         private HashSet<GameObject> _parents = new HashSet<GameObject>();
 
         private bool _alive = false;
+
+        private List<Coroutine> _routines = new List<Coroutine>();
 
         public GameObject(GamePlus game)
         {
@@ -58,6 +61,7 @@ namespace DREngine.Game
             // Start before first tick
             EnsureStarted();
             Update(dt);
+            UpdateCoroutines();
         }
         internal void RunPreUpdate(float dt)
         {
@@ -106,6 +110,46 @@ namespace DREngine.Game
             AssertAlive();
             if (!_alive) return;
             _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, (self) => {self.RunOnDestroy();});
+        }
+
+        #endregion
+
+        #region Coroutine
+
+        public Coroutine StartCoroutine(IEnumerator enumerator)
+        {
+            Coroutine c = new Coroutine(enumerator);
+            _routines.Add(c);
+            return c;
+        }
+
+        public void StopCoroutine(Coroutine c)
+        {
+            RemoveCoroutine(c);
+        }
+
+        public void StopAllCoroutines()
+        {
+            _routines.Clear();
+        }
+
+        internal void RemoveCoroutine(Coroutine c)
+        {
+            _routines.Remove(c);
+        }
+
+        // TODO: Pause & Resume coroutine for the extra spice
+
+        private void UpdateCoroutines()
+        {
+            for (int i = _routines.Count - 1; i >= 0; --i)
+            {
+                if (!_routines[i].UpdateNext())
+                {
+                    _routines.RemoveAt(i);
+                }
+            }
+            //_routines.RemoveAll(c => !c.UpdateNext());
         }
 
         #endregion

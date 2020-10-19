@@ -16,7 +16,7 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestSpriteRendering())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestCoroutine())
         {
 
             this._graphics.SynchronizeWithVerticalRetrace = true;
@@ -71,7 +71,9 @@ namespace DREngine.Game
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            // Ah classic
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
             base.Draw(gameTime);
         }
 

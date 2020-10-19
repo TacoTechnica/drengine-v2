@@ -42,6 +42,5 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="projects\test_project\Sprites" />
-      <Folder Include="R3D" />
     </ItemGroup>
 </Project>

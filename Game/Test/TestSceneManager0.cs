@@ -50,7 +50,6 @@ namespace DREngine.Game
                 Debug.Log("Going to scene 1");
                 _game.SceneManager.LoadScene("scene1");
             }
-
         }
 
         public void Draw()
