@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
@@ -21,6 +19,7 @@ namespace DREngine.Game
         private bool _alive = false;
 
         private List<Coroutine> _routines = new List<Coroutine>();
+        private List<ICollider> _colliders = new List<ICollider>();
 
         public GameObject(GamePlus game)
         {
@@ -29,11 +28,6 @@ namespace DREngine.Game
             _gottaStart = true;
             _alive = true;
             Awake();
-        }
-
-        ~GameObject()
-        {
-            // TODO: Destroy immediate?
         }
 
         #region Public Control
@@ -54,6 +48,24 @@ namespace DREngine.Game
             obj._parents.UnionWith(_parents);
             obj._parents.Add(this);
             _childObjects.Add(obj);
+        }
+
+        public void AddCollider(ICollider c)
+        {
+            AssertAlive();
+            _colliders.Add(c);
+            // If we're already running, initialize immediately.
+            if (!_gottaStart)
+            {
+                _game.CollisionManager.RegisterCollider(c);
+            }
+        }
+
+        internal void RunStart()
+        {
+            Start();
+            // We might create colliders in start so register them now.
+            _colliders.ForEach(c => _game.CollisionManager.RegisterCollider(c));
         }
         internal void RunUpdate(float dt)
         {
@@ -92,6 +104,10 @@ namespace DREngine.Game
 
             // Kinda redundant but good to clean up.
             _parents.Clear();
+
+            // Deregister colliders
+            _colliders.ForEach(c => _game.CollisionManager.DeregisterCollider(c));
+            _colliders.Clear();
 
             OnDestroy();
 
@@ -161,7 +177,7 @@ namespace DREngine.Game
             AssertAlive();
             if (_gottaStart)
             {
-                Start();
+                RunStart();
                 _gottaStart = false;
             }
         }

@@ -11,16 +11,16 @@
     ///         But if we implement this class and override ToString,
     ///         it will work cleanly.
     /// </summary>
-    public class GamePath
+    public class Path
     {
         protected string _inputPath;
-        public GamePath(string path)
+        public Path(string path)
         {
             _inputPath = path.Replace('\\', '/');
         }
 
         // Makes it so that we can use gamepaths instead of strings. Very handy.
-        public static implicit operator string(GamePath p)
+        public static implicit operator string(Path p)
         {
             return p.ToString();
         }

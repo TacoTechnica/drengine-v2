@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
-    public class SimpleMeshRenderer<VType> : GameObjectRender3D where VType : struct, IVertexType
+    public class SimpleMeshRenderer<VType> : BaseMeshRenderer<VType> where VType : struct, IVertexType
     {
 
         #region Public access to our effect
@@ -30,28 +30,10 @@ namespace DREngine.Game
             set => _effect.Texture = value;
         }
 
+        public bool CullingEnabled = true;
+
         #endregion
 
-        private VType[] _vertices = new VType[0];
-        public VType[] Vertices
-        {
-            get => _vertices;
-            set
-            {
-                _vertices = value;
-                if (_vertexBuffer == null)
-                {
-                    _vertexBuffer = new VertexBuffer(_game.GraphicsDevice, typeof(VType),
-                        Vertices.Length, BufferUsage.WriteOnly);
-                }
-                _vertexBuffer.SetData<VType>(Vertices);
-            }
-        }
-
-        public PrimitiveType PrimitiveType = PrimitiveType.TriangleList;
-
-        private VertexBuffer _vertexBuffer = null;
-        // Shader abstraction
         private BasicEffect _effect;
 
         public SimpleMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
@@ -65,23 +47,15 @@ namespace DREngine.Game
             _effect.LightingEnabled = false;
         }
 
-        public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        protected override Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
         {
-            if (Vertices.Length == 0) return;
-
             _effect.Projection = cam.ProjectionMatrix;
             _effect.View = cam.ViewMatrix;
             _effect.World = worldMat;
 
-            // Render verts
-            g.SetVertexBuffer(_vertexBuffer);
+            g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
 
-            // Go through all passes, apply and draw the triangle for each pass.
-            foreach (EffectPass pass in _effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                g.DrawPrimitives(PrimitiveType, 0, Vertices.Length / 3);
-            }
+            return _effect;
         }
 
     }

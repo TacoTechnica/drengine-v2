@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
-    public class SpriteRenderer : SimpleMeshRenderer<VertexPositionColorTexture>
+    public class SpriteRenderer : SimpleMeshAlphaTestRenderer<VertexPositionColorTexture>
     {
         private Sprite _sprite;
         private Color _blend = Color.White;
@@ -28,7 +28,6 @@ namespace DREngine.Game
                 UpdateVertices();
             }
         }
-
 
         public SpriteRenderer(GamePlus game, Sprite sprite, Vector3 position=default(Vector3), Quaternion rotation = default(Quaternion)) : base(game, position, rotation)
         {
@@ -75,7 +74,6 @@ namespace DREngine.Game
         {
             g.BlendState = BlendState.AlphaBlend;
             Texture = _sprite.Texture;
-            TextureEnabled = true;
             base.Draw(cam, g, worldMat);
         }
     }

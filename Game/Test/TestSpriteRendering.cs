@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace DREngine.Game
 {
-    public class TestSpriteRendering : IGameStarter
+    public class TestSpriteRendering : IGameRunner
     {
         private GamePlus _game;
 
@@ -19,29 +19,62 @@ namespace DREngine.Game
             Sprite sprite = new Sprite(_game, new EnginePath("projects/test_project/Sprites/Obama.png"));
             _cam = new Camera3D(_game, Vector3.Backward * 10, Math.FromEuler(0, 0, 0));
             _sr = new SpriteRenderer(_game, sprite, Vector3.Zero, Quaternion.Identity);
-            _spriteBatch = new SpriteBatch(game.GraphicsDevice);
+            //_spriteBatch = new SpriteBatch(game.GraphicsDevice);
         }
 
         public void Update(float deltaTime)
         {
+
             // Rotate sprite while we hold R
-            if (Input.IsPressing(Keys.F))
+            if (Input.KeyPressed(Keys.F))
             {
-                _sr.Rotation = Math.FromEuler(Math.ToEuler(_sr.Rotation) + Vector3.Up * 90 * deltaTime);
-            }
-            // Rotate camera
-            if (Input.IsPressing(Keys.R))
-            {
-                Vector3 e = Math.ToEuler(_cam.Rotation);
-                e.Y += 90f * deltaTime;
-                _cam.Rotation = Math.FromEuler(e);
+                Debug.Log($"SCREEN POS: {_cam.WorldCoordToScreenCoord(_sr.Position)}, MOUSE: {Input.GetMousePosition()}");
             }
 
-            if (Input.IsPressing(Keys.Right))
+            Vector3 r = Math.ToEuler(_sr.Rotation);
+            if (Input.KeyPressing(Keys.Right))
+            {
+                r.Y += 120 * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.Left))
+            {
+                r.Y -= 120 * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.Up))
+            {
+                r.X += 120 * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.Down))
+            {
+                r.X -= 120 * deltaTime;
+            }
+            _sr.Rotation = Math.FromEuler(r);
+
+            Vector3 e = Math.ToEuler(_cam.Rotation);
+            // Rotate camera
+            if (Input.KeyPressing(Keys.A))
+            {
+                e.Y += 90f * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.D))
+            {
+                e.Y -= 90f * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.W))
+            {
+                e.X += 90f * deltaTime;
+            }
+            if (Input.KeyPressing(Keys.S))
+            {
+                e.X -= 90f * deltaTime;
+            }
+            _cam.Rotation = Math.FromEuler(e);
+
+            if (Input.KeyPressing(Keys.Right))
             {
                 _sr.Scale.X += 1f * deltaTime;
             }
-            if (Input.IsPressing(Keys.Left))
+            if (Input.KeyPressing(Keys.Left))
             {
                 _sr.Scale.X -= 1f * deltaTime;
             }

@@ -1,6 +1,6 @@
 ﻿namespace DREngine.Game
 {
-    public interface IGameStarter
+    public interface IGameRunner
     {
         public void Initialize(GamePlus game);
         public void Update(float deltaTime);

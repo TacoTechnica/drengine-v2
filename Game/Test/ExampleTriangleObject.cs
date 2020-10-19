@@ -3,9 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
-    public class TestTriangleObject : SimpleMeshRenderer<VertexPositionColor>
+    public class ExampleTriangleObject : SimpleMeshRenderer<VertexPositionColor>
     {
-
         public override void Start()
         {
             base.Start();
@@ -27,6 +26,6 @@ namespace DREngine.Game
             base.Draw(cam, g, worldMat);
         }
 
-        public TestTriangleObject(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
+        public ExampleTriangleObject(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
     }
 }

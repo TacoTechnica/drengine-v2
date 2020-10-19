@@ -16,7 +16,7 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestCoroutine())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestMouseCollider())
         {
 
             this._graphics.SynchronizeWithVerticalRetrace = true;
@@ -65,6 +65,12 @@ namespace DREngine.Game
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            if (Input.KeyPressed(Keys.F1))
+            {
+                Debug.LogDebug("Toggling Debug Collider Drawing");
+                DebugDrawColliders = !DebugDrawColliders;
+            }
+
             // Update
             base.Update(gameTime);
         }
@@ -72,8 +78,8 @@ namespace DREngine.Game
         protected override void Draw(GameTime gameTime)
         {
             // Ah classic
-            //GraphicsDevice.Clear(Color.CornflowerBlue);
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            //GraphicsDevice.Clear(Color.Black);
             base.Draw(gameTime);
         }
 

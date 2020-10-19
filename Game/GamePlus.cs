@@ -6,6 +6,7 @@ using System.Timers;
 using DREngine.Util;
 using Gdk;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
@@ -21,23 +22,31 @@ namespace DREngine.Game
 
         protected GraphicsDeviceManager _graphics;
 
-        private IGameStarter _starter = null;
+        private IGameRunner _runner = null;
 
         ///  Debug stuff
         private bool _debugTitle;
         private float _currentFPS = 0;
         private long _currentMemoryBytes = 0;
         private long _debugFrameCounter = 0;
+        private float _fpsAverageAccum = 0;
         private Timer _debugTimer = new Timer();
         private DateTime _lastDebugTime;
 
+        public float DebugMaxFPS = 60;
+
+        internal BasicEffect DebugEffect;
+        public bool DebugDrawColliders = false;
+
         #endregion
 
-        #region Public Access
+        #region Public Access and Handlers
 
         public string WindowTitle;
 
         public SceneManager SceneManager { get; private set; }
+
+        public CollisionManager CollisionManager { get; private set; }
 
         /// Events
         public EventManager UpdateBegan { get; private set; } = new EventManager();
@@ -53,10 +62,10 @@ namespace DREngine.Game
 
         #endregion
 
-        public GamePlus(string windowTitle = "Untitled Game", bool debugTitle = true, IGameStarter gameStarter = null)
+        public GamePlus(string windowTitle = "Untitled Game", bool debugTitle = true, IGameRunner gameRunner = null)
         {
             WindowTitle = windowTitle;
-            _starter = gameStarter;
+            _runner = gameRunner;
             _debugTitle = debugTitle;
 
             // MonoGame config
@@ -70,7 +79,7 @@ namespace DREngine.Game
             _debugTimer.AutoReset = true;
 
             SceneManager = new SceneManager(this);
-
+            CollisionManager = new CollisionManager();
         }
 
 
@@ -81,7 +90,7 @@ namespace DREngine.Game
             // Init
             base.Initialize();
 
-            _starter?.Initialize(this);
+            _runner?.Initialize(this);
 
             // Start a debug timer for debug things.
             if (_debugTitle)
@@ -90,13 +99,13 @@ namespace DREngine.Game
                 _lastDebugTime = DateTime.Now;
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
             }
+            DebugEffect = new BasicEffect(GraphicsDevice);
 
             WhenSafeToLoad.InvokeAll();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (_debugTitle) ++_debugFrameCounter;
 
             Input.UpdateState();
 
@@ -105,6 +114,15 @@ namespace DREngine.Game
             DeltaTime *= TimeScale;
             UnscaledTime += UnscaledDeltaTime;
             Time += DeltaTime;
+
+            if (_debugTitle)
+            {
+                if (UnscaledDeltaTime != 0)
+                {
+                    ++_debugFrameCounter;
+                    _fpsAverageAccum += 1f / UnscaledDeltaTime;
+                }
+            }
 
             UpdateBegan.InvokeAll();
 
@@ -137,7 +155,7 @@ namespace DREngine.Game
 
             // Update
             base.Update(gameTime);
-            _starter?.Update(DeltaTime);
+            _runner?.Update(DeltaTime);
 
             WhenSafeToLoad.InvokeAll();
             UpdateFinished.InvokeAll();
@@ -162,7 +180,7 @@ namespace DREngine.Game
 
             // Draw
             base.Draw(gameTime);
-            _starter?.Draw();
+            _runner?.Draw();
         }
 
         #endregion
@@ -177,9 +195,12 @@ namespace DREngine.Game
         private void DebugTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             // Compute current FPS
-            float second_difference = (float) DateTime.Now.Subtract(_lastDebugTime).TotalSeconds;
-            if (second_difference == 0) return;
-            _currentFPS = (_debugFrameCounter / second_difference);
+            //float second_difference = (float) DateTime.Now.Subtract(_lastDebugTime).TotalSeconds;
+            //if (second_difference == 0) return;
+            //_currentFPS = (_debugFrameCounter / second_difference);
+            if (_debugFrameCounter == 0) return;
+            _currentFPS = MathF.Min(_fpsAverageAccum / _debugFrameCounter, DebugMaxFPS);
+            _fpsAverageAccum = 0;
             _debugFrameCounter = 0;
 
             // Get current memory usage.

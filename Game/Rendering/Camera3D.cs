@@ -1,11 +1,6 @@
 ﻿using System.Collections.Generic;
-using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Color = Microsoft.Xna.Framework.Color;
-using Keyboard = Microsoft.Xna.Framework.Input.Keyboard;
-using Viewport = Gtk.Viewport;
 
 namespace DREngine.Game
 {
@@ -26,8 +21,10 @@ namespace DREngine.Game
         // Camera view matrix
         private Matrix _viewMat;
 
-        private bool _needToUpdateProjection = true;
         private float _fov = 0;
+
+        private bool _needToUpdateProjection = true;
+
         public float Fov
         {
             get
@@ -47,7 +44,7 @@ namespace DREngine.Game
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;
 
-        public Camera3D(GamePlus game, Vector3 pos=default(Vector3), Quaternion rotation=default(Quaternion), float fov = 90) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov=90f) : base(game)
         {
             Position = pos;
             Rotation = rotation;
@@ -57,7 +54,27 @@ namespace DREngine.Game
             _camListReference = _game.SceneManager.Cameras.Add(this);
         }
 
-        public Camera3D(GamePlus game) : this(game, Vector3.Zero, Quaternion.Identity) { }
+        public Camera3D(GamePlus game, Vector3 pos = default(Vector3)) : this(game, pos, Math.FromEuler(0,0,0), 90f) { }
+
+        public Vector2 WorldCoordToScreenCoord(Vector3 worldCoord)
+        {
+            Vector3 screen =
+                _game.GraphicsDevice.Viewport.Project(worldCoord, _projectionMat, _viewMat, Matrix.Identity);
+            return new Vector2(screen.X, screen.Y);
+        }
+
+        public Vector3 ScreenCoordToWorldCoord(Vector2 screenCord, float distanceFromCamera)
+        {
+            Vector3 screenPos = new Vector3(screenCord.X, screenCord.Y, distanceFromCamera);
+            return _game.GraphicsDevice.Viewport.Unproject(screenPos, _projectionMat, _viewMat, Matrix.Identity);
+        }
+
+        public Ray GetScreenRay(Vector2 screenPos)
+        {
+            Vector3 delta = (ScreenCoordToWorldCoord(screenPos, 1) - Position);
+            delta.Normalize();
+            return new Ray(Position, delta);
+        }
 
         public override void Start()
         {
@@ -96,7 +113,11 @@ namespace DREngine.Game
 
         public override void Draw(GraphicsDevice g)
         {
-            // NOTE: We are put here so that we can call start immediately.
+            // If we're in debug mode, render colliders from this camera.
+            if (_game.DebugDrawColliders)
+            {
+                _game.CollisionManager.DrawDebugColliders(_game, this);
+            }
         }
     }
 }

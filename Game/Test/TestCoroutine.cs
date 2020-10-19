@@ -6,7 +6,7 @@ using YamlDotNet.Core.Tokens;
 
 namespace DREngine.Game
 {
-    public class TestCoroutine : IGameStarter
+    public class TestCoroutine : IGameRunner
     {
         private GamePlus _game;
 
@@ -18,7 +18,7 @@ namespace DREngine.Game
             _game = game;
             new Camera3D(game, Vector3.Backward * 100, Math.FromEuler(0, 0, 0));
 
-            _testObj = new TestTriangleObject(_game, Vector3.Zero, Quaternion.Identity);
+            _testObj = new ExampleTriangleObject(_game, Vector3.Zero, Quaternion.Identity);
 
             IEnumerator test = Wtf0();
             while (test.MoveNext())
@@ -44,19 +44,24 @@ namespace DREngine.Game
             yield return null;
             Debug.Log("INNER END");
         }
-        
+
         public void Update(float deltaTime)
         {
-            if (Input.IsPressed(Keys.Space))
+            if (Input.KeyPressed(Keys.Space))
             {
                 _testObj.StopAllCoroutines();
                 _testObj.StartCoroutine(TestRoutine());
             }
 
-            if (Input.IsPressed(Keys.G))
+            if (Input.KeyPressed(Keys.G))
             {
                 if (_spinRoutine != null) _testObj.StopCoroutine(_spinRoutine);
                 _spinRoutine = _testObj.StartCoroutine(Spin());
+            }
+
+            if (Input.KeyPressed(Keys.S))
+            {
+                _testObj.StartCoroutine(StressTest());
             }
         }
 
@@ -64,10 +69,9 @@ namespace DREngine.Game
         {
             Debug.Log("STARTED ROUTINE");
             Debug.Log("1...");
-            yield return Coroutine.WaitForSeconds(_game, 2f);
+            yield return new WaitForSeconds(_game, 1);//Coroutine.WaitForSeconds(_game, 1f);
             Debug.Log("2...");
-            yield return Coroutine.WaitForSeconds(_game, 2f);
-            //yield return new WaitForSeconds(_game, 2f);
+            yield return new WaitForSeconds(_game, 1);;
             Debug.Log("3!");
         }
 
@@ -79,13 +83,22 @@ namespace DREngine.Game
                 Vector3 e = Math.ToEuler(_testObj.Rotation);
                 e.Z += 45f;
                 _testObj.Rotation = Math.FromEuler(e);
-                yield return Coroutine.WaitUntilCondition(_game, () => Input.IsPressed(Keys.W));
+                yield return new WaitUntilCondition(_game, () => Input.KeyPressed(Keys.W));
+            }
+        }
+
+        private IEnumerator StressTest()
+        {
+            Debug.Log("RUNNING STRESS TEST to check for memory.");
+            while (true)
+            {
+                yield return new WaitUntilCondition(_game, () => true);
             }
         }
 
         public void Draw()
         {
-            
+
         }
     }
 }
