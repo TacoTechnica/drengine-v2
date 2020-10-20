@@ -44,6 +44,8 @@ namespace DREngine.Game
 
         public string WindowTitle;
 
+        public SpriteBatch SpriteBatch { get; private set; }
+
         public SceneManager SceneManager { get; private set; }
 
         public CollisionManager CollisionManager { get; private set; }
@@ -89,6 +91,8 @@ namespace DREngine.Game
         {
             // Init
             base.Initialize();
+
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             _runner?.Initialize(this);
 

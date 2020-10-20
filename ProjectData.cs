@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using Microsoft.Xna.Framework.Graphics;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -15,13 +18,27 @@ namespace DREngine
         /// Actual Serialized Project Data
         /// </summary>
         public string Name;
-        public Dictionary<string, string> Rooms = new Dictionary<string, string>();
-        public Dictionary<string, string> Characters = new Dictionary<string, string>();
-        public Dictionary<string, string> Sprites = new Dictionary<string, string>();
-        public Dictionary<string, string> Sfx = new Dictionary<string, string>();
-        public Dictionary<string, string> Va = new Dictionary<string, string>();
-        public Dictionary<string, string> Bgm = new Dictionary<string, string>();
-        public Dictionary<string, string> Dialogue = new Dictionary<string, string>();
+
+        public class ProjectResourceList
+        {
+            public Dictionary<string, string> Rooms = new Dictionary<string, string>();
+            public Dictionary<string, string> Characters = new Dictionary<string, string>();
+            public Dictionary<string, string> Sprites = new Dictionary<string, string>();
+            public Dictionary<string, string> Sfx = new Dictionary<string, string>();
+            public Dictionary<string, string> Va = new Dictionary<string, string>();
+            public Dictionary<string, string> Bgm = new Dictionary<string, string>();
+            public Dictionary<string, string> Dialogue = new Dictionary<string, string>();
+        }
+
+        //public ProjectResourceList Resources = new ProjectResourceList();
+
+        public class OverrideableResourceList
+        {
+            public OverridableSpriteFont MenuFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 16);
+            public OverridableSpriteFont DialogueFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 16);
+            public OverridableSpriteFont TitleFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Bold.ttf", 24);
+        }
+        public OverrideableResourceList OverridableResources = new OverrideableResourceList();
 
         /// <summary>
         /// Directories we will read to/create when modifying our project.
@@ -39,18 +56,18 @@ namespace DREngine
         private const string CommentHeader = "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
         // TODO: Use GamePath instead of a string. That will eliminate the need to pre-process it.
-        public static void ReadFromFile(string fpath, out ProjectData data)
+        public static ProjectData ReadFromFile(GraphicsDevice g, string fpath)
         {
             try
             {
                 IDeserializer deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .WithNamingConvention(PascalCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
                 // We might be given a relative directory, so try that first.
                 if (!File.Exists(fpath) && !Directory.Exists(fpath))
                 {
-                    fpath = Program.RootDirectory + "/" + fpath;
+                    fpath = Path.Combine(Environment.CurrentDirectory, fpath);
                     Debug.Log($"RELATIVE PATH: {fpath}");
                 }
                 // We might be given the project directory, so try to find the project file within it.
@@ -59,24 +76,52 @@ namespace DREngine
                     fpath += "/project.yaml";
                 }
                 Debug.Log($"OPENING: {fpath}");
+                string text = IO.ReadTextFile(fpath);
+                //Debug.Log($"OUTPUT: {text}");
+                ProjectData result = deserializer.Deserialize<ProjectData>(text);
+                result.LoadDefaults(g);
+                return result;
+                /*
                 using StreamReader reader = File.OpenText(fpath);
                 Debug.Log($"OPENED!");
-                data = (ProjectData) deserializer.Deserialize(reader, typeof(ProjectData));
+                return deserializer.Deserialize<ProjectData>(reader);
+                */
             }
-            catch (Exception e)
+            catch (YamlException e)
             {
-                data = null;
                 throw e;
             }
         }
 
-        public static void SaveToFile(string fpath, ProjectData data)
+        public static void WriteToFile(string fpath, ProjectData data)
         {
-            var serializer = new SerializerBuilder().Build();
-            string yaml = serializer.Serialize(data);
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .Build();
             using StreamWriter writer = File.CreateText(fpath);
             writer.WriteLine($"\n#{CommentHeader}\n"); // Add comment to inform user that editing this is a bad idea
             serializer.Serialize(writer, data);
+        }
+
+        public void LoadDefaults(GraphicsDevice g)
+        {
+            CallOnDeserializeOn(g, OverridableResources);
+        }
+
+        /// <summary>
+        ///     Goes through every object that has a OnDeserialize method (from interface) and calls that method.
+        /// </summary>
+        private void CallOnDeserializeOn(GraphicsDevice g, object parent)
+        {
+            Debug.Log("OKI DOKI");
+            foreach (var field in parent.GetType().GetFields())
+            {
+                object b = field.GetValue(parent);
+                if (b is IOnDeserialized obj)
+                {
+                    obj.OnDeserialized(g);
+                }
+            }
         }
     }
 }

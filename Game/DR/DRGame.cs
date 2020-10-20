@@ -16,9 +16,8 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestMouseCollider())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestFontLoading())
         {
-
             this._graphics.SynchronizeWithVerticalRetrace = true;
             this.IsFixedTimeStep = false;
         }
@@ -29,7 +28,7 @@ namespace DREngine.Game
         {
             try
             {
-                ProjectData.ReadFromFile(path, out GameProjectData);
+                GameProjectData = ProjectData.ReadFromFile(GraphicsDevice, path);
             }
             catch (Exception e)
             {
@@ -39,9 +38,6 @@ namespace DREngine.Game
 
         #endregion
 
-
-
-
         #region Universal Game Loop
 
         protected override void Initialize()
@@ -49,9 +45,10 @@ namespace DREngine.Game
             // Init
             base.Initialize();
 
-            // Start our sub-game
+            // TODO: Loading project should use the defined project path, or if not defined it will load defaults.
             Debug.LogDebug("DRGame Initialize()");
             LoadProject("projects/test_project");
+            // GameProjectData.LoadDefaults();
         }
 
         protected override void LoadContent()
@@ -70,6 +67,7 @@ namespace DREngine.Game
                 Debug.LogDebug("Toggling Debug Collider Drawing");
                 DebugDrawColliders = !DebugDrawColliders;
             }
+
 
             // Update
             base.Update(gameTime);
