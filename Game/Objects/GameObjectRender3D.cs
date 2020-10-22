@@ -6,25 +6,19 @@ namespace DREngine.Game
     public abstract class GameObjectRender3D : GameObjectRender
     {
 
-        public Vector3 Position = Vector3.Zero;
-        public Quaternion Rotation = Quaternion.Identity;
-        public Vector3 Scale = Vector3.One;
-
-        private Matrix _cachedWorldMat = Matrix.Identity;
+        public Transform3D Transform = new Transform3D();
 
         public GameObjectRender3D(GamePlus game, Vector3 position, Quaternion rotation) : base(game)
         {
-            this.Position = position;
+            Transform.Position = position;
+            Transform.Rotation = rotation;
         }
 
         public override void PreDraw(GraphicsDevice g)
         {
-            Matrix rotMat = Matrix.CreateFromQuaternion(Rotation);
-            Matrix scaleMat = Matrix.CreateScale(Scale);
-            _cachedWorldMat = scaleMat * rotMat * Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
             _game.SceneManager.Cameras.LoopThroughAll((cam) =>
             {
-                PreDraw(cam, g, _cachedWorldMat);
+                PreDraw(cam, g, Transform);
             });
         }
 
@@ -32,25 +26,25 @@ namespace DREngine.Game
         {
             _game.SceneManager.Cameras.LoopThroughAll((cam) =>
             {
-                Draw(cam, g, _cachedWorldMat);
+                Draw(cam, g, Transform);
             });
         }
         public override void PostDraw(GraphicsDevice g)
         {
             _game.SceneManager.Cameras.LoopThroughAll((cam) =>
             {
-                PostDraw(cam, g, _cachedWorldMat);
+                PostDraw(cam, g, Transform);
             });
         }
 
 
-        public abstract void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat);
+        public abstract void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform);
 
-        public virtual void PreDraw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        public virtual void PreDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
 
         }
-        public virtual void PostDraw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        public virtual void PostDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
 
         }

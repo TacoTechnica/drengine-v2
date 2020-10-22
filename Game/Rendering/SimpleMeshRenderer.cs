@@ -47,11 +47,11 @@ namespace DREngine.Game
             _effect.LightingEnabled = false;
         }
 
-        protected override Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        protected override Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
             _effect.Projection = cam.ProjectionMatrix;
             _effect.View = cam.ViewMatrix;
-            _effect.World = worldMat;
+            _effect.World = transform.Local;
 
             g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
 

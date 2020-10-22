@@ -10,7 +10,7 @@ namespace DREngine.Game.DR
         {
         }
 
-        public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
 
         }

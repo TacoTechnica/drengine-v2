@@ -8,7 +8,7 @@ namespace DREngine.Game
 
         private static Color DEFAULT_COLOR = Color.Green;
 
-        public static void DrawLine(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to, Color fromC, Color toC)
+        public static void DrawLine3D(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to, Color fromC, Color toC)
         {
             _game.DebugEffect.View = cam.ViewMatrix;
             _game.DebugEffect.Projection = cam.ProjectionMatrix;
@@ -18,9 +18,9 @@ namespace DREngine.Game
             _game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
         }
 
-        public static void DrawLine(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to)
+        public static void DrawLine3D(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to)
         {
-            DrawLine(_game,cam, from, to, DEFAULT_COLOR, DEFAULT_COLOR);
+            DrawLine3D(_game,cam, from, to, DEFAULT_COLOR, DEFAULT_COLOR);
         }
 
         public static void DrawLines(GamePlus _game, Camera3D cam, Vector3[] lines, Color color)

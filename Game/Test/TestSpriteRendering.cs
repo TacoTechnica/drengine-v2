@@ -28,10 +28,10 @@ namespace DREngine.Game
             // Rotate sprite while we hold R
             if (Input.KeyPressed(Keys.F))
             {
-                Debug.Log($"SCREEN POS: {_cam.WorldCoordToScreenCoord(_sr.Position)}, MOUSE: {Input.GetMousePosition()}");
+                Debug.Log($"SCREEN POS: {_cam.WorldCoordToScreenCoord(_sr.Transform.Position)}, MOUSE: {Input.GetMousePosition()}");
             }
 
-            Vector3 r = Math.ToEuler(_sr.Rotation);
+            Vector3 r = Math.ToEuler(_sr.Transform.Rotation);
             if (Input.KeyPressing(Keys.Right))
             {
                 r.Y += 120 * deltaTime;
@@ -48,7 +48,7 @@ namespace DREngine.Game
             {
                 r.X -= 120 * deltaTime;
             }
-            _sr.Rotation = Math.FromEuler(r);
+            _sr.Transform.Rotation = Math.FromEuler(r);
 
             Vector3 e = Math.ToEuler(_cam.Rotation);
             // Rotate camera
@@ -72,11 +72,11 @@ namespace DREngine.Game
 
             if (Input.KeyPressing(Keys.Right))
             {
-                _sr.Scale.X += 1f * deltaTime;
+                _sr.Transform.Scale += 1f * deltaTime * Vector3.UnitX;
             }
             if (Input.KeyPressing(Keys.Left))
             {
-                _sr.Scale.X -= 1f * deltaTime;
+                _sr.Transform.Scale -= 1f * deltaTime * Vector3.UnitX;
             }
         }
 
