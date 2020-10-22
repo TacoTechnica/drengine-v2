@@ -30,12 +30,12 @@ namespace DREngine.Game
         {
         }
 
-        protected abstract Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Matrix worldMat);
-        public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        protected abstract Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform);
+        public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
             if (Vertices.Length == 0) return;
 
-            Effect e = PrepareEffectForDraw(cam, g, worldMat);
+            Effect e = PrepareEffectForDraw(cam, g, transform);
 
             // Render verts
             g.SetVertexBuffer(_vertexBuffer);

@@ -39,7 +39,7 @@ namespace DREngine.Game
         }
 
         // For use in GamePlus
-        private LinkedListNode<Camera3D> _camListReference = null;
+        private ObjectContainerNode<Camera3D> _camListReference = null;
 
         public Matrix ProjectionMatrix => _projectionMat;
         public Matrix ViewMatrix => _viewMat;

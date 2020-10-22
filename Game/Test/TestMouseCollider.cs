@@ -23,7 +23,7 @@ namespace DREngine.Game
             base.Start();
             Vector3 size = Vector3.Up * Sprite.Height * Sprite.Scale + Vector3.Right * Sprite.Width * Sprite.Scale +
                            Vector3.Forward * 1f;
-            Vector3 min = Position - Vector3.UnitX * size.X / 2 - Vector3.UnitZ * size.Z / 2;
+            Vector3 min = Transform.Position - Vector3.UnitX * size.X / 2 - Vector3.UnitZ * size.Z / 2;
             collider = new BoxCollider(this, min, min + size);
         }
 
@@ -31,9 +31,9 @@ namespace DREngine.Game
         {
             base.Update(dt);
             // Rotate speed
-            Vector3 euler = Math.ToEuler(Rotation);
+            Vector3 euler = Math.ToEuler(Transform.Rotation);
             euler.Y += RotationVelocity * dt;
-            Rotation = Math.FromEuler(euler);
+            Transform.Rotation = Math.FromEuler(euler);
 
             // Deaccelerate with some extra damping.
             float deaccel = (180f / 2.5f) * dt;

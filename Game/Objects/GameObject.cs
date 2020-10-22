@@ -9,9 +9,9 @@ namespace DREngine.Game
         protected GamePlus _game;
 
         private bool _gottaStart = true;
-        private LinkedListNode<GameObject> _gameAddedNode = null;
+        private ObjectContainerNode<GameObject> _gameAddedNode = null;
 
-        private ObjectContainer<GameObject> _childObjects = new ObjectContainer<GameObject>();
+        private ObjectContainer<GameObject> _children = new ObjectContainer<GameObject>();
 
         // To catch circular parenting which would break the game badly.
         private HashSet<GameObject> _parents = new HashSet<GameObject>();
@@ -47,7 +47,7 @@ namespace DREngine.Game
             // Add all of our parents and ourselves to the child.
             obj._parents.UnionWith(_parents);
             obj._parents.Add(this);
-            _childObjects.Add(obj);
+            _children.Add(obj);
         }
 
         public void AddCollider(ICollider c)
@@ -95,12 +95,12 @@ namespace DREngine.Game
             _gameAddedNode = null;
 
             // Delete all children too.
-            _childObjects.LoopThroughAll((child) =>
+            _children.LoopThroughAll((child) =>
             {
                 child.Destroy();
             });
             // Cleanup, may as well empty the list.
-            _childObjects.RemoveAllQueuedImmediate();
+            _children.RemoveAllQueuedImmediate();
 
             // Kinda redundant but good to clean up.
             _parents.Clear();

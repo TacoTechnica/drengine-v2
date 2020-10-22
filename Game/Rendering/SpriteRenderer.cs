@@ -70,11 +70,11 @@ namespace DREngine.Game
             };
         }
 
-        public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
             g.BlendState = BlendState.AlphaBlend;
             Texture = _sprite.Texture;
-            base.Draw(cam, g, worldMat);
+            base.Draw(cam, g, transform);
         }
     }
 }

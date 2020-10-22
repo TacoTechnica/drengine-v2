@@ -6,7 +6,7 @@ namespace DREngine.Game
     public abstract class GameObjectRender : GameObject, IGameObject
     {
 
-        private LinkedListNode<GameObjectRender> _renderAddedNode = null;
+        private ObjectContainerNode<GameObjectRender> _renderAddedNode = null;
 
         protected GameObjectRender(GamePlus game) : base(game)
         {

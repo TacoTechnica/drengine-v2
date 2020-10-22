@@ -17,13 +17,13 @@ namespace DREngine.Game
             };
         }
 
-        public override void Draw(Camera3D cam, GraphicsDevice g, Matrix worldMat)
+        public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
 
             // Turn off backface culling for our own purposes
             g.RasterizerState = RasterizerState.CullNone;
 
-            base.Draw(cam, g, worldMat);
+            base.Draw(cam, g, transform);
         }
 
         public ExampleTriangleObject(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }

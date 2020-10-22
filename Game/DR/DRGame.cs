@@ -16,10 +16,13 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestFontLoading())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestNestedUI0())
         {
             this._graphics.SynchronizeWithVerticalRetrace = true;
             this.IsFixedTimeStep = false;
+
+            // For debugging UI
+            this.Window.AllowUserResizing = true;
         }
 
         #region Public Access

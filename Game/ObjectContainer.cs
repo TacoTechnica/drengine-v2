@@ -4,6 +4,21 @@ using System.Linq;
 
 namespace DREngine.Game
 {
+
+    /// <summary>
+    ///     Whenever we add an object to an object container we return a reference
+    ///     for where that object is. This is to potentially swap out the
+    ///     implementation later.
+    /// </summary>
+    public class ObjectContainerNode<T>
+    {
+        internal LinkedListNode<T> Node;
+        public ObjectContainerNode(LinkedListNode<T> node)
+        {
+            Node = Node;
+        }
+    }
+
     /// <summary>
     ///     Represents a container of gameobjects that we can manage.
     /// </summary>
@@ -11,34 +26,35 @@ namespace DREngine.Game
     public class ObjectContainer<T>
     {
         private readonly LinkedList<T> _objects = new LinkedList<T>();
-        private readonly HashSet<LinkedListNode<T>> _toDelete = new HashSet<LinkedListNode<T>>();
+        private readonly HashSet<ObjectContainerNode<T>> _toDelete = new HashSet<ObjectContainerNode<T>>();
 
         public int Count => _objects.Count;
 
-        public LinkedListNode<T> Add(T obj)
+        public ObjectContainerNode<T> Add(T obj)
         {
-            return _objects.AddLast(obj);
+            ObjectContainerNode<T> n = new ObjectContainerNode<T>(_objects.AddLast(obj));
+            return n;
         }
 
-        public void RemoveEnqueue(LinkedListNode<T> objNode)
+        public void RemoveEnqueue(ObjectContainerNode<T> objNode)
         {
             if (objNode == null) return;
-            if (objNode.List != _objects) throw new InvalidOperationException("Tried enqueuing invalid object to delete! Deletion object must come from Add(T obj)!");
+            if (objNode.Node.List != _objects) throw new InvalidOperationException("Tried enqueuing invalid object to delete! Deletion object must come from Add(T obj)!");
             _toDelete.Add(objNode);
         }
 
-        public LinkedListNode<T> RemoveImmediate(LinkedListNode<T> objNode, Action<T> afterDestroy = null)
+        public ObjectContainerNode<T> RemoveImmediate(ObjectContainerNode<T> objNode, Action<T> afterDestroy = null)
         {
-            if (objNode == null) return null;
-            if (objNode.List != _objects) throw new InvalidOperationException("Invalid object to delete! Deletion object must come from Add(T obj)!");
+            if (objNode == null || objNode.Node == null) return null;
+            if (objNode.Node.List != _objects) throw new InvalidOperationException("Invalid object to delete! Deletion object must come from Add(T obj)!");
 
-            _objects.Remove(objNode);
-            afterDestroy?.Invoke(objNode.Value);
+            _objects.Remove(objNode.Node);
+            afterDestroy?.Invoke(objNode.Node.Value);
             // yes, we return null so we un-set the calling object's previous reference.
             return null;
         }
 
-        public void LoopThroughAllAndDeleteQueued(Action<T> toRun, Action<T> afterDestroy)
+        public void LoopThroughAllAndDeleteQueued(Action<T> toRun, Action<T> afterDestroy = null)
         {
             LoopThroughAll(toRun);
             RemoveAllQueuedImmediate(afterDestroy);
@@ -55,20 +71,19 @@ namespace DREngine.Game
         internal void RemoveAllQueuedImmediate(Action<T> afterDestroy = null)
         {
             // Make a copy of all the things we gotta delete, cause we might be modifying this.
-            IEnumerable<LinkedListNode<T>> diffSet = new List<LinkedListNode<T>>(_toDelete);
+            IEnumerable<ObjectContainerNode<T>> diffSet = new List<ObjectContainerNode<T>>(_toDelete);
             do
             {
-                foreach (LinkedListNode<T> node in diffSet)
+                foreach (ObjectContainerNode<T> node in diffSet)
                 {
                     RemoveImmediate(node, afterDestroy);
                 }
 
                 _toDelete.ExceptWith(diffSet);
-                diffSet = new List<LinkedListNode<T>>(_toDelete);
+                diffSet = new List<ObjectContainerNode<T>>(_toDelete);
             } while (diffSet.FirstOrDefault() != null); // while not empty
 
             _toDelete.Clear();
         }
-
     }
 }

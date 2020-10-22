@@ -77,12 +77,12 @@ namespace DREngine.Game
 
         private IEnumerator Spin()
         {
-            _testObj.Rotation = Quaternion.Identity;
+            _testObj.Transform.Rotation = Quaternion.Identity;
             while (true)
             {
-                Vector3 e = Math.ToEuler(_testObj.Rotation);
+                Vector3 e = Math.ToEuler(_testObj.Transform.Rotation);
                 e.Z += 45f;
-                _testObj.Rotation = Math.FromEuler(e);
+                _testObj.Transform.Rotation = Math.FromEuler(e);
                 yield return new WaitUntilCondition(_game, () => Input.KeyPressed(Keys.W));
             }
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
+using DREngine.Game.UI;
 using DREngine.Util;
 using Gdk;
 using Microsoft.Xna.Framework;
@@ -44,7 +45,7 @@ namespace DREngine.Game
 
         public string WindowTitle;
 
-        public SpriteBatch SpriteBatch { get; private set; }
+        public UIScreen UIScreen { get; private set; }
 
         public SceneManager SceneManager { get; private set; }
 
@@ -82,6 +83,7 @@ namespace DREngine.Game
 
             SceneManager = new SceneManager(this);
             CollisionManager = new CollisionManager();
+            UIScreen = new UIScreen(this);
         }
 
 
@@ -91,8 +93,6 @@ namespace DREngine.Game
         {
             // Init
             base.Initialize();
-
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             _runner?.Initialize(this);
 
@@ -104,6 +104,8 @@ namespace DREngine.Game
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
             }
             DebugEffect = new BasicEffect(GraphicsDevice);
+
+            UIScreen.Initialize();
 
             WhenSafeToLoad.InvokeAll();
         }
@@ -167,6 +169,8 @@ namespace DREngine.Game
 
         protected override void Draw(GameTime gameTime)
         {
+            // Set Default Graphics
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             // Draw all render-able objects.
             SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
@@ -185,6 +189,9 @@ namespace DREngine.Game
             // Draw
             base.Draw(gameTime);
             _runner?.Draw();
+
+            // Draw UI
+            UIScreen.Draw();
         }
 
         #endregion

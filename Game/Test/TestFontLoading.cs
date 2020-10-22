@@ -19,9 +19,13 @@ namespace DREngine.Game
         // Using redefinitions like this will help.
         private SpriteFont _textFont => _game.GameProjectData.OverridableResources.DialogueFont.Font;
 
+        private SpriteBatch b;
+
+
         public void Initialize(GamePlus game)
         {
             _game = game as DRGame;
+            b = new SpriteBatch(_game.GraphicsDevice);
         }
 
         public void Update(float deltaTime)
@@ -41,11 +45,12 @@ namespace DREngine.Game
 
         public void Draw()
         {
-            _game.SpriteBatch.Begin();
+            // TODO: Use _game.UIScreen.whatever
+            b.Begin();
 
-            _game.SpriteBatch.DrawString(_textFont, "Big boner down the lane", new Vector2(100, 100), Color.Black);
+            b.DrawString(_textFont, "Big boner down the lane", new Vector2(100, 100), Color.Black);
 
-            _game.SpriteBatch.End();
+            b.End();
         }
     }
 }
