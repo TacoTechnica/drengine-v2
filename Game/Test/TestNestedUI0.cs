@@ -1,5 +1,6 @@
 ﻿using DREngine.Game.UI;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace DREngine.Game
@@ -12,6 +13,7 @@ namespace DREngine.Game
         private UIComponent _rotater;
         private UIComponent _rotater2;
 
+        private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
         public void Initialize(GamePlus game)
         {
             _game = game;
@@ -26,14 +28,20 @@ namespace DREngine.Game
                         .WithLayout(Layout.CornerLayout(Layout.BottomRight, 60, 60))
                         .OffsetBy(-4, -4),
                     new UIBoxPanel(_game, Color.Yellow)
-                        .WithLayout(Layout.SideLayout(Layout.Top, 30, 4))
+                        .WithLayout(Layout.SideLayout(Layout.Top, 100, 4))
+                        .WithChild(new UIText(_game, _textFont, "Hello there!")
+                        {
+                            TextHAlign = UIText.TextHAlignMode.Right,
+                            TextVAlign = UIText.TextVAlignMode.Middle
+                        })
                 );
             // Left side Bar
             _rotater2 = new UIBoxPanel(_game, Color.Blue)
                 .AddToRoot()
                 .WithLayout(Layout.CornerLayout(Layout.TopLeft, 50, 100))
-                .OffsetBy(40, 40)
-                .WithPivot(0.9f, 0.9f);
+                .OffsetBy(0, 0)
+                .WithPivot(0f, 0f);
+
             _rotater = _root;
         }
 
@@ -86,6 +94,5 @@ namespace DREngine.Game
             // Fill the rect with our box
             screen.DrawRect(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, _color);
         }
-
     }
 }

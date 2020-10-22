@@ -21,6 +21,8 @@ namespace DREngine.Game.UI
             set => DrawEffect.World = value;
         }
 
+        public Matrix OpenGL2Pixel;
+
         public UIScreen(GamePlus game) : base(game)
         {
             Layout = Layout.FullscreenLayout();
@@ -39,13 +41,14 @@ namespace DREngine.Game.UI
         {
             float w = GraphicsDevice.Viewport.Width,
                 h = GraphicsDevice.Viewport.Height;
-            Matrix rootWorld = Matrix.CreateScale(2f / w, -2f / h, 1) * Matrix.CreateTranslation(-1, 1, 0);
+            OpenGL2Pixel = Matrix.CreateScale(2f / w, -2f / h, 1) * Matrix.CreateTranslation(-1, 1, 0);
+            CurrentWorld = Matrix.Identity;
             Rect screenRect = new Rect(
                 0, 0,
                 w,
                 h
             );
-            DoDraw(this, rootWorld, screenRect);
+            DoDraw(this, CurrentWorld, screenRect);
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
@@ -54,12 +57,23 @@ namespace DREngine.Game.UI
             //DrawRect(0, 0, targetRect.Width / 2, 100f, Color.Red, Color.Green, Color.Blue, Color.Yellow);
         }
 
-        #region Drawing Shapes Utilities
+        #region Drawing Utilities
+
+        public void SpriteBatchBegin()
+        {
+            SpriteBatch.Begin(transformMatrix: CurrentWorld);
+        }
+
+        public void SpriteBatchEnd()
+        {
+            SpriteBatch.End();
+        }
 
         public void DrawLine(float x0, float y0, float x1, float y1, Color c0, Color c1)
         {
+            DrawEffect.World = CurrentWorld * OpenGL2Pixel;
             DrawEffect.CurrentTechnique.Passes[0].Apply();
-            DrawEffect.World = CurrentWorld;
+
             var vertices = new[] { new VertexPositionColor(new Vector3(x0, y0, 0), c0),  new VertexPositionColor(new Vector3(x1, y1, 0), c1) };
             GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
         }
@@ -76,8 +90,8 @@ namespace DREngine.Game.UI
 
         public void DrawRect(float x, float y, float width, float height, Color c0, Color c1, Color c2, Color c3)
         {
+            DrawEffect.World = CurrentWorld *OpenGL2Pixel;
             DrawEffect.CurrentTechnique.Passes[0].Apply();
-            DrawEffect.World = CurrentWorld;
 
             var vertices = new[] {
                 new VertexPositionColor(new Vector3(x, y, 0), c0),
@@ -103,8 +117,8 @@ namespace DREngine.Game.UI
 
         public void DrawRectOutline(float x, float y, float width, float height, Color color)
         {
+            DrawEffect.World = CurrentWorld * OpenGL2Pixel;
             DrawEffect.CurrentTechnique.Passes[0].Apply();
-            DrawEffect.World = CurrentWorld;
 
             var vertices = new[] {
                 new VertexPositionColor(new Vector3(x, y, 0), color),

@@ -12,7 +12,7 @@ namespace DREngine.Game
     {
         #region Util variables
 
-        public ProjectData GameProjectData = null;
+        public ProjectData GameProjectData = new ProjectData();
 
         #endregion
 
@@ -45,7 +45,10 @@ namespace DREngine.Game
 
         protected override void Initialize()
         {
-            // Init
+            // Init data that should be available at the start.
+            Debug.Log("(pre init)");
+            GameProjectData.LoadDefaults(GraphicsDevice);
+
             base.Initialize();
 
             // TODO: Loading project should use the defined project path, or if not defined it will load defaults.

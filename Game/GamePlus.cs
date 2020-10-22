@@ -94,8 +94,6 @@ namespace DREngine.Game
             // Init
             base.Initialize();
 
-            _runner?.Initialize(this);
-
             // Start a debug timer for debug things.
             if (_debugTitle)
             {
@@ -108,6 +106,8 @@ namespace DREngine.Game
             UIScreen.Initialize();
 
             WhenSafeToLoad.InvokeAll();
+
+            _runner?.Initialize(this);
         }
 
         protected override void Update(GameTime gameTime)

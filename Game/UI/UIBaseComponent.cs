@@ -44,8 +44,6 @@ namespace DREngine.Game.UI
             screen.CurrentWorld = worldMat;
             Draw(screen, targetRect);
 
-            // TODO: Get transformed rect and send it
-
             _children.LoopThroughAllAndDeleteQueued(
                 child =>
                 {
