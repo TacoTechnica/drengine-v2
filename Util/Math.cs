@@ -11,22 +11,6 @@ namespace DREngine
     public static class Math
     {
 
-        /* I give up, -z must be forward from now on.
-        /// Because Monogame's forward is -1 z. I know.
-        private static readonly Vector3 forward = new Vector3(1, 0, 0);
-        private static readonly Vector3 backward = new Vector3(-1, 0, 0);
-        private static readonly Vector3 up = new Vector3(0, -1, 0);
-        private static readonly Vector3 down = new Vector3(0, 1, 0);
-        private static readonly Vector3 left = new Vector3(0, 0, -1);
-        private static readonly Vector3 right = new Vector3(0, 0, 1);
-        public static Vector3 Forward => forward;
-        public static Vector3 Backward => backward;
-        public static Vector3 Up => up;
-        public static Vector3 Down => down;
-        public static Vector3 Left => left;
-        public static Vector3 Right => right;
-        */
-
         public static float Deg2Rad = MathF.PI / 180F;
         public static float Rad2Deg = 180F / MathF.PI;
 
@@ -56,6 +40,12 @@ namespace DREngine
         public static float CopySign(int x, int s)
         {
             return Abs(x) * Sign(s);
+        }
+
+        public static float Threshold(float x, float threshold)
+        {
+            if (Abs(x) < threshold) return 0;
+            return x;
         }
 
         public static float AngleDifference(float to, float from, float halfCircle=180f)
@@ -157,6 +147,26 @@ namespace DREngine
             return 2.0f * Vector3.Dot(u, vec) * u
                      + (s*s - Vector3.Dot(u, u)) * vec
                      + 2.0f * s * Vector3.Cross(u, vec);
+        }
+
+        public static Vector2 ClampMagnitude(Vector2 vec, float MaxMag)
+        {
+            if (vec.LengthSquared() > MaxMag * MaxMag)
+            {
+                vec.Normalize();
+                return vec * MaxMag;
+            }
+            return vec;
+        }
+
+        public static Vector3 ClampMagnitude(Vector3 vec, float MaxMag)
+        {
+            if (vec.LengthSquared() > MaxMag * MaxMag)
+            {
+                vec.Normalize();
+                return vec * MaxMag;
+            }
+            return vec;
         }
     }
 }

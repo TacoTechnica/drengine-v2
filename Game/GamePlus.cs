@@ -39,6 +39,8 @@ namespace DREngine.Game
         internal BasicEffect DebugEffect;
         public bool DebugDrawColliders = false;
 
+        private List<Controls> _controls = new List<Controls>();
+
         #endregion
 
         #region Public Access and Handlers
@@ -130,6 +132,12 @@ namespace DREngine.Game
                 }
             }
 
+            // Update Inputs
+            foreach (Controls c in _controls)
+            {
+                c.DoUpdate();
+            }
+
             UpdateBegan.InvokeAll();
 
             // TODO: Make this a bit more efficient I guess?
@@ -197,6 +205,16 @@ namespace DREngine.Game
         #endregion
 
         #region Debug Util
+
+        public void AddControls(Controls c)
+        {
+            _controls.Add(c);
+        }
+
+        public void RemoveControls(Controls c)
+        {
+            _controls.Remove(c);
+        }
 
         public void ShowMessagePopup(string message)
         {
