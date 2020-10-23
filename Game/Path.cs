@@ -30,4 +30,9 @@
             return _inputPath;
         }
     }
+
+    public class EnginePath : Path {
+
+        public EnginePath(string path) : base($"{Program.RootDirectory}/{path}") {}
+    }
 }
