@@ -1,4 +1,5 @@
 ﻿
+using DREngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -20,6 +21,8 @@ namespace DREngine.Game
             _controls.Explode.Pressed += OnExplodePressed;
             _controls.Read.Held += OnReadingHeld;
             _controls.Read.Released += OnReadingReleased;
+
+            _game.CurrentCursor.SetOverride(_controls.Movement, 100);
 
             _triangle = new ExampleTriangleObject(_game, Vector3.Zero, Quaternion.Identity);
             new Camera3D(_game, Vector3.Backward * 20);

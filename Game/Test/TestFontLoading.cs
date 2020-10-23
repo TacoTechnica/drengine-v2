@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DREngine.Game.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -31,12 +32,12 @@ namespace DREngine.Game
         public void Update(float deltaTime)
         {
             // You should be able to load new fonts
-            if (Input.KeyPressed(Keys.F2))
+            if (RawInput.KeyPressed(Keys.F2))
             {
                 Debug.Log("SAVED PROJECT TEST");
                 ProjectData.WriteToFile(new Path("temp.yaml"), _game.GameProjectData );
             }
-            if (Input.KeyPressed(Keys.F3))
+            if (RawInput.KeyPressed(Keys.F3))
             {
                 Debug.Log("LOAD PROJECT TEST");
                 _game.LoadProject(new Path("temp.yaml"));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
+using DREngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -69,7 +70,7 @@ namespace DREngine.Game
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Input.KeyPressed(Keys.F1))
+            if (RawInput.KeyPressed(Keys.F1))
             {
                 Debug.LogDebug("Toggling Debug Collider Drawing");
                 DebugDrawColliders = !DebugDrawColliders;

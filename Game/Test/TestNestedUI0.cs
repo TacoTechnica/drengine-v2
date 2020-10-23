@@ -1,4 +1,5 @@
-﻿using DREngine.Game.UI;
+﻿using DREngine.Game.Input;
+using DREngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -49,20 +50,20 @@ namespace DREngine.Game
         {
             Vector3 e = Math.ToEuler(_rotater.LocalTransform.Rotation);
             // Rotate and scale for fun
-            if (Input.KeyPressing(Keys.Right))
+            if (RawInput.KeyPressing(Keys.Right))
             {
                 e.Z += 90f * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Left))
+            if (RawInput.KeyPressing(Keys.Left))
             {
                 e.Z -= 90f * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Up))
+            if (RawInput.KeyPressing(Keys.Up))
             {
                 _rotater.LocalTransform.Scale += Vector3.UnitX * deltaTime;
                 _rotater2.LocalTransform.Scale += Vector3.UnitY * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Down))
+            if (RawInput.KeyPressing(Keys.Down))
             {
                 _rotater.LocalTransform.Scale -= Vector3.UnitX * deltaTime;
                 _rotater2.LocalTransform.Scale -= Vector3.UnitY * deltaTime;

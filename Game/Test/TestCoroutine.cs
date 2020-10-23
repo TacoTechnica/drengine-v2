@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DREngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using YamlDotNet.Core.Tokens;
@@ -47,19 +48,19 @@ namespace DREngine.Game
 
         public void Update(float deltaTime)
         {
-            if (Input.KeyPressed(Keys.Space))
+            if (RawInput.KeyPressed(Keys.Space))
             {
                 _testObj.StopAllCoroutines();
                 _testObj.StartCoroutine(TestRoutine());
             }
 
-            if (Input.KeyPressed(Keys.G))
+            if (RawInput.KeyPressed(Keys.G))
             {
                 if (_spinRoutine != null) _testObj.StopCoroutine(_spinRoutine);
                 _spinRoutine = _testObj.StartCoroutine(Spin());
             }
 
-            if (Input.KeyPressed(Keys.S))
+            if (RawInput.KeyPressed(Keys.S))
             {
                 _testObj.StartCoroutine(StressTest());
             }
@@ -83,7 +84,7 @@ namespace DREngine.Game
                 Vector3 e = Math.ToEuler(_testObj.Transform.Rotation);
                 e.Z += 45f;
                 _testObj.Transform.Rotation = Math.FromEuler(e);
-                yield return new WaitUntilCondition(_game, () => Input.KeyPressed(Keys.W));
+                yield return new WaitUntilCondition(_game, () => RawInput.KeyPressed(Keys.W));
             }
         }
 

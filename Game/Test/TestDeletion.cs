@@ -1,4 +1,5 @@
-﻿using Gdk;
+﻿using DREngine.Game.Input;
+using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -33,34 +34,34 @@ namespace DREngine.Game
         {
             // Test basic camera rotation & FOV stuff
 
-            if (Input.KeyPressing(Keys.R))
+            if (RawInput.KeyPressing(Keys.R))
             {
                 Vector3 e = Math.ToEuler(_cam.Rotation);
                 e.Y += 90f * deltaTime;
                 _cam.Rotation = Math.FromEuler(e);
             }
-            if (Input.KeyPressing(Keys.W))
+            if (RawInput.KeyPressing(Keys.W))
             {
                 _cam.Fov += 10f * deltaTime;
-            } else if (Input.KeyPressing(Keys.S))
+            } else if (RawInput.KeyPressing(Keys.S))
             {
                 _cam.Fov -= 10f * deltaTime;
             }
 
             // Test deletion
 
-            if (Input.KeyPressed(Keys.G))
+            if (RawInput.KeyPressed(Keys.G))
             {
                 Debug.Log("POOF 1");
                 if (_exampleObj != null) _exampleObj.Destroy();
             }
-            if (Input.KeyPressed(Keys.H))
+            if (RawInput.KeyPressed(Keys.H))
             {
                 Debug.Log("POOF 2");
                 if (_exampleObj2 != null) _exampleObj2.Destroy();
             }
 
-            if (Input.KeyPressed(Keys.J))
+            if (RawInput.KeyPressed(Keys.J))
             {
                 Debug.Log("KABOOM");
                 _game.SceneManager.UnloadSceneAtEndOfFrame();

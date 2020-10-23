@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DREngine.Game.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -26,25 +27,25 @@ namespace DREngine.Game
         {
 
             // Rotate sprite while we hold R
-            if (Input.KeyPressed(Keys.F))
+            if (RawInput.KeyPressed(Keys.F))
             {
-                Debug.Log($"SCREEN POS: {_cam.WorldCoordToScreenCoord(_sr.Transform.Position)}, MOUSE: {Input.GetMousePosition()}");
+                Debug.Log($"SCREEN POS: {_cam.WorldCoordToScreenCoord(_sr.Transform.Position)}, MOUSE: {RawInput.GetMousePosition()}");
             }
 
             Vector3 r = Math.ToEuler(_sr.Transform.Rotation);
-            if (Input.KeyPressing(Keys.Right))
+            if (RawInput.KeyPressing(Keys.Right))
             {
                 r.Y += 120 * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Left))
+            if (RawInput.KeyPressing(Keys.Left))
             {
                 r.Y -= 120 * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Up))
+            if (RawInput.KeyPressing(Keys.Up))
             {
                 r.X += 120 * deltaTime;
             }
-            if (Input.KeyPressing(Keys.Down))
+            if (RawInput.KeyPressing(Keys.Down))
             {
                 r.X -= 120 * deltaTime;
             }
@@ -52,29 +53,29 @@ namespace DREngine.Game
 
             Vector3 e = Math.ToEuler(_cam.Rotation);
             // Rotate camera
-            if (Input.KeyPressing(Keys.A))
+            if (RawInput.KeyPressing(Keys.A))
             {
                 e.Y += 90f * deltaTime;
             }
-            if (Input.KeyPressing(Keys.D))
+            if (RawInput.KeyPressing(Keys.D))
             {
                 e.Y -= 90f * deltaTime;
             }
-            if (Input.KeyPressing(Keys.W))
+            if (RawInput.KeyPressing(Keys.W))
             {
                 e.X += 90f * deltaTime;
             }
-            if (Input.KeyPressing(Keys.S))
+            if (RawInput.KeyPressing(Keys.S))
             {
                 e.X -= 90f * deltaTime;
             }
             _cam.Rotation = Math.FromEuler(e);
 
-            if (Input.KeyPressing(Keys.Right))
+            if (RawInput.KeyPressing(Keys.Right))
             {
                 _sr.Transform.Scale += 1f * deltaTime * Vector3.UnitX;
             }
-            if (Input.KeyPressing(Keys.Left))
+            if (RawInput.KeyPressing(Keys.Left))
             {
                 _sr.Transform.Scale -= 1f * deltaTime * Vector3.UnitX;
             }

@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
+using DREngine.Game.Input;
 using DREngine.Game.UI;
 using DREngine.Util;
 using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Cursor = DREngine.Game.Input.Cursor;
 
 namespace DREngine.Game
 {
@@ -41,16 +43,32 @@ namespace DREngine.Game
 
         private List<Controls> _controls = new List<Controls>();
 
+        private GenericCursor _cursor = new GenericCursor();
+
         #endregion
 
         #region Public Access and Handlers
 
         public string WindowTitle;
 
+        /// Cursor
+        public GenericCursor CurrentCursor
+        {
+            get => _cursor;
+            set
+            {
+                if (value == null) throw new InvalidOperationException("Can't set our current cursor to null!");
+                _cursor = value;
+            }
+        }
+
+        /// Screen UI Renderer
         public UIScreen UIScreen { get; private set; }
 
+        /// Scene Object Manager
         public SceneManager SceneManager { get; private set; }
 
+        /// Collision Manager
         public CollisionManager CollisionManager { get; private set; }
 
         /// Events
@@ -59,6 +77,7 @@ namespace DREngine.Game
 
         public EventManager WhenSafeToLoad { get; private set; } = new EventManager();
 
+        /// Time
         public float Time { get; private set; } = 0;
         public float TimeScale = 1f;
         public float UnscaledTime { get; private set; } = 0;
@@ -114,15 +133,20 @@ namespace DREngine.Game
 
         protected override void Update(GameTime gameTime)
         {
+            // Update input First.
+            RawInput.UpdateState();
 
-            Input.UpdateState();
-
+            // Perform delta time calculations
             DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             UnscaledDeltaTime = DeltaTime;
             DeltaTime *= TimeScale;
             UnscaledTime += UnscaledDeltaTime;
             Time += DeltaTime;
 
+            // Update cursor after we know our current delta times.
+            CurrentCursor?.DoUpdate(this);
+
+            // If we're debugging, handle that right off the bat.
             if (_debugTitle)
             {
                 if (UnscaledDeltaTime != 0)
@@ -138,13 +162,22 @@ namespace DREngine.Game
                 c.DoUpdate();
             }
 
+            // Resources that want to load at the START may load now.
+            WhenSafeToLoad.InvokeAll();
+
+            // Everyone else can start on this frame.
             UpdateBegan.InvokeAll();
 
-            // TODO: Make this a bit more efficient I guess?
-            SceneManager.GameObjects.LoopThroughAll(
+            // TODO: Maybe avoid scrolling through objects that don't use preupdate.
+            // TODO: I moved the deletion up here instead of in post, verify this and delete this comment if everything is OK.
+            SceneManager.GameObjects.LoopThroughAllAndDeleteQueued(
                 (obj) =>
                 {
                     obj.RunPreUpdate(DeltaTime);
+                },
+                (obj) =>
+                {
+                    obj.RunOnDestroy();
                 }
             );
 
@@ -155,23 +188,19 @@ namespace DREngine.Game
                 }
             );
 
-            // Update all update-able objects.
-            SceneManager.GameObjects.LoopThroughAllAndDeleteQueued(
+            // The last one will also go through and handle queued deletions.
+            SceneManager.GameObjects.LoopThroughAll(
                 (obj) =>
                 {
                     obj.RunPostUpdate(DeltaTime);
-                },
-                (obj) =>
-                {
-                    obj.RunOnDestroy();
                 }
             );
 
-            // Update
+            // Standard Update goes here.
             base.Update(gameTime);
             _runner?.Update(DeltaTime);
 
-            WhenSafeToLoad.InvokeAll();
+            // We've finished the update frame.
             UpdateFinished.InvokeAll();
         }
 

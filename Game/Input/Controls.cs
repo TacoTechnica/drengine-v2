@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace DREngine.Game
+namespace DREngine.Game.Input
 {
     /// <summary>
     /// Represents a list of controls that you can subscribe to.
@@ -104,16 +103,16 @@ namespace DREngine.Game
             switch (_type)
             {
                 case Type.Keyboard:
-                    return Input.KeyPressing(_keys)? 1f : 0;
+                    return RawInput.KeyPressing(_keys)? 1f : 0;
                 case Type.Mouse:
-                    return Input.MousePressing(_mbutton)? 1f : 0;
+                    return RawInput.MousePressing(_mbutton)? 1f : 0;
                 case Type.MouseAxis:
-                    Vector2 mp = Input.GetMousePosition();
+                    Vector2 mp = RawInput.GetMousePosition();
                     return (_mouseAxis == MouseAxis.X) ? mp.X : mp.Y;
                 case Type.GamepadButton:
-                    return Input.GamepadPressing(_gamepadButton)? 1f : 0;
+                    return RawInput.GamepadPressing(_gamepadButton)? 1f : 0;
                 case Type.GamepadAxis:
-                    return Input.GetGamepadAxis(_gamepadAxis);
+                    return RawInput.GetGamepadAxis(_gamepadAxis);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -255,7 +254,11 @@ namespace DREngine.Game
             Sum
         }
 
+        public float Scale = 1f;
+
         protected AxisMode _axisMode;
+
+        public bool SquareInput = false;
 
         public T Value;
 
@@ -321,6 +324,12 @@ namespace DREngine.Game
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
+            Value = value * Scale;
+            if (SquareInput)
+            {
+                Value = Math.CopySign(Value * Value, Value);
+            }
         }
 
         public InputActionAxis1D Positive(params InputAxis[] toAdd)
@@ -331,6 +340,11 @@ namespace DREngine.Game
         public InputActionAxis1D Negative(params InputAxis[] toAdd)
         {
             _negative.AddRange(toAdd);
+            return this;
+        }
+        public InputActionAxis1D Squared()
+        {
+            SquareInput = true;
             return this;
         }
     }
@@ -383,7 +397,13 @@ namespace DREngine.Game
                     break;
             }
 
-            Value = Math.ClampMagnitude(Value, MaxMagnitude);
+            if (SquareInput)
+            {
+                Value.X = Math.CopySign(Value.X * Value.X, Value.X);
+                Value.Y = Math.CopySign(Value.Y * Value.Y, Value.Y);
+            }
+
+            Value = Math.ClampMagnitude(Value * Scale, MaxMagnitude);
         }
 
         private Vector2 Apply(IEnumerable<InputAxis> sideAxis, Vector2 sideDirection)
@@ -450,6 +470,10 @@ namespace DREngine.Game
         {
             return Up(toAdd);
         }
-
+        public InputActionAxis2D Squared()
+        {
+            SquareInput = true;
+            return this;
+        }
     }
 }

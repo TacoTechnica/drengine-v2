@@ -1,4 +1,5 @@
 ﻿using System;
+using DREngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Random = DREngine.Util.Random;
@@ -67,9 +68,11 @@ namespace DREngine.Game
 
         public void Update(float deltaTime)
         {
-            if (Input.MousePressed(MouseButton.Left)) {
+            if (RawInput.MousePressed(MouseButton.Left)) {
                 Debug.Log("Press!");
-                ICollider c = _game.CollisionManager.ScreenCollisionCheckNearest(_cam, Input.GetMousePosition());
+                //Vector2 pos = RawInput.GetMousePosition();
+                Vector2 pos = _game.CurrentCursor.Position;
+                ICollider c = _game.CollisionManager.ScreenCollisionCheckNearest(_cam, pos);
                 if (c != null)
                 {
                     Debug.Log("SPEEN");

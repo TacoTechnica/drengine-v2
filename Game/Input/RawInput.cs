@@ -1,9 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using YamlDotNet.Core.Tokens;
 
-namespace DREngine.Game
+namespace DREngine.Game.Input
 {
 
     public enum MouseButton
@@ -29,11 +28,11 @@ namespace DREngine.Game
         RStickY
     }
 
-    public class Input
+    public class RawInput
     {
 
-        private static KeyboardState _currState;
-        private static KeyboardState _prevState;
+        private static KeyboardState _currKeyboardState;
+        private static KeyboardState _prevKeyboardState;
 
         private static MouseState _currMouseState;
         private static MouseState _prevMouseState;
@@ -43,17 +42,17 @@ namespace DREngine.Game
 
         public static bool KeyPressing(Keys k)
         {
-            return _currState.IsKeyDown(k);
+            return _currKeyboardState.IsKeyDown(k);
         }
 
         public static bool KeyPressed(Keys k)
         {
-            return _currState.IsKeyDown(k) && !_prevState.IsKeyDown(k);
+            return _currKeyboardState.IsKeyDown(k) && !_prevKeyboardState.IsKeyDown(k);
         }
 
         public static bool KeyReleased(Keys k)
         {
-            return !_currState.IsKeyDown(k) && _prevState.IsKeyDown(k);
+            return !_currKeyboardState.IsKeyDown(k) && _prevKeyboardState.IsKeyDown(k);
         }
 
         public static bool MousePressing(MouseButton b)
@@ -71,7 +70,18 @@ namespace DREngine.Game
         }
         public static Vector2 GetMousePosition()
         {
-            return Mouse.GetState().Position.ToVector2();
+            return _currMouseState.Position.ToVector2();
+        }
+
+        public static Vector2 GetMouseDelta()
+        {
+            return _currMouseState.Position.ToVector2() - _prevMouseState.Position.ToVector2();
+        }
+
+        public static void SetMousePos(Vector2 pos)
+        {
+            Mouse.SetPosition((int)pos.X, (int)pos.Y);
+            _currMouseState = Mouse.GetState();
         }
 
         public static bool GamepadPressing(Buttons b)
@@ -119,8 +129,8 @@ namespace DREngine.Game
         // MUST be called at start of game loop.
         public static void UpdateState()
         {
-            _prevState = _currState;
-            _currState = Keyboard.GetState();
+            _prevKeyboardState = _currKeyboardState;
+            _currKeyboardState = Keyboard.GetState();
             _prevMouseState = _currMouseState;
             _currMouseState = Mouse.GetState();
             _prevGamepadState = _currGamepadState;

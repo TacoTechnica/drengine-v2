@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DREngine.Game.Input;
 using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -40,12 +41,12 @@ namespace DREngine.Game
         {
             // Test basic camera rotation & FOV stuff
 
-            if (Input.KeyPressed(Keys.NumPad0))
+            if (RawInput.KeyPressed(Keys.NumPad0))
             {
                 Debug.Log("Going to scene 0");
                 _game.SceneManager.LoadScene("scene0");
             }
-            if (Input.KeyPressed(Keys.NumPad1))
+            if (RawInput.KeyPressed(Keys.NumPad1))
             {
                 Debug.Log("Going to scene 1");
                 _game.SceneManager.LoadScene("scene1");
