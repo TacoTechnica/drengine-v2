@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Win32.SafeHandles;
 using Microsoft.Xna.Framework;
 
 namespace DREngine.Game.UI
@@ -52,6 +53,13 @@ namespace DREngine.Game.UI
         {
             get => Position + Size;
             set => Size = (Max - Min);
+        }
+
+        public bool Contains(Vector2 pos)
+        {
+            return
+                Min.X < pos.X && pos.X < Max.X &&
+                Min.Y < pos.Y && pos.Y < Max.Y;
         }
 
         public override string ToString()

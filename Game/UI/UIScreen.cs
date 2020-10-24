@@ -12,6 +12,9 @@ namespace DREngine.Game.UI
 
         public Color DefaultDrawColor = Color.White;
 
+        // Do we need to update selectables during the draw phase?
+        public bool NeedToUpdateSelectables = false;
+
         // Testing
         private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
 
@@ -49,6 +52,12 @@ namespace DREngine.Game.UI
                 h
             );
             DoDraw(this, CurrentWorld, screenRect);
+            NeedToUpdateSelectables = false;
+        }
+
+        public void Update()
+        {
+            NeedToUpdateSelectables = true;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)

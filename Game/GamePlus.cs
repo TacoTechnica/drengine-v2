@@ -146,6 +146,9 @@ namespace DREngine.Game
             // Update cursor after we know our current delta times.
             CurrentCursor?.DoUpdate(this);
 
+            // Update our UI screen. This will handle stuff we don't call for every draw.
+            UIScreen.Update();
+
             // If we're debugging, handle that right off the bat.
             if (_debugTitle)
             {

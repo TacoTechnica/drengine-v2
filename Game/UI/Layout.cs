@@ -83,7 +83,7 @@ namespace DREngine.Game.UI
         ///    Give an empty layout that will create a rect of size zero
         ///     on the top left corner.
         /// </summary>
-        public static Layout GetEmptyLayout()
+        public static Layout EmptyLayout()
         {
             return new Layout();
         }
@@ -91,7 +91,7 @@ namespace DREngine.Game.UI
         /// <summary>
         ///    Give a layout that's scaled.
         /// </summary>
-        public static Layout GetScaledLayout(float leftPercent, float topPercent, float rightPercent, float botPercent)
+        public static Layout ScaledLayout(float leftPercent, float topPercent, float rightPercent, float botPercent)
         {
             return new Layout
             {
@@ -100,13 +100,13 @@ namespace DREngine.Game.UI
             };
         }
 
-        public static Layout GetCenteredLayout(float width, float height)
+        public static Layout CenteredLayout(float width, float height)
         {
             return new Layout
             {
                 AnchorMin = Vector2.One / 2f,
                 AnchorMax = Vector2.One / 2f,
-                Margin = new Margin(-width/2, -height/2, -width/2, -height/2)
+                Margin = new Margin(-height/2, -height/2, -width/2, -width/2)
             };
         }
 
@@ -170,7 +170,6 @@ namespace DREngine.Game.UI
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
-
             return result;
         }
 

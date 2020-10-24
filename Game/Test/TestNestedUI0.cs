@@ -20,24 +20,27 @@ namespace DREngine.Game
             _game = game;
 
             // Right side Bar
-            _root = new UIBoxPanel(_game, Color.Red)
+            _root = new UIBoxPanel(_game, Color.Red, Color.Pink)
                 .AddToRoot()
                 .WithLayout(Layout.FullscreenLayout(100, 10, 10, 10))
                 .WithChild(
                     // Bottom right Corner-er
-                    new UIBoxPanel(_game, Color.Green)
+                    new UIBoxPanel(_game, Color.Green, Color.Lime)
                         .WithLayout(Layout.CornerLayout(Layout.BottomRight, 60, 60))
                         .OffsetBy(-4, -4),
-                    new UIBoxPanel(_game, Color.Yellow)
+                    new UIBoxPanel(_game, Color.Yellow, Color.LightYellow)
                         .WithLayout(Layout.SideLayout(Layout.Top, 100, 4))
                         .WithChild(new UIText(_game, _textFont, "Hello there!")
                         {
                             TextHAlign = UIText.TextHAlignMode.Right,
-                            TextVAlign = UIText.TextVAlignMode.Middle
+                            TextVAlign = UIText.TextVAlignMode.Bottom
                         })
+                        .WithChild(new UIBoxPanel(_game, Color.Brown, Color.Wheat)
+                            .WithLayout(Layout.FullscreenLayout(200, 10, 200, 10 ))
+                        )
                 );
             // Left side Bar
-            _rotater2 = new UIBoxPanel(_game, Color.Blue)
+            _rotater2 = new UIBoxPanel(_game, Color.Blue, Color.Aqua)
                 .AddToRoot()
                 .WithLayout(Layout.CornerLayout(Layout.TopLeft, 50, 100))
                 .OffsetBy(0, 0)
@@ -81,19 +84,38 @@ namespace DREngine.Game
         }
     }
 
-    class UIBoxPanel : UIComponent
+    class UIBoxPanel : UIComponent, ICursorSelectable
     {
-        private Color _color;
-        public UIBoxPanel(GamePlus game, UIComponent parent, Color color) : base(game, parent)
+        private Color _deselectColor;
+        private Color _selectColor;
+
+        private Color _currentColor;
+        public UIBoxPanel(GamePlus game, UIComponent parent, Color deselectColor, Color selectColor) : base(game, parent)
         {
-            _color = color;
+            _deselectColor = deselectColor;
+            _selectColor = selectColor;
+            _currentColor = _deselectColor;
         }
-        public UIBoxPanel(GamePlus game, Color c) : this(game, null, c){}
+        public UIBoxPanel(GamePlus game, Color c, Color selectColor) : this(game, null, c, selectColor){}
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             // Fill the rect with our box
-            screen.DrawRect(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, _color);
+            screen.DrawRect(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, _currentColor);
+        }
+
+        public bool Selected { get; set; } = false;
+        public bool __ChildWasSelected { get; set; } = false;
+        public bool ChildrenSelectFirst { get; set; } = true;
+
+        public void OnSelect()
+        {
+            _currentColor = _selectColor;
+        }
+
+        public void OnDeselect()
+        {
+            _currentColor = _deselectColor;
         }
     }
 }

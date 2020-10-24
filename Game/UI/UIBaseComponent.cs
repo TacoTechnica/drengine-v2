@@ -44,6 +44,8 @@ namespace DREngine.Game.UI
             screen.CurrentWorld = worldMat;
             Draw(screen, targetRect);
 
+            bool childSelected = false;
+
             _children.LoopThroughAllAndDeleteQueued(
                 child =>
                 {
@@ -53,8 +55,44 @@ namespace DREngine.Game.UI
                     Vector2 pivotPos = target.Min + target.Size * child.Layout.Pivot;
                     screen.CurrentWorld = Matrix.CreateTranslation(-pivotPos.X, -pivotPos.Y, 0) * childMat * Matrix.CreateTranslation(pivotPos.X, pivotPos.Y, 0) * worldMat;
                     child.DoDraw(screen, screen.CurrentWorld, target);
+
+                    // If any child is selected after the corresponding draw call, mark that.
+                    if (!childSelected && screen.NeedToUpdateSelectables && child is ICursorSelectable selectable)
+                    {
+                        if (selectable.__ChildWasSelected || selectable.Selected) childSelected = true;
+                    }
                 }
             );
+
+
+            // if our object asks for it, do selection checking.
+            if (screen.NeedToUpdateSelectables && this is ICursorSelectable selectable)
+            {
+                selectable.__ChildWasSelected = childSelected;
+
+                Vector2 cursorPos = _game.CurrentCursor.Position;
+                bool prevSelected = selectable.Selected;
+                bool selected;
+                // If a child was selected, we might want to ignore this selection.
+                if (selectable.ChildrenSelectFirst && childSelected)
+                {
+                    selected = false;
+                }
+                else
+                {
+                    selected = targetRect.Contains(cursorPos);
+                }
+
+                selectable.Selected = selected;
+                if (selected && !prevSelected)
+                {
+                    selectable.OnSelect();
+                }
+                else if (!selected && prevSelected)
+                {
+                    selectable.OnDeselect();
+                }
+            }
         }
 
         protected abstract void Draw(UIScreen screen, Rect targetRect);
