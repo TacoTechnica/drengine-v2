@@ -9,6 +9,11 @@ namespace DREngine.Game
         protected GamePlus _game;
 
         private bool _gottaStart = true;
+
+        public bool Active { get; private set; }
+        protected internal bool _activeAsChild { get; private set; } // Whether we should automatically get activated as a child.
+        protected internal bool _parentActive { get; private set; }
+
         private ObjectContainerNode<GameObject> _gameAddedNode = null;
 
         private ObjectContainer<GameObject> _children = new ObjectContainer<GameObject>();
@@ -25,8 +30,12 @@ namespace DREngine.Game
         {
             _game = game;
             _gameAddedNode = game.SceneManager.GameObjects.Add(this);
+
             _gottaStart = true;
             _alive = true;
+            Active = true;
+            _activeAsChild = true;
+            _parentActive = true;
             Awake();
         }
 
@@ -61,8 +70,53 @@ namespace DREngine.Game
             }
         }
 
+        /// <summary>
+        /// Set the object to be active.
+        /// </summary>
+        /// <param name="active"> Whether to set it to active. </param>
+        /// <param name="childMode"> If true, will NOT activate child objects that were disabled previously. </param>
+        public void SetActive(bool active, bool childMode=false)
+        {
+
+            if (childMode)
+            {
+                _parentActive = active;
+                // If we're a child, keep ourselves de-activated if we were activated previously.
+                if (active == Active || (active && _activeAsChild) == Active) return;
+                Active = active && _activeAsChild;
+            }
+            else
+            {
+                if (active == Active) return;
+                _activeAsChild = active;
+                // Do nothing while our parent isn't active.
+                if (!_parentActive) return;
+                Active = active;
+            }
+
+            if (Active)
+            {
+                _game.SceneManager.GameObjects.EnableEnqueue(_gameAddedNode);
+            }
+            else
+            {
+                _game.SceneManager.GameObjects.DisableEnqueue(_gameAddedNode);
+            }
+
+            // Do the same for the children
+            _children.LoopThroughAll(child =>
+            {
+                child.SetActive(Active, true);
+            });
+        }
+
         internal void RunStart()
         {
+            if (Active)
+            {
+                RunOnEnable(_gameAddedNode);
+            }
+
             Start();
             // We might create colliders in start so register them now.
             _colliders.ForEach(c => _game.CollisionManager.RegisterCollider(c));
@@ -91,11 +145,12 @@ namespace DREngine.Game
         }
         internal virtual void RunOnDestroy()
         {
+            Debug.Log("CROIKEY");
             AssertAlive();
             _gameAddedNode = null;
 
             // Delete all children too.
-            _children.LoopThroughAll((child) =>
+            _children.LoopThroughAll(child =>
             {
                 child.Destroy();
             });
@@ -111,7 +166,23 @@ namespace DREngine.Game
 
             OnDestroy();
 
+            if (Active)
+            {
+                RunOnDisable(_gameAddedNode);
+            }
+
             _alive = false;
+        }
+
+        internal virtual void RunOnEnable(ObjectContainerNode<GameObject> newNode)
+        {
+            _gameAddedNode = newNode;
+            OnEnable();
+        }
+        internal virtual void RunOnDisable(ObjectContainerNode<GameObject> newNode)
+        {
+            _gameAddedNode = newNode;
+            OnDisable();
         }
 
         public void Destroy()
@@ -125,7 +196,7 @@ namespace DREngine.Game
         {
             AssertAlive();
             if (!_alive) return;
-            _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, (self) => {self.RunOnDestroy();});
+            _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, (self) => { self.RunOnDestroy(); });
         }
 
         #endregion
@@ -225,6 +296,16 @@ namespace DREngine.Game
         }
 
         public virtual void OnDestroy()
+        {
+
+        }
+
+        public virtual void OnEnable()
+        {
+
+        }
+
+        public virtual void OnDisable()
         {
 
         }

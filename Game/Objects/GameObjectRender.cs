@@ -44,6 +44,18 @@ namespace DREngine.Game
             base.RunOnDestroy();
         }
 
+        internal override void RunOnDisable(ObjectContainerNode<GameObject> newNode)
+        {
+            _renderAddedNode = _game.SceneManager.GameRenderObjects.DisableImmediate(_renderAddedNode);
+            base.RunOnDisable(newNode);
+        }
+
+        internal override void RunOnEnable(ObjectContainerNode<GameObject> newNode)
+        {
+            _renderAddedNode = _game.SceneManager.GameRenderObjects.EnableImmediate(_renderAddedNode);
+            base.RunOnEnable(newNode);
+        }
+
         #endregion
 
         #region Object Functions

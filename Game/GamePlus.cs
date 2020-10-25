@@ -40,6 +40,7 @@ namespace DREngine.Game
 
         internal BasicEffect DebugEffect;
         public bool DebugDrawColliders = false;
+        public SpriteBatch DebugSpriteBatch;
 
         private List<Controls> _controls = new List<Controls>();
 
@@ -123,6 +124,7 @@ namespace DREngine.Game
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
             }
             DebugEffect = new BasicEffect(GraphicsDevice);
+            DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
 
             UIScreen.Initialize();
 
@@ -168,6 +170,12 @@ namespace DREngine.Game
             // Resources that want to load at the START may load now.
             WhenSafeToLoad.InvokeAll();
 
+            // If any objects were Enabled LAST frame, make sure our list reflects that.
+            SceneManager.GameObjects.EnableAllQueuedImmediate((obj, node) =>
+            {
+                obj.RunOnEnable(node);
+            });
+
             // Everyone else can start on this frame.
             UpdateBegan.InvokeAll();
 
@@ -202,6 +210,12 @@ namespace DREngine.Game
             // Standard Update goes here.
             base.Update(gameTime);
             _runner?.Update(DeltaTime);
+
+            // If any objects were disabled this frame, make sure our list reflects that.
+            SceneManager.GameObjects.DisableAllQueuedImmediate((obj, node) =>
+            {
+                obj.RunOnDisable(node);
+            });
 
             // We've finished the update frame.
             UpdateFinished.InvokeAll();

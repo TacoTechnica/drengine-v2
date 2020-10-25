@@ -3,10 +3,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
+    /// <summary>
+    /// TODO: Since this relies on passing a game object like everywhere, consider not making this static.
+    /// Might want to keep it like this though so it's easier to remove or something.
+    /// </summary>
     public static class DebugDrawer
     {
 
         private static Color DEFAULT_COLOR = Color.Green;
+
+        private static SpriteFont _debugFont = null;
 
         public static void DrawLine3D(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to, Color fromC, Color toC)
         {
@@ -73,6 +79,38 @@ namespace DREngine.Game
         public static void DrawAABB(GamePlus _game, Camera3D cam, BoundingBox b)
         {
             DrawAABB(_game, cam, b, DEFAULT_COLOR);
+        }
+
+        public static void DrawText(GamePlus _game, string text, Vector2 pos, Color color)
+        {
+            _game.DebugSpriteBatch.Begin();
+            _game.DebugSpriteBatch.DrawString(GetFont(_game), text, pos, color);
+            _game.DebugSpriteBatch.End();
+        }
+
+        public static void DrawText(GamePlus _game, string text, Vector2 pos)
+        {
+            DrawText(_game, text, pos, DEFAULT_COLOR);
+        }
+
+        public static void DrawText(GamePlus _game, string text, float x, float y, Color color)
+        {
+            DrawText(_game, text, new Vector2(x, y), color);
+        }
+
+        public static void DrawText(GamePlus _game, string text, float x, float y)
+        {
+            DrawText(_game, text, x, y, DEFAULT_COLOR);
+        }
+
+        private static SpriteFont GetFont(GamePlus _game)
+        {
+            if (_debugFont == null)
+            {
+                _debugFont = _game.Content.Load<SpriteFont>("Debug/DebugFont");
+            }
+
+            return _debugFont;
         }
     }
 }

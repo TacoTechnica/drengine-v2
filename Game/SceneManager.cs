@@ -15,7 +15,6 @@ namespace DREngine.Game
 
         /// Object Containers
         internal ObjectContainer<GameObject> GameObjects { get; private set; }
-
         internal ObjectContainer<GameObjectRender> GameRenderObjects { get; private set; }
         internal ObjectContainer<Camera3D> Cameras { get; private set; }
 
@@ -116,9 +115,9 @@ namespace DREngine.Game
             {
                 obj.Destroy();
             });
-            GameObjects.RemoveAllQueuedImmediate((gobj) =>
+            GameObjects.RemoveAllQueuedImmediate((obj) =>
             {
-                gobj.RunOnDestroy();
+                obj.RunOnDestroy();
             });
 
             // Make sure we're only called once!

@@ -110,6 +110,17 @@ namespace DREngine.Game
             Debug.Log("deleted CAMERA");
             _camListReference = _game.SceneManager.Cameras.RemoveImmediate(_camListReference);
         }
+        internal override void RunOnDisable(ObjectContainerNode<GameObject> newNode)
+        {
+            _camListReference = _game.SceneManager.Cameras.DisableImmediate(_camListReference);
+            base.RunOnDisable(newNode);
+        }
+
+        internal override void RunOnEnable(ObjectContainerNode<GameObject> newNode)
+        {
+            _camListReference = _game.SceneManager.Cameras.EnableImmediate(_camListReference);
+            base.RunOnEnable(newNode);
+        }
 
         public override void Draw(GraphicsDevice g)
         {
