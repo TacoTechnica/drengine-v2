@@ -18,7 +18,7 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestActiveDeactive())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestVectorFont())
         {
             this._graphics.SynchronizeWithVerticalRetrace = true;
             this.IsFixedTimeStep = false;
