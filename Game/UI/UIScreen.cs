@@ -124,6 +124,16 @@ namespace DREngine.Game.UI
             DrawRect(x, y, width, height, DefaultDrawColor);
         }
 
+        public void DrawRect(Rect r, Color color)
+        {
+            DrawRect(r.X, r.Y, r.Width, r.Height, color);
+        }
+
+        public void DrawRect(Rect r)
+        {
+            DrawRect(r, DefaultDrawColor);
+        }
+
         public void DrawRectOutline(float x, float y, float width, float height, Color color)
         {
             DrawEffect.World = CurrentWorld * OpenGL2Pixel;

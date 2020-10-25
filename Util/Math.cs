@@ -2,12 +2,12 @@
 using System;
 using Microsoft.Xna.Framework;
 
-/// <summary>
-///     Math stuff that really should be included in every game engine.
-/// </summary>
-
 namespace DREngine
 {
+
+    /// <summary>
+    ///     Math stuff that really should be included in every game engine.
+    /// </summary>
     public static class Math
     {
 
@@ -19,6 +19,14 @@ namespace DREngine
             if (x < 0)
             {
                 return m - (Abs(x) % m);
+            }
+            return x % m;
+        }
+        public static int Mod(int x, int m)
+        {
+            if (x < 0)
+            {
+                return m - (int)(Abs(x) % m);
             }
             return x % m;
         }

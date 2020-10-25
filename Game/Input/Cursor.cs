@@ -12,6 +12,8 @@ namespace DREngine.Game.Input
     {
         public Vector2 Position;
 
+        public bool MovedLastFrame { get; protected set; } = true;
+
         public void DoUpdate(GamePlus _game)
         {
             UpdateCursorPosition(_game);

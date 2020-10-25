@@ -57,6 +57,11 @@ namespace DREngine.Game.UI
             return this;
         }
 
+        public UIComponent OffsetBy(Vector2 pos)
+        {
+            return OffsetBy(pos.X, pos.Y);
+        }
+
         public UIComponent WithPivot(float x, float y)
         {
             Layout.Pivot = new Vector2(x, y);

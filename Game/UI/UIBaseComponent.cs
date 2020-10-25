@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using DREngine.Game.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
@@ -59,11 +60,10 @@ namespace DREngine.Game.UI
                     // If any child is selected after the corresponding draw call, mark that.
                     if (!childSelected && screen.NeedToUpdateSelectables && child is ICursorSelectable selectable)
                     {
-                        if (selectable.__ChildWasSelected || selectable.Selected) childSelected = true;
+                        if (selectable.__ChildWasSelected || selectable.CursorSelected) childSelected = true;
                     }
                 }
             );
-
 
             // if our object asks for it, do selection checking.
             if (screen.NeedToUpdateSelectables && this is ICursorSelectable selectable)
@@ -71,7 +71,8 @@ namespace DREngine.Game.UI
                 selectable.__ChildWasSelected = childSelected;
 
                 Vector2 cursorPos = _game.CurrentCursor.Position;
-                bool prevSelected = selectable.Selected;
+                bool isCursorMoving = _game.CurrentCursor.MovedLastFrame;
+                bool prevSelected = selectable.CursorSelected;
                 bool selected;
                 // If a child was selected, we might want to ignore this selection.
                 if (selectable.ChildrenSelectFirst && childSelected)
@@ -83,14 +84,27 @@ namespace DREngine.Game.UI
                     selected = targetRect.Contains(cursorPos);
                 }
 
-                selectable.Selected = selected;
-                if (selected && !prevSelected)
+                if (isCursorMoving)
                 {
-                    selectable.OnSelect();
+                    selectable.CursorSelected = selected;
                 }
-                else if (!selected && prevSelected)
+
+                if (selectable.CursorSelected && !prevSelected)
                 {
-                    selectable.OnDeselect();
+                    // If we are part of a parent menu, inform the parent that we've been selected.
+                    if (selectable is IMenuItem menuItem)
+                    {
+                        if (menuItem.ParentMenu != null && menuItem.ParentMenu.UseMouse)
+                        {
+                            menuItem.ParentMenu.SetSelected(menuItem);
+                        }
+                    }
+
+                    selectable.OnCursorSelect();
+                }
+                else if (!selectable.CursorSelected && prevSelected)
+                {
+                    selectable.OnCursorDeselect();
                 }
             }
         }

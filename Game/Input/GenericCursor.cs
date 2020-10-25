@@ -22,6 +22,7 @@ namespace DREngine.Game.Input
 
         protected override void UpdateCursorPosition(GamePlus _game)
         {
+            Vector2 delta = Vector2.Zero;;
             // While we're inside, do some funky stuff.
             if (InBounds(_game, Position))
             {
@@ -47,15 +48,15 @@ namespace DREngine.Game.Input
 
                         // Up is negative here.
                         input.Y *= -1;
-                        Vector2 delta = input * OverrideScale;
+                        Vector2 axisDelta = input * OverrideScale;
                         // Slide along border if we're not in bounds.
                         if (InBounds(_game, Position + delta.X * Vector2.UnitX))
                         {
-                            Position += delta.X * Vector2.UnitX;
+                            delta += axisDelta.X * Vector2.UnitX;
                         }
                         if (InBounds(_game, Position + delta.Y * Vector2.UnitY))
                         {
-                            Position += delta.Y * Vector2.UnitY;
+                            delta += axisDelta.Y * Vector2.UnitY;
                         }
                     }
                 }
@@ -64,7 +65,16 @@ namespace DREngine.Game.Input
             if (UseMouse)
             {
                 Vector2 mouseDelta = RawInput.GetMouseDelta();
-                Position += mouseDelta;
+                delta += mouseDelta;
+            }
+
+            Position += delta;
+
+            // Whether we were moving. Also check if we clicked something.
+            MovedLastFrame = (delta.LengthSquared() > 1);
+
+            if (UseMouse)
+            {
                 RawInput.SetMousePos(Position);
             }
         }

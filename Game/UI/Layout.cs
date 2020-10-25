@@ -131,6 +131,26 @@ namespace DREngine.Game.UI
                     delta.X = -width;
                     delta.Y = -height;
                     break;
+                case Top:
+                    anchor.X = 0.5f;
+                    delta.X = -width / 2;
+                    break;
+                case Bottom:
+                    anchor.X = 0.5f;
+                    anchor.Y = 1f;
+                    delta.X = -width / 2;
+                    delta.Y = -height;
+                    break;
+                case Left:
+                    anchor.Y = 0.5f;
+                    delta.Y = -height / 2;
+                    break;
+                case Right:
+                    anchor.X = 1f;
+                    anchor.Y = 0.5f;
+                    delta.X = -width;
+                    delta.Y = -height / 2;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(corner), corner, null);
             }
@@ -141,7 +161,7 @@ namespace DREngine.Game.UI
                 Margin = new Margin(delta.Y, -delta.Y - height, delta.X, -delta.X - width)
             };
         }
-        public static Layout SideLayout(int side, float size, float padding = 0)
+        public static Layout SideStretchLayout(int side, float size, float padding = 0)
         {
             Layout result = new Layout();
             result.Margin = new Margin(padding, padding, padding, padding);

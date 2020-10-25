@@ -29,7 +29,7 @@ namespace DREngine.Game
                         .WithLayout(Layout.CornerLayout(Layout.BottomRight, 60, 60))
                         .OffsetBy(-4, -4),
                     new UIBoxPanel(_game, Color.Yellow, Color.LightYellow)
-                        .WithLayout(Layout.SideLayout(Layout.Top, 100, 4))
+                        .WithLayout(Layout.SideStretchLayout(Layout.Top, 100, 4))
                         .WithChild(new UIText(_game, _textFont, "Hello there!")
                         {
                             TextHAlign = UIText.TextHAlignMode.Right,
@@ -82,40 +82,42 @@ namespace DREngine.Game
         {
             // Nothing, UI is doing the work in the background!
         }
+
+        class UIBoxPanel : UIComponent, ICursorSelectable
+        {
+            private Color _deselectColor;
+            private Color _selectColor;
+
+            private Color _currentColor;
+            public UIBoxPanel(GamePlus game, UIComponent parent, Color deselectColor, Color selectColor) : base(game, parent)
+            {
+                _deselectColor = deselectColor;
+                _selectColor = selectColor;
+                _currentColor = _deselectColor;
+            }
+            public UIBoxPanel(GamePlus game, Color c, Color selectColor) : this(game, null, c, selectColor){}
+
+            protected override void Draw(UIScreen screen, Rect targetRect)
+            {
+                // Fill the rect with our box
+                screen.DrawRect(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, _currentColor);
+            }
+
+            public bool CursorSelected { get; set; } = false;
+            public bool __ChildWasSelected { get; set; } = false;
+            public bool ChildrenSelectFirst { get; set; } = true;
+
+            public void OnCursorSelect()
+            {
+                _currentColor = _selectColor;
+            }
+
+            public void OnCursorDeselect()
+            {
+                _currentColor = _deselectColor;
+            }
+        }
     }
 
-    class UIBoxPanel : UIComponent, ICursorSelectable
-    {
-        private Color _deselectColor;
-        private Color _selectColor;
 
-        private Color _currentColor;
-        public UIBoxPanel(GamePlus game, UIComponent parent, Color deselectColor, Color selectColor) : base(game, parent)
-        {
-            _deselectColor = deselectColor;
-            _selectColor = selectColor;
-            _currentColor = _deselectColor;
-        }
-        public UIBoxPanel(GamePlus game, Color c, Color selectColor) : this(game, null, c, selectColor){}
-
-        protected override void Draw(UIScreen screen, Rect targetRect)
-        {
-            // Fill the rect with our box
-            screen.DrawRect(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height, _currentColor);
-        }
-
-        public bool Selected { get; set; } = false;
-        public bool __ChildWasSelected { get; set; } = false;
-        public bool ChildrenSelectFirst { get; set; } = true;
-
-        public void OnSelect()
-        {
-            _currentColor = _selectColor;
-        }
-
-        public void OnDeselect()
-        {
-            _currentColor = _deselectColor;
-        }
-    }
 }
