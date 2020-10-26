@@ -1,6 +1,8 @@
 
 # Project
 themes/
+libs/*.so
+libs/*.dll
 
 # Common IntelliJ Platform excludes
 

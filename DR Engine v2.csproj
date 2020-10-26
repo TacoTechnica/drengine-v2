@@ -36,9 +36,13 @@
         <PackageReference Include="YamlDotNet" Version="8.1.2" />
     </ItemGroup>
     <ItemGroup>
-      <ContentWithTargetPath Include="$(SolutionDir)libs/freetype6.dll">
+      <ContentWithTargetPath Include="$(SolutionDir)libs/freetype6.dll" Condition=" '$(OS)' == 'Windows_NT' ">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         <TargetPath>freetype6.dll</TargetPath>
+      </ContentWithTargetPath>
+      <ContentWithTargetPath Include="$(SolutionDir)libs/libfreetype.6.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>libfreetype6.so</TargetPath>
       </ContentWithTargetPath>
       <None Update="$(SolutionDir)themes/**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
