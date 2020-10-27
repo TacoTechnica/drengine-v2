@@ -14,9 +14,12 @@ namespace DREngine.Game.UI
 
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
 
+        private bool _initialized = false;
+
         public UIBaseComponent(GamePlus game)
         {
             _game = game;
+            _initialized = false;
         }
 
         public void AddChild(UIComponent child)
@@ -42,6 +45,11 @@ namespace DREngine.Game.UI
 
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
+            if (!_initialized)
+            {
+                Initialize();
+                _initialized = true;
+            }
             screen.CurrentWorld = worldMat;
             Draw(screen, targetRect);
 
@@ -109,6 +117,11 @@ namespace DREngine.Game.UI
             }
         }
 
+
+        protected virtual void Initialize()
+        {
+            // Do nothing here
+        }
         protected abstract void Draw(UIScreen screen, Rect targetRect);
     }
 }

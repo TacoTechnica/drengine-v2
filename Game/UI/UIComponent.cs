@@ -24,6 +24,7 @@ namespace DREngine.Game.UI
             }
         }
 
+
         internal void ReceiveParent(UIBaseComponent parent, ObjectContainerNode<UIComponent> node)
         {
             if (_parent != null)

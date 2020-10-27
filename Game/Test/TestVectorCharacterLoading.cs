@@ -15,7 +15,7 @@ using SharpFont;
 
 namespace DREngine.Game
 {
-    public class TestVectorFont : IGameRunner
+    public class TestVectorCharacterLoading : IGameRunner
     {
 
         private GamePlus _game;
@@ -59,8 +59,6 @@ namespace DREngine.Game
 
             f.SetPixelSizes(32, 0);
 
-            uint g;
-
             f.LoadChar('&', LoadFlags.Default, LoadTarget.Normal);
 
             points.Add(new List<PolygonPoint>());
@@ -82,14 +80,16 @@ namespace DREngine.Game
                 else
                 {
                     Polygon cutPoly = new Polygon(plist);
-                    P2T.Triangulate(cutPoly);
-                    if (poly.Bounds.Intersects(cutPoly.Bounds))
+                    if (true)
                     {
+                        Debug.Log("HOLE");
+                        P2T.Triangulate(cutPoly);
                         poly.AddHole(cutPoly);
                     }
                     else
                     {
-                        poly.AddRange(cutPoly);
+                        Debug.Log("ADD");
+                        poly.AddRange(plist);
                     }
                 }
 
@@ -214,7 +214,7 @@ namespace DREngine.Game
                     }
                 }
 
-                Vertices = verts.ToArray();
+                Mesh.Vertices = verts.ToArray();
             }
         }
     }

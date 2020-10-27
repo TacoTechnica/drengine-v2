@@ -9,7 +9,7 @@ namespace DREngine.Game
         {
             base.Start();
             // Create triangle
-            Vertices = new[]
+            Mesh.Vertices = new[]
             {
                 new VertexPositionColor(new Vector3(0, 20, 0), Color.Red),
                 new VertexPositionColor(new Vector3(-20, -20, 0), Color.Green),

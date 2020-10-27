@@ -32,7 +32,7 @@ namespace DREngine.Game
         public SpriteRenderer(GamePlus game, Sprite sprite, Vector3 position=default(Vector3), Quaternion rotation = default(Quaternion)) : base(game, position, rotation)
         {
             _sprite = sprite;
-            PrimitiveType = PrimitiveType.TriangleList;
+            Mesh.PrimitiveType = PrimitiveType.TriangleList;
         }
 
         public override void Start()
@@ -58,7 +58,7 @@ namespace DREngine.Game
                 bottomRight = bottomLeft + right;
 
             // We rotate the order so the default rotation faces US, ( so technically it's backwards )
-            Vertices = new[]
+            Mesh.Vertices = new[]
             {
                 new VertexPositionColorTexture(topLeft, _blend, new Vector2(0, 0) ),
                 new VertexPositionColorTexture(bottomRight, _blend, new Vector2(1, 1) ),
