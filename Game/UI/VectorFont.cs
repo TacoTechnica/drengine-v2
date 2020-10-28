@@ -38,7 +38,7 @@ namespace DREngine.Game.UI
         // 32: We pass that in SetPixelSize
         // 96: Windows standard...
         // 72: It is how it is.
-        public float BullshitScale = 32 * 96f / 72f;
+        public float BullshitScale = 1f / (96*32f*64);//18 * 96f / 72f;
 
         public VectorFont(GamePlus game, Path path)
         {
@@ -54,7 +54,8 @@ namespace DREngine.Game.UI
             // TODO: Load data from file
 
             _face = new Face(Library, path);
-            _face.SetPixelSizes(32, 0);
+            //_face.SetPixelSizes(32, 0);
+            _face.SetCharSize(0, 32*64, 96, 96);
 
             _charMap['|'] = GetCharacterModel('|');
             VectorCharacterModel m = _charMap['|'];
@@ -93,8 +94,8 @@ namespace DREngine.Game.UI
                     PolygonPointList last = list.Last();
                     // Conic To (Bezier 1)
                     Vector2 start = last.LastPointOrZero(),
-                        mid = new Vector2( (float)control.X, (float)control.Y),
-                        end = new Vector2((float)to.X, (float)to.Y);
+                        mid = new Vector2( (float)control.X.Value, (float)control.Y.Value),
+                        end = new Vector2((float)to.X.Value, (float)to.Y.Value);
                     for (int i = 0; i < _bezierAccuracy; ++i)
                     {
                         float prog = (float) i / _bezierAccuracy;
@@ -111,12 +112,14 @@ namespace DREngine.Game.UI
                 {
                     // Cubic To (Bezier 2?)
                     // TODO: Do the Ebic Cubic nay nay
+                    Debug.Log("Bezier??");
                     list.Last().Add(to);
 
                     return 0;
                 },
                 0, 0
             );
+
 
             _face.Glyph.Outline.Decompose(outlineFuncs,IntPtr.Zero);
 
@@ -153,7 +156,8 @@ namespace DREngine.Game.UI
                         Debug.Log("ADD");
                         // Generate prev last polygon and make a new one
                         P2T.Triangulate(polygons.Last());
-                        poly.AddRange(new Polygon(plist.Points));
+                        polygons.Add(new Polygon(plist.Points));
+                        //poly.AddRange(new Polygon(plist.Points));
                         lastSolid = plist;
                     }
                 }
@@ -181,66 +185,72 @@ namespace DREngine.Game.UI
 
         public void DrawString(GraphicsDevice g, EffectPass pass, IEffectMatrices effect, float size, string text, bool flip = false)
         {
-            // 72 cause that's how it be.
             Matrix rootWorld = effect.World;
             Vector2 p = Vector2.Zero;
             char prev = '\0';
             float prevDX = 0;
+            float height = size;//0.955f * (float) _face.Height / (32f * 72f * 16f * 1f);//_face.Size.Metrics.Height.Value / (96f * 32f);
+            float newlinePad = 0f;//0.009f; // TODO: What unit?
+            float xScale = 1f;//TestVectorTextUI.TEMP_TEST;
+            float arbitraryOffset = 0f;//TestVectorTextUI.TEMP_TEST2;
+            /*
+             * 0.9550006, 0.009199999
+             *
+             * This kind of works. Kind of.
+             * xscale = 0.8830015, arbitraryOffset = 12.27184
+             */
             foreach (char c in text)
             {
-                _face.LoadChar(prev, LoadFlags.NoBitmap, LoadTarget.Normal);
-                float dx = (float) _face.Glyph.Advance.X;
+                _face.LoadChar(c, LoadFlags.NoBitmap, LoadTarget.Normal);
+
                 switch (c)
                 {
                     case ' ':
                     case '\t': // TODO: Tab properly?
-                        p.X += dx;
+                        float spaceWidth = (float)_face.Glyph.Metrics.HorizontalAdvance;
+                        p.X +=  arbitraryOffset + xScale * spaceWidth;
                         break;
                     case '\n':
                         p.X = 0;
-                        p.Y += (float)_face.Glyph.Metrics.Height.Value * size / (BullshitScale * 8f);
+                        p.Y += height + newlinePad;
                         break;
                     // TODO: Other potential formatting characters?
                     default:
                         VectorCharacterModel m = GetCharacterModel(c);
 
                         // Apply kerning.
-                        if (prev != '\0' && prev != '\n')
-                        {
-                            if (_face.HasKerning)
-                            {
-                                float kerning = GetKerningBetween(prev, c);
-                                Debug.Log($"K: {prev} => {c} = {kerning}");
-                                p.X += kerning; //GetKerningBetween(prev, c) * BullshitScale;// + dx;
-                            }
-                            else
-                            {
-                                float toMove = prevDX;
-                                toMove = _face.Glyph.Metrics.HorizontalAdvance.Value;
-                                p.X += size * toMove / (BullshitScale * 32f); //(96f / 72f) * size * toMove / BullshitScale; //size * dx / (BullshitScale);
-                            }
-                        }
 
                         // Translate with the effect.
-                        //Debug.Log($"{p}");
-                        float scale = BullshitScale * size;
+                        // 0.884 and 0.05 were found from experimentation. This is bullshit.
+                        float scale = BullshitScale * (size + size*_face.Descender / _face.UnitsPerEM);
                         Matrix scaleMat = Matrix.CreateScale(scale, flip? -scale : scale, 1);
                         if (flip)
                         {
-                            scaleMat = scaleMat * Matrix.CreateTranslation(0, size, 0);
+                            float dyh = size * (_face.Height / (64f*32f)) + size * _face.Descender / _face.UnitsPerEM; //height - (float)_face.Glyph.Metrics.HorizontalBearingY / 64f;
+                            scaleMat = scaleMat * Matrix.CreateTranslation(0, dyh, 0);
                         }
                         effect.World = scaleMat * Matrix.CreateTranslation(p.X, p.Y, 0) * rootWorld;
                         pass.Apply();
                         // Render each text part
                         foreach (var mesh in m.Parts)
                         {
-                            //g.SetVertexBuffer(mesh.VertexBuffer);
                             g.DrawUserPrimitives(mesh.PrimitiveType, mesh.Vertices, 0, mesh.Vertices.Length / 3);
+                        }
+
+                        if (_face.HasKerning)
+                        {
+                            float kerning = GetKerningBetween(prev, c);
+                            Debug.Log($"K: {prev} => {c} = {kerning}");
+                            p.X += kerning; //GetKerningBetween(prev, c) * BullshitScale;// + dx;
+                        }
+                        else
+                        {
+                            float toMove = (float)_face.Glyph.Metrics.HorizontalAdvance - (float)_face.Glyph.Metrics.HorizontalBearingX;
+                            p.X += arbitraryOffset + xScale * toMove / (16f * 72f); //(96f / 72f) * size * toMove / BullshitScale; //size * dx / (BullshitScale);
                         }
                         break;
                 }
 
-                prevDX = dx;
                 prev = c;
             }
         }
@@ -282,7 +292,7 @@ namespace DREngine.Game.UI
 
         public void Add(FTVector v)
         {
-            Add(new PolygonPoint(v.X, v.Y));
+            Add(new PolygonPoint(v.X.Value, v.Y.Value));
         }
 
         public void Add(Vector2 p)

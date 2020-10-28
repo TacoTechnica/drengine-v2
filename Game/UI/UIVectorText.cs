@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game
 {
-    public class VectorTextUI : UIComponent
+    public class UIVectorText : UIComponent
     {
         private BasicEffect _effect;
 
@@ -17,7 +17,7 @@ namespace DREngine.Game
 
         public bool CullingEnabled = false;
 
-        public VectorTextUI(GamePlus game, VectorFont font, UIComponent parent = null) : base(game, parent)
+        public UIVectorText(GamePlus game, VectorFont font, UIComponent parent = null) : base(game, parent)
         {
             Font = font;
         }
