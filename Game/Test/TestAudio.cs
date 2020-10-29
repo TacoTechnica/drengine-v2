@@ -56,6 +56,19 @@ namespace DREngine.Game
                 Debug.Log("Playing Music 1");
                 music.Play(music1);
             }
+
+            if (RawInput.KeyPressing(Keys.Up))
+            {
+                BGM.Volume += 0.2f * deltaTime;
+                BGM.Volume = System.Math.Clamp(BGM.Volume, 0, 1);
+                Debug.Log($"VOLUME: {BGM.Volume}");
+            } else if (RawInput.KeyPressing(Keys.Down))
+            {
+                BGM.Volume -= 0.2f * deltaTime;
+                BGM.Volume = System.Math.Clamp(BGM.Volume, 0, 1);
+                Debug.Log($"VOLUME: {BGM.Volume}");
+            }
+
         }
 
         public void Draw()

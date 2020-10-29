@@ -20,8 +20,7 @@ namespace DREngine.Game.Audio
 
         public AudioOutput(int sampleRate = 44100, int channelCount = 2)
         {
-
-            outputDevice = new WaveOutEvent();
+            outputDevice = new DirectSoundOut(50);
             WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
             mainMixer = new MixingSampleProvider(WaveFormat);
             mainMixer.ReadFully = true;

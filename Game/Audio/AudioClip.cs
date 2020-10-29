@@ -12,6 +12,8 @@ namespace DREngine.Game.Audio
 
         private AudioClipType _type;
 
+        public bool UsesSample { get; private set; }= true;
+
         // TODO: Add default volume and pitch scale
         public AudioClip(AudioOutput targetOutput, Path audioFile, AudioClipType type = AudioClipType.Cached)
         {
@@ -20,9 +22,11 @@ namespace DREngine.Game.Audio
             {
                 case AudioClipType.Cached:
                     _clip = new AudioStorageCached(targetOutput, audioFile);
+                    UsesSample = true;
                     break;
                 case AudioClipType.Streamed:
                     _clip = new AudioStorageStreamed(targetOutput, audioFile);
+                    UsesSample = false;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -32,6 +36,10 @@ namespace DREngine.Game.Audio
         public ISampleProvider GetNewSampleProvider()
         {
             return _clip.GetNewSampleProvider();
+        }
+        public IWaveProvider GetNewWaveProvider()
+        {
+            return _clip.GetNewWaveProvider();
         }
     }
 

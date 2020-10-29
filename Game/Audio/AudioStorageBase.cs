@@ -31,6 +31,7 @@ namespace DREngine.Game.Audio
         protected abstract void OnLoad(Path path);
 
         public abstract ISampleProvider GetNewSampleProvider();
+        public abstract IWaveProvider GetNewWaveProvider();
     }
 
     public class AudioStorageCached : AudioStorageBase
@@ -60,8 +61,12 @@ namespace DREngine.Game.Audio
 
         public override ISampleProvider GetNewSampleProvider()
         {
-            // TODO: Resample
             return new SampleProvider(this);
+        }
+
+        public override IWaveProvider GetNewWaveProvider()
+        {
+            return null;
         }
 
         /// <summary>
@@ -112,7 +117,12 @@ namespace DREngine.Game.Audio
 
         public override ISampleProvider GetNewSampleProvider()
         {
-            return new WaveToSampleProvider(new StreamProvider(this));
+            return null; //new WaveToSampleProvider(new StreamProvider(this));
+        }
+
+        public override IWaveProvider GetNewWaveProvider()
+        {
+            return new StreamProvider(this);
         }
 
         class StreamProvider : IWaveProvider, IDisposable
