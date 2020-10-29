@@ -1,6 +1,10 @@
 
 # Project
 themes/
+# Project resources
+*.wav
+*.png
+*.dll
 
 # Common IntelliJ Platform excludes
 

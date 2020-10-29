@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
+using DREngine.Game.Audio;
 using DREngine.Game.Input;
 using DREngine.Game.UI;
 using DREngine.Util;
@@ -21,7 +22,7 @@ namespace DREngine.Game
     /// </summary>
     public class GamePlus : Microsoft.Xna.Framework.Game
     {
-        #region Util variables
+        #region Util variables & Debug
 
         protected GraphicsDeviceManager _graphics;
 
@@ -51,6 +52,9 @@ namespace DREngine.Game
         #region Public Access and Handlers
 
         public string WindowTitle;
+
+        /// Audio
+        public AudioOutput AudioOutput { get; private set; }
 
         /// Cursor
         public GenericCursor CurrentCursor
@@ -106,6 +110,8 @@ namespace DREngine.Game
             SceneManager = new SceneManager(this);
             CollisionManager = new CollisionManager();
             UIScreen = new UIScreen(this);
+
+            AudioOutput = new AudioOutput();
         }
 
 
