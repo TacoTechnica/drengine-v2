@@ -38,7 +38,8 @@ namespace DREngine.Game
 
             // mover (within LEFT MASK)
             _mover = new UIColoredRect(game, Color.Red, Color.Aqua, Color.DarkOliveGreen, Color.Coral)
-                .WithLayout(Layout.CenteredLayout(50, 50));
+                .WithLayout(Layout.CenteredLayout(50, 50))
+                .WithChild(new UIText(game, _textFont, "Hello I should crop too"));
             leftMask.AddChild(_mover);
 
 
@@ -48,9 +49,9 @@ namespace DREngine.Game
                 .AddToRoot()
                 .WithChild(new UIColoredRect(game, Color.Gold, true).WithLayout(Layout.FullscreenLayout(1, 1, 1, 1)));
             rightMask.AddChild(
-                new UIText(game, _textFont, "This should ALSO be cropped TWICE WILL REPEAT: This should ALSO be cropped")
+                new UIText(game, _textFont, "AAAAAAAAAAAAAAAAAAAA This should ALSO be cropped TWICE WILL REPEAT: This should ALSO be cropped")
                     .WithoutWordWrap()
-                    .OffsetBy(-200, 20)
+                    .OffsetBy(-250, 150)
                 );
 
         }
