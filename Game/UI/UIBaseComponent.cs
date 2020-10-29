@@ -14,6 +14,11 @@ namespace DREngine.Game.UI
 
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
 
+        private bool _isMasked = false;
+
+        private int _maskIndex = 0;
+        //private RenderTarget2D _maskedRenderTarget = null;
+
         public UIBaseComponent(GamePlus game)
         {
             _game = game;
@@ -21,11 +26,17 @@ namespace DREngine.Game.UI
 
         public void AddChild(UIComponent child)
         {
+            if (this is UIMask mask)
+            {
+                child._isMasked = true;
+                child._maskIndex = mask.MaskIndex;
+            }
             child.ReceiveParent(this, _children.Add(child));
         }
 
         public void RemoveEnqueueChild(ObjectContainerNode<UIComponent> toRemove)
         {
+            // TODO: Where is this ^ used? Shouldn't you pass the child object instead?
             _children.RemoveEnqueue(toRemove);
         }
 
@@ -43,9 +54,26 @@ namespace DREngine.Game.UI
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
             screen.CurrentWorld = worldMat;
+
+            if (_isMasked)
+            {
+
+
+                // Allow masking
+                screen.GraphicsDevice.DepthStencilState = new DepthStencilState
+                {
+                    StencilEnable = true,
+                    StencilFunction = CompareFunction.LessEqual,
+                    StencilPass = StencilOperation.Keep,
+                    ReferenceStencil = _maskIndex,
+                    DepthBufferEnable = false,
+                };
+            }
+
             Draw(screen, targetRect);
 
             bool childSelected = false;
+
 
             _children.LoopThroughAllAndDeleteQueued(
                 child =>
@@ -106,6 +134,7 @@ namespace DREngine.Game.UI
                 {
                     selectable.OnCursorDeselect();
                 }
+
             }
         }
 

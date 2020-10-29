@@ -163,29 +163,32 @@ namespace DREngine.Game.UI
         }
         public static Layout SideStretchLayout(int side, float size, float padding = 0)
         {
-            Layout result = new Layout();
-            result.Margin = new Margin(padding, padding, padding, padding);
+            Layout result = new Layout {Margin = new Margin(padding, padding, padding, padding)};
             switch (side)
             {
                 case Top:
                     result.AnchorMin = Vector2.Zero;
                     result.AnchorMax = Vector2.UnitX;
                     result.Margin.Bottom = -size;
+                    result.Margin.Top = 0;
                     break;
                 case Bottom:
                     result.AnchorMin = Vector2.UnitY;
                     result.AnchorMax = Vector2.One;
+                    result.Margin.Bottom = 0;
                     result.Margin.Top = -size;
                     break;
                 case Left:
                     result.AnchorMin = Vector2.Zero;
                     result.AnchorMax = Vector2.UnitY;
+                    result.Margin.Left = 0;
                     result.Margin.Right = -size;
                     break;
                 case Right:
                     result.AnchorMin = Vector2.UnitX;
                     result.AnchorMax = Vector2.One;
                     result.Margin.Left = -size;
+                    result.Margin.Right = 0;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);

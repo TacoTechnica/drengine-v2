@@ -147,5 +147,22 @@ namespace DREngine.Game.UI
 
             return sb.ToString();
         }
+
+        public UIText WithoutWordWrap()
+        {
+            WordWrap = false;
+            return this;
+        }
+
+        public UIText WithHAlign(TextHAlignMode mode)
+        {
+            TextHAlign = mode;
+            return this;
+        }
+        public UIText WithVAlign(TextVAlignMode mode)
+        {
+            TextVAlign = mode;
+            return this;
+        }
     }
 }

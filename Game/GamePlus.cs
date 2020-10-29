@@ -98,7 +98,11 @@ namespace DREngine.Game
             _debugTitle = debugTitle;
 
             // MonoGame config
-            _graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this)
+            {
+                // Add a depth stencil buffer
+                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
+            };
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             this.Window.Title = windowTitle;

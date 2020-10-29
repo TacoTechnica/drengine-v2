@@ -26,10 +26,7 @@ namespace DREngine.Game.UI
 
         internal void ReceiveParent(UIBaseComponent parent, ObjectContainerNode<UIComponent> node)
         {
-            if (_parent != null)
-            {
-                _parent.RemoveEnqueueChild(_addedNode);
-            }
+            _parent?.RemoveEnqueueChild(_addedNode);
             _parent = parent;
             _addedNode = node;
         }
