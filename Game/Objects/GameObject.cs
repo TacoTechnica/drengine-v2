@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DREngine.Game.Tween;
 
 namespace DREngine.Game
 {
@@ -26,6 +27,8 @@ namespace DREngine.Game
         private List<Coroutine> _routines = new List<Coroutine>();
         private List<ICollider> _colliders = new List<ICollider>();
 
+        public Tweener Tweener { get; private set; }
+
         public GameObject(GamePlus game)
         {
             _game = game;
@@ -36,6 +39,9 @@ namespace DREngine.Game
             Active = true;
             _activeAsChild = true;
             _parentActive = true;
+
+            Tweener = NewTweener(game);
+
             Awake();
         }
 
@@ -126,6 +132,7 @@ namespace DREngine.Game
             AssertAlive();
             // Start before first tick
             EnsureStarted();
+            Tweener?.RunUpdate();
             Update(dt);
             UpdateCoroutines();
         }
@@ -145,8 +152,10 @@ namespace DREngine.Game
         }
         internal virtual void RunOnDestroy()
         {
-            Debug.Log("CROIKEY");
             AssertAlive();
+
+            Tweener.CancelAll();
+
             _gameAddedNode = null;
 
             // Delete all children too.
@@ -259,6 +268,11 @@ namespace DREngine.Game
             {
                 throw new InvalidOperationException($"Object is destroyed but you still tried accessing it! Object: {this}");
             }
+        }
+
+        protected virtual Tweener NewTweener(GamePlus game)
+        {
+            return new Tweener(game);
         }
 
         #endregion

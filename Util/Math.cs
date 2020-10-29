@@ -176,5 +176,15 @@ namespace DREngine
             }
             return vec;
         }
+
+        public static float Clamp01(float value)
+        {
+            return Clamp(value, 0, 1);
+        }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            return System.Math.Clamp(value, min, max);
+        }
     }
 }
