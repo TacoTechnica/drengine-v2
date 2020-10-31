@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIBaseComponent
+    public abstract class UIComponentBase
     {
         protected GamePlus _game;
 
@@ -12,19 +12,19 @@ namespace DREngine.Game.UI
 
         public Layout Layout = new Layout();
 
-        private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
+        private readonly ObjectContainer<UiComponent> _children = new ObjectContainer<UiComponent>();
 
         private bool _isMasked = false;
 
         private int _maskIndex = 0;
         //private RenderTarget2D _maskedRenderTarget = null;
 
-        public UIBaseComponent(GamePlus game)
+        public UIComponentBase(GamePlus game)
         {
             _game = game;
         }
 
-        public void AddChild(UIComponent child)
+        public void AddChild(UiComponent child)
         {
             if (this is UIMask mask)
             {
@@ -34,7 +34,7 @@ namespace DREngine.Game.UI
             child.ReceiveParent(this, _children.Add(child));
         }
 
-        public void RemoveEnqueueChild(ObjectContainerNode<UIComponent> toRemove)
+        public void RemoveEnqueueChild(ObjectContainerNode<UiComponent> toRemove)
         {
             // TODO: Where is this ^ used? Shouldn't you pass the child object instead?
             _children.RemoveEnqueue(toRemove);

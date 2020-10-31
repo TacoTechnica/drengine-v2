@@ -9,7 +9,7 @@ namespace DREngine.Game
 {
     public class TestUIMask : IGameRunner
     {
-        private UIComponent _mover;
+        private UiComponent _mover;
 
         private DRGame _game;
 
@@ -26,7 +26,7 @@ namespace DREngine.Game
                 .AddToRoot();
 
             // LEFT MASK
-            UIComponent leftMask = new UIMaskRect(game)
+            UiComponent leftMask = new UIMaskRect(game)
                 .WithLayout(Layout.ScaledLayout(0.1f, 0.1f, 0.4f, 0.9f))
                 .AddToRoot()
                 .WithChild(new UIColoredRect(game, Color.Chartreuse, true).WithLayout(Layout.FullscreenLayout(1, 1, 1, 1)));
@@ -44,7 +44,7 @@ namespace DREngine.Game
 
 
             // RIGHT MASK
-            UIComponent rightMask = new UIMaskRect(game)
+            UiComponent rightMask = new UIMaskRect(game)
                 .WithLayout(Layout.ScaledLayout(0.5f, 0, 0.9f, 0.9f))
                 .AddToRoot()
                 .WithChild(new UIColoredRect(game, Color.Gold, true).WithLayout(Layout.FullscreenLayout(1, 1, 1, 1)));

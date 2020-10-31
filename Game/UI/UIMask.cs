@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIMask : UIComponent
+    public abstract class UIMask : UiComponent
     {
         private static int MaskCounter = 1;
 
@@ -13,7 +13,7 @@ namespace DREngine.Game.UI
 
         public int MaskIndex { get; private set; }
 
-        public UIMask(GamePlus game, UIComponent parent = null) : base(game, parent)
+        public UIMask(GamePlus game, UiComponent parent = null) : base(game, parent)
         {
             MaskIndex = MaskCounter++;
             _maskStencil = new DepthStencilState {
@@ -41,7 +41,7 @@ namespace DREngine.Game.UI
     {
         private bool _transparent;
         public Color Color;
-        public UIMaskRect(GamePlus game, UIComponent parent = null) : base(game, parent)
+        public UIMaskRect(GamePlus game, UiComponent parent = null) : base(game, parent)
         {
             Color = Color.Black;
             Color.A = 0;

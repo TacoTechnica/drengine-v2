@@ -5,16 +5,16 @@ using Microsoft.Xna.Framework;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIComponent: UIBaseComponent
+    public abstract class UiComponent: UIComponentBase
     {
-        protected UIBaseComponent _parent;
+        protected UIComponentBase _parent;
 
-        private ObjectContainerNode<UIComponent> _addedNode;
+        private ObjectContainerNode<UiComponent> _addedNode;
 
         /// <summary>
         /// General component constructor with a parent
         /// </summary>
-        public UIComponent(GamePlus game, UIComponent parent=null) : base(game)
+        public UiComponent(GamePlus game, UiComponent parent=null) : base(game)
         {
             _parent = parent;
 
@@ -24,22 +24,22 @@ namespace DREngine.Game.UI
             }
         }
 
-        internal void ReceiveParent(UIBaseComponent parent, ObjectContainerNode<UIComponent> node)
+        internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UiComponent> node)
         {
             _parent?.RemoveEnqueueChild(_addedNode);
             _parent = parent;
             _addedNode = node;
         }
 
-        public UIComponent WithLayout(Layout layout)
+        public UiComponent WithLayout(Layout layout)
         {
             Layout = layout;
             return this;
         }
 
-        public UIComponent WithChild(params UIComponent[] children)
+        public UiComponent WithChild(params UiComponent[] children)
         {
-            foreach (UIComponent c in children)
+            foreach (UiComponent c in children)
             {
                 AddChild(c);
             }
@@ -48,31 +48,31 @@ namespace DREngine.Game.UI
         }
 
 
-        public UIComponent OffsetBy(float x, float y)
+        public UiComponent OffsetBy(float x, float y)
         {
             Layout.OffsetBy(x, y);
             return this;
         }
 
-        public UIComponent OffsetBy(Vector2 pos)
+        public UiComponent OffsetBy(Vector2 pos)
         {
             return OffsetBy(pos.X, pos.Y);
         }
 
-        public UIComponent WithPivot(float x, float y)
+        public UiComponent WithPivot(float x, float y)
         {
             Layout.Pivot = new Vector2(x, y);
             return this;
         }
 
-        public UIComponent AddToRoot()
+        public UiComponent AddToRoot()
         {
             if (_parent != null)
             {
                 throw new InvalidOperationException("Tried to set our UI parent to root when we already have a parent!");
             }
 
-            _game.UIScreen.AddChild(this);
+            _game.UiScreen.AddChild(this);
 
             return this;
         }

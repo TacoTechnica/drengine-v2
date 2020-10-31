@@ -4,7 +4,7 @@ using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace DREngine.Game.UI
 {
-    public class UIScreen : UIBaseComponent
+    public class UIScreen : UIComponentBase
     {
         public BasicEffect DrawEffect { get; private set; }
         public AlphaTestEffect DrawEffectAlpha { get; private set; }
@@ -38,8 +38,6 @@ namespace DREngine.Game.UI
             DrawEffect = new BasicEffect(GraphicsDevice);
             DrawEffectAlpha = new AlphaTestEffect(GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-
 
             DrawEffect.VertexColorEnabled = true;
         }

@@ -68,7 +68,7 @@ namespace DREngine.Game
         }
 
         /// Screen UI Renderer
-        public UIScreen UIScreen { get; private set; }
+        public UIScreen UiScreen { get; private set; }
 
         /// Scene Object Manager
         public SceneManager SceneManager { get; private set; }
@@ -113,7 +113,7 @@ namespace DREngine.Game
 
             SceneManager = new SceneManager(this);
             CollisionManager = new CollisionManager();
-            UIScreen = new UIScreen(this);
+            UiScreen = new UIScreen(this);
 
             AudioOutput = new AudioOutput();
         }
@@ -136,7 +136,7 @@ namespace DREngine.Game
             DebugEffect = new BasicEffect(GraphicsDevice);
             DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            UIScreen.Initialize();
+            UiScreen.Initialize();
 
             WhenSafeToLoad.InvokeAll();
 
@@ -159,7 +159,7 @@ namespace DREngine.Game
             CurrentCursor?.DoUpdate(this);
 
             // Update our UI screen. This will handle stuff we don't call for every draw.
-            UIScreen.Update();
+            UiScreen.Update();
 
             // If we're debugging, handle that right off the bat.
             if (_debugTitle)
@@ -255,7 +255,7 @@ namespace DREngine.Game
             _runner?.Draw();
 
             // Draw UI
-            UIScreen.Draw();
+            UiScreen.Draw();
         }
 
         #endregion

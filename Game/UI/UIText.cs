@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
 {
-    public class UIText : UIComponent
+    public class UIText : UiComponent
     {
         public string Text = "";
         public SpriteFont Font = null;
@@ -37,7 +37,7 @@ namespace DREngine.Game.UI
             Bottom
         }
 
-        public UIText(GamePlus game, UIComponent parent, SpriteFont font, string text) : base(game, parent)
+        public UIText(GamePlus game, UiComponent parent, SpriteFont font, string text) : base(game, parent)
         {
             Text = text;
             Font = font;

@@ -10,9 +10,9 @@ namespace DREngine.Game
     {
         private GamePlus _game;
 
-        private UIComponent _root;
-        private UIComponent _rotater;
-        private UIComponent _rotater2;
+        private UiComponent _root;
+        private UiComponent _rotater;
+        private UiComponent _rotater2;
 
         private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
         public void Initialize(GamePlus game)
@@ -83,13 +83,13 @@ namespace DREngine.Game
             // Nothing, UI is doing the work in the background!
         }
 
-        class UIBoxPanel : UIComponent, ICursorSelectable
+        class UIBoxPanel : UiComponent, ICursorSelectable
         {
             private Color _deselectColor;
             private Color _selectColor;
 
             private Color _currentColor;
-            public UIBoxPanel(GamePlus game, UIComponent parent, Color deselectColor, Color selectColor) : base(game, parent)
+            public UIBoxPanel(GamePlus game, UiComponent parent, Color deselectColor, Color selectColor) : base(game, parent)
             {
                 _deselectColor = deselectColor;
                 _selectColor = selectColor;

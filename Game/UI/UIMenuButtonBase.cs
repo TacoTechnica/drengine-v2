@@ -2,12 +2,12 @@
 
 namespace DREngine.Game.UI
 {
-    public abstract class MenuButtonBaseComponent : UIComponent, ICursorSelectable, IMenuItem
+    public abstract class UIMenuButtonBase : UiComponent, ICursorSelectable, IMenuItem
     {
 
         public Action Pressed;
 
-        public MenuButtonBaseComponent(GamePlus game, UIComponent parent = null) : base(game, parent)
+        public UIMenuButtonBase(GamePlus game, UiComponent parent = null) : base(game, parent)
         {
             // Do nothing for now.
         }

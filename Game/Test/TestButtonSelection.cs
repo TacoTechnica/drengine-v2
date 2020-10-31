@@ -25,9 +25,9 @@ namespace DREngine.Game
             AddButton(3, "Exit");
         }
 
-        private ExampleMenuButton AddButton(int index, string text)
+        private ExampleUiMenuButton AddButton(int index, string text)
         {
-            ExampleMenuButton b = new ExampleMenuButton(_game, text);
+            ExampleUiMenuButton b = new ExampleUiMenuButton(_game, text);
             b.WithLayout(Layout.CornerLayout(Layout.Bottom, 100, 60));
             b.OffsetBy(Vector2.UnitY * (-200 + 64 * index));
             b.AddToRoot();
@@ -61,7 +61,7 @@ namespace DREngine.Game
         }
 
 
-        class ExampleMenuButton : MenuButtonBaseComponent
+        class ExampleUiMenuButton : UIMenuButtonBase
         {
 
             private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
@@ -74,7 +74,7 @@ namespace DREngine.Game
 
             private UIText _text;
 
-            public ExampleMenuButton(GamePlus game, UIComponent parent, string text) : base(game, parent)
+            public ExampleUiMenuButton(GamePlus game, UiComponent parent, string text) : base(game, parent)
             {
 
                 _normalColor = Color.DarkSlateGray;
@@ -90,7 +90,7 @@ namespace DREngine.Game
                 };
                 _text.Color = Color.White;
             }
-            public ExampleMenuButton(GamePlus game, string text) : this(game, null, text) {}
+            public ExampleUiMenuButton(GamePlus game, string text) : this(game, null, text) {}
 
             protected override void Draw(UIScreen screen, Rect targetRect)
             {

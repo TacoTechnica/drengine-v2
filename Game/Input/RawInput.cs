@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -28,9 +29,8 @@ namespace DREngine.Game.Input
         RStickY
     }
 
-    public class RawInput
+    public static class RawInput
     {
-
         private static KeyboardState _currKeyboardState;
         private static KeyboardState _prevKeyboardState;
 
@@ -39,6 +39,10 @@ namespace DREngine.Game.Input
 
         private static GamePadState _currGamepadState;
         private static GamePadState _prevGamepadState;
+
+        public static Action<Keys[]> OnKeysPressed;
+
+        private static HashSet<Keys> _pressedKeys = new HashSet<Keys>();
 
         public static bool KeyPressing(Keys k)
         {
@@ -135,6 +139,26 @@ namespace DREngine.Game.Input
             _currMouseState = Mouse.GetState();
             _prevGamepadState = _currGamepadState;
             _currGamepadState = GamePad.GetState(PlayerIndex.One);
+
+            var currentKeys = _currKeyboardState.GetPressedKeys();
+            if (currentKeys.Length != 0)
+            {
+
+                // TODO: Keep track of ONLY the new keys
+                // TODO: Incorporate that with previous loop
+                foreach (Keys key in currentKeys)
+                {
+                    //if ()
+                }
+                OnKeysPressed?.Invoke(currentKeys);
+                _pressedKeys.Clear();
+                foreach (Keys key in currentKeys) _pressedKeys.Add(key);
+            }
+            else
+            {
+                _pressedKeys.Clear();
+            }
+
         }
 
         private static bool CheckMouseState(MouseState m, MouseButton b)
