@@ -1,7 +1,4 @@
 ﻿
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-
 namespace DREngine.Game.Audio
 {
     public class AudioSourcePool
@@ -17,16 +14,7 @@ namespace DREngine.Game.Audio
 
         public void Play(AudioClip clip)
         {
-            ISampleProvider sp;
-            if (clip.UsesSample)
-            {
-                sp = AudioSource.ConvertToCorrectChannelCount(_mixer, clip.GetNewSampleProvider());
-            }
-            else
-            {
-                sp = new WaveToSampleProvider(AudioSource.ConvertToCorrectChannelCount(_mixer, clip.GetNewWaveProvider()));
-            }
-            _mixer.PlaySample(sp);
+
         }
 
         public void StopAll()

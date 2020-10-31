@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GLib;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using ManagedBass;
+using ManagedBass.Mix;
 
 namespace DREngine.Game.Audio
 {
@@ -11,92 +12,43 @@ namespace DREngine.Game.Audio
     /// </summary>
     public class AudioMixer
     {
+        private int _stream;
 
-        private readonly MixingProvider mixer;
-
-        public float Volume
+        public float Volume;
+        /*
         {
             get => mixer.Volume;
             set => mixer.Volume = value;
         }
-
-        public MixingProvider NAudioMixer => mixer;
+        */
 
         public AudioMixer(AudioOutput output)
         {
-            mixer = new MixingProvider(
-                WaveFormat.CreateIeeeFloatWaveFormat(output.SampleRate, output.ChannelCount));
-
+            _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.Default);
             output.AddMixer(this);
         }
 
-        public void PlaySample(ISampleProvider sample)
+        internal void PlayChannel(int channel)
         {
-            mixer.AddMixerInput(sample);
+            BassMix.MixerAddChannel(_stream, channel, BassFlags.Default);
+            Bass.ChannelPlay(channel, true);
         }
 
-        public void StopSample(ISampleProvider sample)
+        internal void StopChannel(int channel)
         {
-            mixer.RemoveMixerInput(sample);
+            Bass.ChannelStop(channel);
+            BassMix.MixerRemoveChannel(channel);
         }
 
         public void StopAll()
         {
-            mixer.RemoveAllMixerInputs();
-        }
-
-        public class MixingProvider : ISampleProvider
-        {
-            private MixingSampleProvider _mixer;
-
-            public float Volume
+            List<int> channels = new List<int>(BassMix.MixerGetChannels(_stream));
+            foreach (int channel in channels)
             {
-                get => _volume;
-                set
-                {
-                    _volume = value;
-                    _realScale = _volume * _volume;
-                }
-            }
-
-            private float _volume;
-            private float _realScale;
-
-            public WaveFormat WaveFormat => _mixer.WaveFormat;
-
-            public MixingProvider(WaveFormat format)
-            {
-                _mixer = new MixingSampleProvider(format);
-                _mixer.ReadFully = true;
-                Volume = 1;
-            }
-
-            public int Read(float[] buffer, int offset, int count)
-            {
-                int result = _mixer.Read(buffer, offset, count);
-                for (int i = 0; i < buffer.Length; ++i)
-                {
-                    buffer[i] *= _realScale;
-                }
-
-                return result;
-            }
-
-            public void AddMixerInput(ISampleProvider p)
-            {
-                _mixer.AddMixerInput(p);
-            }
-
-            public void RemoveMixerInput(ISampleProvider p)
-            {
-                _mixer.RemoveMixerInput(p);
-            }
-
-            public void RemoveAllMixerInputs()
-            {
-                _mixer.RemoveAllMixerInputs();
+                StopChannel(channel);
             }
         }
+
 
     }
 }

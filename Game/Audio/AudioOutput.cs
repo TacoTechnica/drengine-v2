@@ -1,6 +1,5 @@
 ﻿using System;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using ManagedBass;
 
 namespace DREngine.Game.Audio
 {
@@ -10,33 +9,41 @@ namespace DREngine.Game.Audio
     public class AudioOutput : IDisposable
     {
 
-        private readonly IWavePlayer outputDevice;
-        private readonly MixingSampleProvider mainMixer;
+        //private readonly IWavePlayer outputDevice;
+        //private readonly MixingSampleProvider mainMixer;
 
-        public int SampleRate => WaveFormat.SampleRate;
-        public int ChannelCount => WaveFormat.Channels;
+        public int SampleRate { get; private set; }
+        public int ChannelCount { get; private set; }
 
-        public WaveFormat WaveFormat { get; private set; }
+        //public WaveFormat WaveFormat { get; private set; }
 
-        public AudioOutput(int sampleRate = 44100, int channelCount = 2)
+        public bool Initialized { get; private set; }
+
+        public AudioOutput(int sampleRate = 44100)
         {
-            outputDevice = new DirectSoundOut(50);
-            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
-            mainMixer = new MixingSampleProvider(WaveFormat);
-            mainMixer.ReadFully = true;
-            outputDevice.Init(mainMixer);
-            // Continuously play and accept audio.
-            outputDevice.Play();
+            if (!Bass.Init(-1, sampleRate))
+            {
+                throw new InvalidProgramException("ManagedBass Audio lib failed to initialize!");
+            }
+            Initialized = true;
+            SampleRate = sampleRate;
+            ChannelCount = 2;
+            Debug.LogDebug("ManagedBass Audio initialized!");
+        }
+
+        ~AudioOutput()
+        {
+            if (Initialized) Bass.Free();
         }
 
         public void AddMixer(AudioMixer mixer)
         {
-            mainMixer.AddMixerInput(mixer.NAudioMixer);
+            //mainMixer.AddMixerInput(mixer.NAudioMixer);
         }
 
         public void Dispose()
         {
-            outputDevice.Dispose();
+            //outputDevice.Dispose();
         }
     }
 }

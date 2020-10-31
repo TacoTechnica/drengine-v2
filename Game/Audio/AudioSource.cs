@@ -1,72 +1,61 @@
 ﻿using System;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using ManagedBass;
+using ManagedBass.Mix;
 
 namespace DREngine.Game.Audio
 {
     public class AudioSource
     {
-        private ISampleProvider _sampleProvider;
+        private const int EMPTY_CHANNEL = -1;
 
         private AudioMixer _mixer;
+        private int _channel;
+
+        private AudioClip _currentClip;
 
         public AudioSource(AudioMixer mixer)
         {
             _mixer = mixer;
-            _sampleProvider = null;
+            _channel = EMPTY_CHANNEL;
+            _currentClip = null;
         }
 
         public void Play(AudioClip clip)
         {
-            if (_sampleProvider != null)
+            Stop(clip);
+
+            // If we're playing the same clip, use the old channel.
+            if (_currentClip != clip)
             {
-                _mixer.StopSample(_sampleProvider);
+                _currentClip = clip;
+                _channel = clip.GetNewSource();
             }
 
-            if (clip.UsesSample)
-            {
-                _sampleProvider = ConvertToCorrectChannelCount(_mixer, clip.GetNewSampleProvider());
-            }
-            else
-            {
-                _sampleProvider = new WaveToSampleProvider(ConvertToCorrectChannelCount(_mixer, clip.GetNewWaveProvider()));
-            }
-            _mixer.PlaySample(_sampleProvider);
-
+            _mixer.PlayChannel(_channel);
         }
 
-        public void Stop()
+        public void Stop(AudioClip toOverride = null)
         {
-            if (_sampleProvider != null)
+            if (_channel != EMPTY_CHANNEL)
             {
-                _mixer.StopSample(_sampleProvider);
-                _sampleProvider = null;
-            }
-        }
+                _mixer.StopChannel(_channel);
+                _channel = EMPTY_CHANNEL;
 
-        public static ISampleProvider ConvertToCorrectChannelCount(AudioMixer mixer, ISampleProvider input)
-        {
-            if (input.WaveFormat.Channels == mixer.NAudioMixer.WaveFormat.Channels)
-            {
-                return input;
+                // If we're overriding with the same clip, don't make a new source.
+                if (_currentClip != toOverride)
+                {
+                    if (_currentClip.UsesSample)
+                    {
+                        Bass.SampleFree(_channel);
+                    }
+                    else
+                    {
+                        Bass.StreamFree(_channel);
+                    }
+                }
             }
-            if (input.WaveFormat.Channels == 1 && mixer.NAudioMixer.WaveFormat.Channels == 2)
-            {
-                return new MonoToStereoSampleProvider(input);
-            }
-            throw new NotImplementedException("Not yet implemented this channel count conversion");
-        }
-        public static IWaveProvider ConvertToCorrectChannelCount(AudioMixer mixer, IWaveProvider input)
-        {
-            if (input.WaveFormat.Channels == mixer.NAudioMixer.WaveFormat.Channels)
-            {
-                return input;
-            }
-            if (input.WaveFormat.Channels == 1 && mixer.NAudioMixer.WaveFormat.Channels == 2)
-            {
-                return new MonoToStereoProvider16(input);
-            }
-            throw new NotImplementedException("Not yet implemented this channel count conversion");
+
+            _currentClip = null;
         }
     }
 }

@@ -29,12 +29,32 @@
         <PackageReference Include="GtkSharp" Version="3.22.25.128" />
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
-        <PackageReference Include="NAudio" Version="1.10.0" />
         <PackageReference Include="NDesk.Options" Version="0.2.1" />
         <PackageReference Include="SpriteFontPlus" Version="0.8.5.43" />
         <PackageReference Include="YamlDotNet" Version="8.1.2" />
     </ItemGroup>
     <ItemGroup>
+      <!-- LIBS -->
+      <!-- ManagedBass: bass.dll -->
+      <ContentWithTargetPath Include="$(SolutionDir)libs/bass.dll" Condition=" '$(OS)' == 'Windows_NT' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>bass.dll</TargetPath>
+      </ContentWithTargetPath>
+      <ContentWithTargetPath Include="$(SolutionDir)libs/libbass.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>libbass.so</TargetPath>
+      </ContentWithTargetPath>
+      <!-- ManagedBass: bassmix.dll -->
+      <ContentWithTargetPath Include="$(SolutionDir)libs/bassmix.dll" Condition=" '$(OS)' == 'Windows_NT' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>bassmix.dll</TargetPath>
+      </ContentWithTargetPath>
+      <ContentWithTargetPath Include="$(SolutionDir)libs/libbassmix.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>libbassmix.so</TargetPath>
+      </ContentWithTargetPath>
+
+
       <None Update="$(SolutionDir)themes/**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -47,5 +67,13 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="projects\test_project\Sprites" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="ManagedBass, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\ManagedBassBuild\src\Bass\Portable\bin\Debug\netstandard1.4\ManagedBass.dll</HintPath>
+      </Reference>
+      <Reference Include="ManagedBass.Mix, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\ManagedBassBuild\src\AddOns\BassMix\bin\Debug\netstandard1.4\ManagedBass.Mix.dll</HintPath>
+      </Reference>
     </ItemGroup>
 </Project>
