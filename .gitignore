@@ -6,6 +6,7 @@ Imported/
 *.wav
 *.png
 *.dll
+*.so
 
 # Common IntelliJ Platform excludes
 
