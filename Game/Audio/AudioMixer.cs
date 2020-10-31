@@ -14,28 +14,41 @@ namespace DREngine.Game.Audio
     {
         private int _stream;
 
-        public float Volume;
-        /*
+        private float _volume;
+        public float Volume
         {
-            get => mixer.Volume;
-            set => mixer.Volume = value;
+            get => _volume;
+            set
+            {
+                _volume = value;
+                if (!Bass.ChannelSetAttribute(_stream, ChannelAttribute.Volume, _volume))
+                {
+                    Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                }
+            }
         }
-        */
 
         public AudioMixer(AudioOutput output)
         {
-            _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.Default);
+            _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerChanMatrix);
+            Volume = 1f;
             output.AddMixer(this);
         }
 
         internal void PlayChannel(int channel)
         {
-            BassMix.MixerAddChannel(_stream, channel, BassFlags.Default);
             Bass.ChannelPlay(channel, true);
+            if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerChanMatrix))
+            {
+                Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+            }
+
+            Bass.ChannelPlay(_stream, false);
         }
 
         internal void StopChannel(int channel)
         {
+            Debug.Log("Channel stopped");
             Bass.ChannelStop(channel);
             BassMix.MixerRemoveChannel(channel);
         }

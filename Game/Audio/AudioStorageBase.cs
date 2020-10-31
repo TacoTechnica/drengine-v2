@@ -56,7 +56,7 @@ namespace DREngine.Game.Audio
 
         public override int GetSample()
         {
-            return Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.Default);
+            return Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerChanMatrix | BassFlags.Decode);
         }
     }
 
@@ -75,7 +75,7 @@ namespace DREngine.Game.Audio
 
         public override int GetStream()
         {
-            return Bass.CreateStream(_path, 0, 0, BassFlags.Default);
+            return Bass.CreateStream(_path, 0, 0, BassFlags.MixerChanMatrix | BassFlags.Decode);
         }
 
         public override int GetSample()

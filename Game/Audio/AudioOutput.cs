@@ -21,7 +21,7 @@ namespace DREngine.Game.Audio
 
         public AudioOutput(int sampleRate = 44100)
         {
-            if (!Bass.Init(-1, sampleRate))
+            if (!Bass.Init(-1, sampleRate, DeviceInitFlags.Default))
             {
                 throw new InvalidProgramException("ManagedBass Audio lib failed to initialize!");
             }
