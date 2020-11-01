@@ -1,5 +1,5 @@
 ﻿using System;
-using NAudio.Wave;
+using ManagedBass;
 
 namespace DREngine.Game.Audio
 {
@@ -33,14 +33,19 @@ namespace DREngine.Game.Audio
             }
         }
 
-        public ISampleProvider GetNewSampleProvider()
+        public int GetNewChannelSource(out int toFree)
         {
-            return _clip.GetNewSampleProvider();
+            if (UsesSample)
+            {
+                toFree = _clip.GetSample();
+                return Bass.SampleGetChannel(toFree, true);
+            }
+
+            toFree = _clip.GetStream();
+            return toFree;
         }
-        public IWaveProvider GetNewWaveProvider()
-        {
-            return _clip.GetNewWaveProvider();
-        }
+
+
     }
 
     public enum AudioClipType

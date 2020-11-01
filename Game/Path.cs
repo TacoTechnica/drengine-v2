@@ -1,4 +1,7 @@
-﻿namespace DREngine.Game
+﻿using System.Diagnostics;
+using System.Reflection;
+
+namespace DREngine.Game
 {
     /// <summary>
     /// Represents a path and is to be used for all
@@ -33,6 +36,6 @@
 
     public class EnginePath : Path {
 
-        public EnginePath(string path) : base($"{Program.RootDirectory}/{path}") {}
+        public EnginePath(string path) : base($"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/{path}") {}
     }
 }

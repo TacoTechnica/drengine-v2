@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using ManagedBass;
 
 namespace DREngine.Game.Audio
 {
@@ -30,10 +29,64 @@ namespace DREngine.Game.Audio
 
         protected abstract void OnLoad(Path path);
 
-        public abstract ISampleProvider GetNewSampleProvider();
-        public abstract IWaveProvider GetNewWaveProvider();
+        public abstract int GetStream();
+        public abstract int GetSample();
+
+        //public abstract ISampleProvider GetNewSampleProvider();
+        //public abstract IWaveProvider GetNewWaveProvider();
     }
 
+    public class AudioStorageCached : AudioStorageBase
+    {
+        private Path _path;
+        public AudioStorageCached(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
+        {
+
+        }
+
+        protected override void OnLoad(Path path)
+        {
+            _path = path;
+        }
+
+        public override int GetStream()
+        {
+            return -1;
+        }
+
+        public override int GetSample()
+        {
+            return Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerChanMatrix | BassFlags.Decode);
+        }
+    }
+
+    public class AudioStorageStreamed : AudioStorageBase
+    {
+        private Path _path;
+        public AudioStorageStreamed(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
+        {
+
+        }
+
+        protected override void OnLoad(Path path)
+        {
+            _path = path;
+        }
+
+        public override int GetStream()
+        {
+            return Bass.CreateStream(_path, 0, 0, 
+                AudioMixer.IgnoreBassMixLibrary? BassFlags.MixerChanMatrix : BassFlags.MixerChanMatrix | BassFlags.Decode
+                );
+        }
+
+        public override int GetSample()
+        {
+            return -1;
+        }
+    }
+
+    /*
     public class AudioStorageCached : AudioStorageBase
     {
         public float[] AudioData { get; private set; }
@@ -165,4 +218,5 @@ namespace DREngine.Game.Audio
             }
         }
     }
+    */
 }

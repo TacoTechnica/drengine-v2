@@ -1,72 +1,69 @@
 ﻿using System;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using ManagedBass;
+using ManagedBass.Mix;
 
 namespace DREngine.Game.Audio
 {
     public class AudioSource
     {
-        private ISampleProvider _sampleProvider;
+        private const int EMPTY_CHANNEL = -1;
 
         private AudioMixer _mixer;
+        private int _channel;
+        private int _toFree;
+
+        private AudioClip _currentClip;
 
         public AudioSource(AudioMixer mixer)
         {
             _mixer = mixer;
-            _sampleProvider = null;
+            _channel = EMPTY_CHANNEL;
+            _currentClip = null;
         }
 
         public void Play(AudioClip clip)
         {
-            if (_sampleProvider != null)
+
+            // If we're playing the same clip, use the old channel.
+            if (_currentClip != clip)
             {
-                _mixer.StopSample(_sampleProvider);
+                if (_currentClip != null)
+                {
+                    // Stop the current clip!
+                    StopInternal();
+                }
+                _currentClip = clip;
+                _channel = clip.GetNewChannelSource(out _toFree);
+                Debug.Log($"NEW: {_toFree}");
             }
 
-            if (clip.UsesSample)
-            {
-                _sampleProvider = ConvertToCorrectChannelCount(_mixer, clip.GetNewSampleProvider());
-            }
-            else
-            {
-                _sampleProvider = new WaveToSampleProvider(ConvertToCorrectChannelCount(_mixer, clip.GetNewWaveProvider()));
-            }
-            _mixer.PlaySample(_sampleProvider);
-
+            _mixer.PlayChannel(_channel);
         }
 
         public void Stop()
         {
-            if (_sampleProvider != null)
+            if (_channel != EMPTY_CHANNEL)
             {
-                _mixer.StopSample(_sampleProvider);
-                _sampleProvider = null;
+                StopInternal();
+
+                _channel = EMPTY_CHANNEL;
+                _currentClip = null;
             }
         }
 
-        public static ISampleProvider ConvertToCorrectChannelCount(AudioMixer mixer, ISampleProvider input)
+        private void StopInternal()
         {
-            if (input.WaveFormat.Channels == mixer.NAudioMixer.WaveFormat.Channels)
+            _mixer.StopChannel(_channel);
+
+            if (_currentClip.UsesSample)
             {
-                return input;
+                Bass.SampleFree(_toFree);
+                Debug.Log($"DELETE: {_toFree}");
             }
-            if (input.WaveFormat.Channels == 1 && mixer.NAudioMixer.WaveFormat.Channels == 2)
+            else
             {
-                return new MonoToStereoSampleProvider(input);
+                Bass.StreamFree(_channel);
             }
-            throw new NotImplementedException("Not yet implemented this channel count conversion");
-        }
-        public static IWaveProvider ConvertToCorrectChannelCount(AudioMixer mixer, IWaveProvider input)
-        {
-            if (input.WaveFormat.Channels == mixer.NAudioMixer.WaveFormat.Channels)
-            {
-                return input;
-            }
-            if (input.WaveFormat.Channels == 1 && mixer.NAudioMixer.WaveFormat.Channels == 2)
-            {
-                return new MonoToStereoProvider16(input);
-            }
-            throw new NotImplementedException("Not yet implemented this channel count conversion");
         }
     }
 }

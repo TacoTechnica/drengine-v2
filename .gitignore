@@ -1,10 +1,12 @@
 
 # Project
 themes/
+Imported/
 # Project resources
 *.wav
 *.png
 *.dll
+*.so
 
 # Common IntelliJ Platform excludes
 
