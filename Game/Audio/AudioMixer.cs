@@ -23,7 +23,8 @@ namespace DREngine.Game.Audio
          *
          */
         private const bool IS_THERE_MIXER_BULLSHIT = true;
-        internal static bool IgnoreBassMixLibrary => IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+        internal static bool IgnoreBassMixLibrary => true;//IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         private AudioMixerLinux _linuxFix = null;
 
@@ -117,13 +118,21 @@ namespace DREngine.Game.Audio
         class AudioMixerLinux
         {
             private List<int> _channels;
+            private float _volume;
             public AudioMixerLinux(int outputSampleRate, int outputChannelCount)
             {
                 _channels = new List<int>();
+                _volume = 1;
+            }
+
+            private float VolumeScale(float volume)
+            {
+                return volume * volume;
             }
 
             public void AddChannel(int channel)
             {
+                Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, _volume);
                 _channels.Add(channel);
             }
 
@@ -139,9 +148,10 @@ namespace DREngine.Game.Audio
 
             public void SetVolume(float volume)
             {
+                _volume = VolumeScale(volume);
                 foreach (int channel in GetChannels())
                 {
-                    Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, volume);
+                    Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, _volume);
                 }
             }
         }
