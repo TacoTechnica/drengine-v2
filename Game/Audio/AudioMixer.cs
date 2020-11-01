@@ -20,13 +20,13 @@ namespace DREngine.Game.Audio
          * and NO solution, because it feels like nobody uses C# on linux.
          *
          * For now my only solution is to keep BassMix encapsulated and have two alternative implementations.
-         * 
+         *
          */
         private const bool IS_THERE_MIXER_BULLSHIT = true;
         internal static bool IgnoreBassMixLibrary => IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         private AudioMixerLinux _linuxFix = null;
-        
+
         private int _stream;
 
         private float _volume;
@@ -79,7 +79,10 @@ namespace DREngine.Game.Audio
             } else {
                 if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerChanMatrix))
                 {
-                    Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                    if (Bass.LastError != Errors.Decode)
+                    {
+                        Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                    }
                 }
 
                 Bass.ChannelPlay(_stream, false);
