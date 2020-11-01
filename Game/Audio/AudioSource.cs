@@ -10,6 +10,7 @@ namespace DREngine.Game.Audio
 
         private AudioMixer _mixer;
         private int _channel;
+        private int _toFree;
 
         private AudioClip _currentClip;
 
@@ -22,40 +23,47 @@ namespace DREngine.Game.Audio
 
         public void Play(AudioClip clip)
         {
-            Stop(clip);
 
             // If we're playing the same clip, use the old channel.
             if (_currentClip != clip)
             {
+                if (_currentClip != null)
+                {
+                    // Stop the current clip!
+                    StopInternal();
+                }
                 _currentClip = clip;
-                _channel = clip.GetNewSource();
+                _channel = clip.GetNewChannelSource(out _toFree);
+                Debug.Log($"NEW: {_toFree}");
             }
 
             _mixer.PlayChannel(_channel);
         }
 
-        public void Stop(AudioClip toOverride = null)
+        public void Stop()
         {
             if (_channel != EMPTY_CHANNEL)
             {
-                _mixer.StopChannel(_channel);
+                StopInternal();
+
                 _channel = EMPTY_CHANNEL;
-
-                // If we're overriding with the same clip, don't make a new source.
-                if (_currentClip != toOverride)
-                {
-                    if (_currentClip.UsesSample)
-                    {
-                        Bass.SampleFree(_channel);
-                    }
-                    else
-                    {
-                        Bass.StreamFree(_channel);
-                    }
-                }
+                _currentClip = null;
             }
+        }
 
-            _currentClip = null;
+        private void StopInternal()
+        {
+            _mixer.StopChannel(_channel);
+
+            if (_currentClip.UsesSample)
+            {
+                Bass.SampleFree(_toFree);
+                Debug.Log($"DELETE: {_toFree}");
+            }
+            else
+            {
+                Bass.StreamFree(_channel);
+            }
         }
     }
 }

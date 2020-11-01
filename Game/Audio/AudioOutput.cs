@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using ManagedBass;
 
 namespace DREngine.Game.Audio
@@ -23,12 +24,13 @@ namespace DREngine.Game.Audio
         {
             if (!Bass.Init(-1, sampleRate, DeviceInitFlags.Default))
             {
-                throw new InvalidProgramException("ManagedBass Audio lib failed to initialize!");
+                throw new InvalidProgramException($"ManagedBass Audio lib failed to initialize! Error: {Bass.LastError.ToString()}");
             }
+
             Initialized = true;
             SampleRate = sampleRate;
             ChannelCount = 2;
-            Debug.LogDebug("ManagedBass Audio initialized!");
+            Debug.LogDebug($"ManagedBass Audio {Bass.Version} has been initialized!");
         }
 
         ~AudioOutput()

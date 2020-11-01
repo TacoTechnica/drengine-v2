@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using GLib;
 using ManagedBass;
 using ManagedBass.Mix;
@@ -12,6 +13,20 @@ namespace DREngine.Game.Audio
     /// </summary>
     public class AudioMixer
     {
+        /** TODO: FIX THIS FOR LINUX
+         *
+         * I cannot get libbass.so and libbassmix.so to work together. I have this problem:
+         * http://www.un4seen.com/forum/?topic=18656.0
+         * and NO solution, because it feels like nobody uses C# on linux.
+         *
+         * For now my only solution is to keep BassMix encapsulated and have two alternative implementations.
+         * 
+         */
+        private const bool IS_THERE_MIXER_BULLSHIT = true;
+        internal static bool IgnoreBassMixLibrary => IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+        private AudioMixerLinux _linuxFix = null;
+        
         private int _stream;
 
         private float _volume;
@@ -21,16 +36,36 @@ namespace DREngine.Game.Audio
             set
             {
                 _volume = value;
-                if (!Bass.ChannelSetAttribute(_stream, ChannelAttribute.Volume, _volume))
+
+                if (IgnoreBassMixLibrary)
                 {
-                    Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                    _linuxFix.SetVolume(_volume);
+                }
+                else
+                {
+                    // Normal way
+                    if (!Bass.ChannelSetAttribute(_stream, ChannelAttribute.Volume, _volume))
+                    {
+                        Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                    }
                 }
             }
         }
 
         public AudioMixer(AudioOutput output)
         {
-            _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerChanMatrix);
+            Debug.Log("b4");
+            if (IgnoreBassMixLibrary)
+            {
+                _linuxFix = new AudioMixerLinux(output.SampleRate, output.ChannelCount);
+                _stream = -1;
+            }
+            else
+            {
+                _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerChanMatrix);
+            }
+
+            Debug.Log("After");
             Volume = 1f;
             output.AddMixer(this);
         }
@@ -38,30 +73,75 @@ namespace DREngine.Game.Audio
         internal void PlayChannel(int channel)
         {
             Bass.ChannelPlay(channel, true);
-            if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerChanMatrix))
+            if (IgnoreBassMixLibrary)
             {
-                Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
-            }
+                _linuxFix.AddChannel(channel);
+            } else {
+                if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerChanMatrix))
+                {
+                    Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                }
 
-            Bass.ChannelPlay(_stream, false);
+                Bass.ChannelPlay(_stream, false);
+            }
         }
 
         internal void StopChannel(int channel)
         {
             Debug.Log("Channel stopped");
             Bass.ChannelStop(channel);
-            BassMix.MixerRemoveChannel(channel);
+            if (IgnoreBassMixLibrary)
+            {
+                _linuxFix.RemoveChannel(channel);
+            }
+            else
+            {
+                BassMix.MixerRemoveChannel(channel);
+            }
         }
 
         public void StopAll()
         {
-            List<int> channels = new List<int>(BassMix.MixerGetChannels(_stream));
+            List<int> channels = new List<int>(IgnoreBassMixLibrary? _linuxFix.GetChannels() : BassMix.MixerGetChannels(_stream));
             foreach (int channel in channels)
             {
                 StopChannel(channel);
             }
         }
 
+
+        // This is stupid
+        class AudioMixerLinux
+        {
+            private List<int> _channels;
+            public AudioMixerLinux(int outputSampleRate, int outputChannelCount)
+            {
+                _channels = new List<int>();
+            }
+
+            public void AddChannel(int channel)
+            {
+                _channels.Add(channel);
+            }
+
+            public void RemoveChannel(int channel)
+            {
+                _channels.Remove(channel);
+            }
+
+            public IEnumerable<int> GetChannels()
+            {
+                return _channels;
+            }
+
+            public void SetVolume(float volume)
+            {
+                foreach (int channel in GetChannels())
+                {
+                    Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, volume);
+                }
+            }
+        }
 
     }
 }

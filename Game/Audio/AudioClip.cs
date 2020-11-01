@@ -33,14 +33,16 @@ namespace DREngine.Game.Audio
             }
         }
 
-        public int GetNewSource()
+        public int GetNewChannelSource(out int toFree)
         {
             if (UsesSample)
             {
-                return Bass.SampleGetChannel(_clip.GetSample(), true);
+                toFree = _clip.GetSample();
+                return Bass.SampleGetChannel(toFree, true);
             }
 
-            return _clip.GetStream();
+            toFree = _clip.GetStream();
+            return toFree;
         }
 
 

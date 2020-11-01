@@ -75,7 +75,9 @@ namespace DREngine.Game.Audio
 
         public override int GetStream()
         {
-            return Bass.CreateStream(_path, 0, 0, BassFlags.MixerChanMatrix | BassFlags.Decode);
+            return Bass.CreateStream(_path, 0, 0, 
+                AudioMixer.IgnoreBassMixLibrary? BassFlags.MixerChanMatrix : BassFlags.MixerChanMatrix | BassFlags.Decode
+                );
         }
 
         public override int GetSample()
