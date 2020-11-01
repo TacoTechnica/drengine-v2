@@ -74,7 +74,7 @@ namespace DREngine.Game
 
             private UIText _text;
 
-            public ExampleUiMenuButton(GamePlus game, UiComponent parent, string text) : base(game, parent)
+            public ExampleUiMenuButton(GamePlus game, UIComponent parent, string text) : base(game, parent)
             {
 
                 _normalColor = Color.DarkSlateGray;
@@ -83,7 +83,7 @@ namespace DREngine.Game
 
                 _currentColor = _normalColor;
 
-                _text = new UIText(game, this, _textFont, text)
+                _text = new UIText(game, _textFont, text, this)
                 {
                     TextHAlign = UIText.TextHAlignMode.Center,
                     TextVAlign = UIText.TextVAlignMode.Middle
@@ -115,6 +115,11 @@ namespace DREngine.Game
             {
                 // TODO: Animate out
                 _currentColor = _pressColor;
+            }
+
+            protected override void OnDepressVisual()
+            {
+                // Do nothing
             }
         }
 

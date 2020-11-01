@@ -26,6 +26,7 @@ namespace DREngine.Game.UI
             TopRight = 5,
             BottomLeft = 6,
             BottomRight = 7;
+
         /// <summary>
         /// Side
         /// </summary>
@@ -38,9 +39,9 @@ namespace DREngine.Game.UI
         public Rect GetTargetRect(Rect parent)
         {
             Vector2 anchorMinRelative = parent.Min + parent.Size * AnchorMin,
-                    anchorMaxRelative = parent.Min + parent.Size * AnchorMax;
+                anchorMaxRelative = parent.Min + parent.Size * AnchorMax;
             Vector2 posMin = anchorMinRelative + Margin.Min,
-                    posMax = anchorMaxRelative - Margin.Max;
+                posMax = anchorMaxRelative - Margin.Max;
             return new Rect(posMin, posMax - posMin);
         }
 
@@ -74,6 +75,7 @@ namespace DREngine.Game.UI
         {
             return FullscreenLayout(new Vector2(xMinOffset, yMinOffset), new Vector2(xMaxOffset, yMaxOffset));
         }
+
         public static Layout FullscreenLayout()
         {
             return FullscreenLayout(Vector2.Zero, Vector2.Zero);
@@ -88,7 +90,23 @@ namespace DREngine.Game.UI
             return new Layout();
         }
 
-        /// <summary>
+        public static Layout CustomLayout(Vector2 anchorMin, Vector2 anchorMax, Margin margin)
+        {
+            return new Layout()
+            {
+                AnchorMin = anchorMin,
+                AnchorMax = anchorMax,
+                Margin = margin
+            };
+        }
+
+        public static Layout CustomLayout(float anchorMinX=0, float anchorMinY=0, float anchorMaxX=1, float anchorMaxY=1, float marginLeft=0, float marginTop=0, float marginRight=0, float marginBot=0)
+        {
+            return CustomLayout(new Vector2(anchorMinX, anchorMinY), new Vector2(anchorMaxX, anchorMaxY),
+                new Margin(marginLeft, marginTop, marginRight, marginBot));
+        }
+
+    /// <summary>
         ///    Give a layout that's scaled.
         /// </summary>
         public static Layout ScaledLayout(float leftPercent, float topPercent, float rightPercent, float botPercent)
@@ -106,7 +124,7 @@ namespace DREngine.Game.UI
             {
                 AnchorMin = Vector2.One / 2f,
                 AnchorMax = Vector2.One / 2f,
-                Margin = new Margin(-height/2, -height/2, -width/2, -width/2)
+                Margin = new Margin(-width/2, -height/2, -width/2, -height/2)
             };
         }
 
@@ -158,7 +176,7 @@ namespace DREngine.Game.UI
             {
                 AnchorMin = anchor,
                 AnchorMax = anchor,
-                Margin = new Margin(delta.Y, -delta.Y - height, delta.X, -delta.X - width)
+                Margin = new Margin(delta.X, delta.Y, -delta.X - width, -delta.Y - height)
             };
         }
         public static Layout SideStretchLayout(int side, float size, float padding = 0)
@@ -196,6 +214,12 @@ namespace DREngine.Game.UI
             return result;
         }
 
+        public Layout WithMargin(Margin margin)
+        {
+            Margin = margin;
+            return this;
+        }
+
         public override string ToString()
         {
             return $"Margin={Margin}, Anchors=({AnchorMin}, {AnchorMax}), Pivot={Pivot}";
@@ -209,7 +233,7 @@ namespace DREngine.Game.UI
         public float Left;
         public float Right;
 
-        public Margin(float top, float bottom, float left, float right)
+        public Margin(float left, float top, float right, float bottom)
         {
             Top = top;
             Bottom = bottom;
@@ -217,12 +241,17 @@ namespace DREngine.Game.UI
             Right = right;
         }
 
-        public Margin(Vector2 min, Vector2 max) : this(min.Y, max.Y, min.X, max.X)
+        public Margin(Vector2 min, Vector2 max) : this(min.X, min.Y, max.X, max.Y)
         {
             // Vector constructor
         }
 
-        public Margin() : this(0, 0, 0, 0)
+        public Margin(float margin) : this(margin, margin, margin, margin)
+        {
+            // Single margin constructor
+        }
+
+        public Margin() : this(0)
         {
             // Empty constructor
         }

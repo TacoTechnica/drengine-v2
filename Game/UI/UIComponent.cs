@@ -5,16 +5,16 @@ using Microsoft.Xna.Framework;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UiComponent: UIComponentBase
+    public abstract class UIComponent: UIComponentBase
     {
         protected UIComponentBase _parent;
 
-        private ObjectContainerNode<UiComponent> _addedNode;
+        private ObjectContainerNode<UIComponent> _addedNode;
 
         /// <summary>
         /// General component constructor with a parent
         /// </summary>
-        public UiComponent(GamePlus game, UiComponent parent=null) : base(game)
+        public UIComponent(GamePlus game, UIComponent parent=null) : base(game)
         {
             _parent = parent;
 
@@ -24,22 +24,22 @@ namespace DREngine.Game.UI
             }
         }
 
-        internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UiComponent> node)
+        internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UIComponent> node)
         {
             _parent?.RemoveEnqueueChild(_addedNode);
             _parent = parent;
             _addedNode = node;
         }
 
-        public UiComponent WithLayout(Layout layout)
+        public UIComponent WithLayout(Layout layout)
         {
             Layout = layout;
             return this;
         }
 
-        public UiComponent WithChild(params UiComponent[] children)
+        public UIComponent WithChild(params UIComponent[] children)
         {
-            foreach (UiComponent c in children)
+            foreach (UIComponent c in children)
             {
                 AddChild(c);
             }
@@ -48,24 +48,24 @@ namespace DREngine.Game.UI
         }
 
 
-        public UiComponent OffsetBy(float x, float y)
+        public UIComponent OffsetBy(float x, float y)
         {
             Layout.OffsetBy(x, y);
             return this;
         }
 
-        public UiComponent OffsetBy(Vector2 pos)
+        public UIComponent OffsetBy(Vector2 pos)
         {
             return OffsetBy(pos.X, pos.Y);
         }
 
-        public UiComponent WithPivot(float x, float y)
+        public UIComponent WithPivot(float x, float y)
         {
             Layout.Pivot = new Vector2(x, y);
             return this;
         }
 
-        public UiComponent AddToRoot()
+        public UIComponent AddToRoot()
         {
             if (_parent != null)
             {

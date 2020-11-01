@@ -2,12 +2,11 @@
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIMenuButtonBase : UiComponent, ICursorSelectable, IMenuItem
+    public abstract class UIMenuButtonBase : UIComponent, ICursorSelectable, IMenuItem
     {
-
         public Action Pressed;
 
-        public UIMenuButtonBase(GamePlus game, UiComponent parent = null) : base(game, parent)
+        public UIMenuButtonBase(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
             // Do nothing for now.
         }
@@ -45,11 +44,17 @@ namespace DREngine.Game.UI
             OnPressVisual();
         }
 
+        public void OnMenuDepress(bool mouse)
+        {
+            OnDepressVisual();
+        }
+
         #endregion
 
         protected abstract void OnSelectVisual();
         protected abstract void OnDeselectVisual();
         protected abstract void OnPressVisual();
+        protected abstract void OnDepressVisual();
 
 
     }

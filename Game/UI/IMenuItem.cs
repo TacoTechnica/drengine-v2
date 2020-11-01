@@ -6,7 +6,7 @@
         bool MenuSelected { get; set; }
         void OnMenuSelect();
         void OnMenuDeselect();
-
         void OnMenuPress(bool mouse);
+        void OnMenuDepress(bool mouse);
     }
 }

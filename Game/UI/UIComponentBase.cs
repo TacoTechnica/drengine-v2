@@ -12,7 +12,7 @@ namespace DREngine.Game.UI
 
         public Layout Layout = new Layout();
 
-        private readonly ObjectContainer<UiComponent> _children = new ObjectContainer<UiComponent>();
+        private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
 
         private bool _isMasked = false;
 
@@ -24,7 +24,7 @@ namespace DREngine.Game.UI
             _game = game;
         }
 
-        public void AddChild(UiComponent child)
+        public void AddChild(UIComponent child)
         {
             if (this is UIMask mask)
             {
@@ -34,7 +34,7 @@ namespace DREngine.Game.UI
             child.ReceiveParent(this, _children.Add(child));
         }
 
-        public void RemoveEnqueueChild(ObjectContainerNode<UiComponent> toRemove)
+        public void RemoveEnqueueChild(ObjectContainerNode<UIComponent> toRemove)
         {
             // TODO: Where is this ^ used? Shouldn't you pass the child object instead?
             _children.RemoveEnqueue(toRemove);
@@ -117,14 +117,28 @@ namespace DREngine.Game.UI
                     selectable.CursorSelected = selected;
                 }
 
-                if (selectable.CursorSelected && !prevSelected)
+                bool newlySelected = selectable.CursorSelected && !prevSelected;
+
+                if (newlySelected)
                 {
                     // If we are part of a parent menu, inform the parent that we've been selected.
                     if (selectable is IMenuItem menuItem)
                     {
-                        if (menuItem.ParentMenu != null && menuItem.ParentMenu.UseMouse)
+                        if (menuItem.ParentMenu != null)
                         {
-                            menuItem.ParentMenu.SetSelected(menuItem);
+                            if (menuItem.ParentMenu.UseMouse)
+                            {
+                                menuItem.ParentMenu.SetSelected(menuItem);
+                            }
+                        }
+                        else
+                        {
+                            // No parent. Use default stuff.
+                            if (!menuItem.MenuSelected)
+                            {
+                                menuItem.MenuSelected = true;
+                                menuItem.OnMenuSelect();
+                            }
                         }
                     }
 
@@ -132,9 +146,37 @@ namespace DREngine.Game.UI
                 }
                 else if (!selectable.CursorSelected && prevSelected)
                 {
+                    // Deselected
                     selectable.OnCursorDeselect();
+                    // If we are a parent-less menu item, deselect manually by mouse.
+                    if (selectable is IMenuItem menuItem)
+                    {
+                        if (menuItem.ParentMenu == null)
+                        {
+                            if (menuItem.MenuSelected)
+                            {
+                                menuItem.MenuSelected = false;
+                                menuItem.OnMenuDeselect();
+                            }
+                        }
+                    }
                 }
 
+                // Now handle pressing if we are a menu item and we have no parent.
+                if (RawInput.MousePressed(MouseButton.Left) && selectable is IMenuItem menuItemm)
+                {
+                    if (menuItemm.ParentMenu == null)
+                    {
+                        if (menuItemm.MenuSelected)
+                        {
+                            menuItemm.OnMenuPress(true);
+                        }
+                        else
+                        {
+                            menuItemm.OnMenuDepress(true);
+                        }
+                    }
+                }
             }
         }
 

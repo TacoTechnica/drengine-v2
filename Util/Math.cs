@@ -186,5 +186,18 @@ namespace DREngine
         {
             return System.Math.Clamp(value, min, max);
         }
+        public static int Clamp(int value, int min, int max)
+        {
+            return System.Math.Clamp(value, min, max);
+        }
+
+        public static int Min(int a, int b)
+        {
+            return System.Math.Min(a, b);
+        }
+        public static int Max(int a, int b)
+        {
+            return System.Math.Max(a, b);
+        }
     }
 }

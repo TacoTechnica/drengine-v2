@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
 {
-    public class UIText : UiComponent
+    public class UIText : UIComponent
     {
         public string Text = "";
         public SpriteFont Font = null;
@@ -15,6 +15,11 @@ namespace DREngine.Game.UI
         public TextHAlignMode TextHAlign = TextHAlignMode.Left;
         public TextVAlignMode TextVAlign = TextVAlignMode.Top;
         //public WrapVerticalMode VerticalWrapMode = WrapVerticalMode.None;
+
+        private Rect _cachedTargetRect = null;
+
+        /// The top left corner of the text
+        public Vector2 TextMin { get; private set; }
 
         public enum WrapVerticalMode
         {
@@ -37,15 +42,16 @@ namespace DREngine.Game.UI
             Bottom
         }
 
-        public UIText(GamePlus game, UiComponent parent, SpriteFont font, string text) : base(game, parent)
+        public UIText(GamePlus game, SpriteFont font, string text, UIComponent parent) : base(game, parent)
         {
             Text = text;
             Font = font;
         }
-        public UIText(GamePlus game, SpriteFont font, string text) : this(game, null, font, text) {}
+        public UIText(GamePlus game, SpriteFont font, string text) : this(game, font, text, null) {}
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
+            _cachedTargetRect = targetRect;
             screen.SpriteBatchBegin();
 
             string text = Text;
@@ -54,11 +60,26 @@ namespace DREngine.Game.UI
                 text = WrapText(Font, Text, targetRect.Width, targetRect.Height);
             }
 
+            TextMin = Vector2.Zero;
+
             if (TextHAlign != TextHAlignMode.Left || TextVAlign != TextVAlignMode.Top)
             {
+                string[] lines = text.Split('\n');
                 Vector2 totalSize = Font.MeasureString(text);
+                // Update text position
+                float hSize = lines.Length == 0 ? 0 : Font.MeasureString(lines[0]).X;
+                switch (TextHAlign)
+                {
+                    case TextHAlignMode.Center:
+                        TextMin = new Vector2(targetRect.Width / 2 - hSize / 2f, TextMin.Y);
+                        break;
+                    case TextHAlignMode.Right:
+                        TextMin = new Vector2(targetRect.Width - hSize, TextMin.Y);
+                        break;
+
+                }
                 float h = 0;
-                foreach (string line in text.Split('\n'))
+                foreach (string line in lines)
                 {
                     Vector2 offset = Vector2.Zero + Vector2.UnitY * h;
                     Vector2 size = Font.MeasureString(line);
@@ -146,6 +167,15 @@ namespace DREngine.Game.UI
             }
 
             return sb.ToString();
+        }
+
+        public Vector2 GetSize(string text)
+        {
+            if (_cachedTargetRect == null)
+            {
+                return Font.MeasureString(text);
+            }
+            return Font.MeasureString(WrapText(Font, text, _cachedTargetRect.Width, _cachedTargetRect.Height));
         }
 
         public UIText WithoutWordWrap()

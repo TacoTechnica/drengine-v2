@@ -126,6 +126,16 @@ namespace DREngine.Game.UI
             DrawRect(x, y, width, height, DefaultDrawColor);
         }
 
+        public void DrawRect(Vector2 pos, Vector2 size, Color color0, Color color1, Color color2, Color color3)
+        {
+            DrawRect(pos.X, pos.Y, size.X, size.Y, color0, color1, color2, color3);
+        }
+
+        public void DrawRect(Vector2 pos, Vector2 size, Color color)
+        {
+            DrawRect(pos, size, color, color, color, color);
+        }
+
         public void DrawRect(Rect r, Color color0, Color color1, Color color2, Color color3)
         {
             DrawRect(r.X, r.Y, r.Width, r.Height, color0, color1, color2, color3);
