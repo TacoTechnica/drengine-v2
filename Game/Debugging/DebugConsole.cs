@@ -1,4 +1,5 @@
-﻿using DREngine.Game.Input;
+﻿using System;
+using DREngine.Game.Input;
 using DREngine.Game.UI.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,6 +14,9 @@ namespace DREngine.Game.Debugging
         private int _lineCounter = 0;
 
         private GamePlus _game;
+
+        public Action OnOpened;
+        public Action OnClosed;
 
         public DebugConsole(GamePlus game, SpriteFont font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
         {
@@ -35,12 +39,14 @@ namespace DREngine.Game.Debugging
             if (Opened) return;
             _ui.SetActive(true);
             _ui.SetFocused();
+            OnOpened?.Invoke();
         }
 
         public void Close()
         {
             if (!Opened) return;
             _ui.SetActive(false);
+            OnClosed?.Invoke();
         }
 
         public void Clear()
