@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace DREngine.Game
 {
     /// <summary>
-    /// TODO: Since this relies on passing a game object like everywhere, consider not making this static.
+    /// Since this relies on passing a game object like everywhere, consider not making this static.
     /// Might want to keep it like this though so it's easier to remove or something.
     /// </summary>
     public static class DebugDrawer

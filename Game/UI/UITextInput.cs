@@ -138,7 +138,7 @@ namespace DREngine.Game.UI
 
         protected override void OnSubmit()
         {
-            // TODO: Nothing for now...
+            // Nothing for now...
         }
 
         protected override void OnBackspace(bool ctrl)

@@ -13,7 +13,7 @@ namespace DREngine.Game.Audio
     /// </summary>
     public class AudioMixer
     {
-        /** TODO: FIX THIS FOR LINUX
+        /**
          *
          * I cannot get libbass.so and libbassmix.so to work together. I have this problem:
          * http://www.un4seen.com/forum/?topic=18656.0

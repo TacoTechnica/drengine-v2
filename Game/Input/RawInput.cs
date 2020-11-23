@@ -248,7 +248,6 @@ namespace DREngine.Game.Input
             var currentKeys = _currKeyboardState.GetPressedKeys();
             if (currentKeys.Length != 0)
             {
-                // TODO: This is O(2n), maybe make it O(n)?
                 List<Keys> newKeys = new List<Keys>();
                 foreach (Keys key in currentKeys)
                 {
