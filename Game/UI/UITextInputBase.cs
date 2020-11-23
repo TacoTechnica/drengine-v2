@@ -37,6 +37,7 @@ namespace DREngine.Game.UI
 
         private void OnInput(Keys[] obj)
         {
+            if (!Active) return;
             if (!Selected) return;
             // TODO: Caps lock?
             bool shift = RawInput.KeyPressing(Keys.LeftShift) || RawInput.KeyPressing(Keys.RightShift);
@@ -76,14 +77,18 @@ namespace DREngine.Game.UI
                         break;
                     default:
                         char c = key.ToChar(shift);
-                        if (ctrl)
+                        if (c != (Char) 0)
                         {
-                            OnControlInput(c);
+                            if (ctrl)
+                            {
+                                OnControlInput(c);
+                            }
+                            else
+                            {
+                                OnCharacterInput(c);
+                            }
                         }
-                        else
-                        {
-                            OnCharacterInput(c);
-                        }
+
                         break;
                 }
             }

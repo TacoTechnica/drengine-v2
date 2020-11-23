@@ -199,5 +199,14 @@ namespace DREngine
         {
             return System.Math.Max(a, b);
         }
+        public static float Min(float a, float b)
+        {
+            return System.Math.Min(a, b);
+        }
+
+        public static float Max(float a, float b)
+        {
+            return System.Math.Max(a, b);
+        }
     }
 }

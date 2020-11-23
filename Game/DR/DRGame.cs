@@ -18,7 +18,7 @@ namespace DREngine.Game
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestTextInput())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", true, new TestEmpty())
         {
             this._graphics.SynchronizeWithVerticalRetrace = true;
             this.IsFixedTimeStep = false;
@@ -66,9 +66,11 @@ namespace DREngine.Game
 
         protected override void Update(GameTime gameTime)
         {
+            /*
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            */
 
             if (RawInput.KeyPressed(Keys.F1))
             {

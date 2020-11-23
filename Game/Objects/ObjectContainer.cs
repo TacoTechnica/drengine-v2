@@ -34,6 +34,11 @@ namespace DREngine.Game
 
         public int Count => _objects.Count;
 
+        public bool Contains(ObjectContainerNode<T> node)
+        {
+            return node != null && node.Node.List == _objects;
+        }
+
         public ObjectContainerNode<T> Add(T obj)
         {
             ObjectContainerNode<T> n = new ObjectContainerNode<T>(_objects.AddLast(obj));

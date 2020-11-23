@@ -39,7 +39,6 @@ namespace DREngine.Game.UI
 
     public class UIMaskRect : UIMask
     {
-        private bool _transparent;
         public Color Color;
         public UIMaskRect(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
@@ -53,6 +52,11 @@ namespace DREngine.Game.UI
                     game.GraphicsDevice.Viewport.Height);
             }
             */
+        }
+
+        public UIMaskRect(GamePlus game, Color backgroundColor, UIComponent parent = null) : base(game, parent)
+        {
+            Color = backgroundColor;
         }
 
         protected override void DrawMask(UIScreen screen, Rect targetRect)

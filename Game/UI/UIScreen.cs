@@ -14,7 +14,7 @@ namespace DREngine.Game.UI
         public Color DefaultDrawColor = Color.White;
 
         // Do we need to update selectables during the draw phase?
-        public bool NeedToUpdateSelectables = false;
+        public bool NeedToUpdateControl = false;
 
         // Testing
         private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
@@ -44,28 +44,29 @@ namespace DREngine.Game.UI
 
         public void Draw()
         {
-            float w = GraphicsDevice.Viewport.Width,
-                h = GraphicsDevice.Viewport.Height;
+            Rect screenRect = GetParentRect();
+            float w = screenRect.Width,
+                  h = screenRect.Height;
             OpenGL2Pixel = Matrix.CreateScale(2f / w, -2f / h, 1) * Matrix.CreateTranslation(-1, 1, 0);
             CurrentWorld = Matrix.Identity;
-            Rect screenRect = new Rect(
-                0, 0,
-                w,
-                h
-            );
             DoDraw(this, CurrentWorld, screenRect);
-            NeedToUpdateSelectables = false;
+            NeedToUpdateControl = false;
         }
 
         public void Update()
         {
-            NeedToUpdateSelectables = true;
+            NeedToUpdateControl = true;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             // Do nothing here.
             //DrawRect(0, 0, targetRect.Width / 2, 100f, Color.Red, Color.Green, Color.Blue, Color.Yellow);
+        }
+
+        protected override Rect GetParentRect()
+        {
+            return new Rect(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
         }
 
         #region Drawing Utilities

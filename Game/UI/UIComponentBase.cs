@@ -12,6 +12,22 @@ namespace DREngine.Game.UI
 
         public Layout Layout = new Layout();
 
+        public bool Active = true;
+
+        private Rect _layoutRect = null;
+        public Rect LayoutRect
+        {
+            get
+            {
+                if (true || _layoutRect == null)
+                {
+                    _layoutRect = Layout.GetTargetRect(GetParentRect());
+                }
+                return _layoutRect;
+            }
+            set => _layoutRect = value;
+        }
+
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
 
         private bool _isMasked = false;
@@ -26,6 +42,8 @@ namespace DREngine.Game.UI
 
         public void AddChild(UIComponent child)
         {
+            // If we already have our child.
+            if (_children.Contains(child.GetParentListNode())) return;
             if (this is UIMask mask)
             {
                 child._isMasked = true;
@@ -53,6 +71,8 @@ namespace DREngine.Game.UI
 
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
+            if (!Active) return;
+
             screen.CurrentWorld = worldMat;
 
             if (_isMasked)
@@ -70,6 +90,7 @@ namespace DREngine.Game.UI
                 };
             }
 
+            LayoutRect = targetRect;
             Draw(screen, targetRect);
 
             bool childSelected = false;
@@ -86,7 +107,7 @@ namespace DREngine.Game.UI
                     child.DoDraw(screen, screen.CurrentWorld, target);
 
                     // If any child is selected after the corresponding draw call, mark that.
-                    if (!childSelected && screen.NeedToUpdateSelectables && child is ICursorSelectable selectable)
+                    if (!childSelected && screen.NeedToUpdateControl && child is ICursorSelectable selectable)
                     {
                         if (selectable.__ChildWasSelected || selectable.CursorSelected) childSelected = true;
                     }
@@ -94,7 +115,7 @@ namespace DREngine.Game.UI
             );
 
             // if our object asks for it, do selection checking.
-            if (screen.NeedToUpdateSelectables && this is ICursorSelectable selectable)
+            if (screen.NeedToUpdateControl && this is ICursorSelectable selectable)
             {
                 selectable.__ChildWasSelected = childSelected;
 
@@ -178,6 +199,11 @@ namespace DREngine.Game.UI
                     }
                 }
             }
+        }
+
+        protected virtual Rect GetParentRect()
+        {
+            return _game.UiScreen.LayoutRect;
         }
 
         protected abstract void Draw(UIScreen screen, Rect targetRect);

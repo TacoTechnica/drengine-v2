@@ -77,8 +77,25 @@ namespace DREngine.Game.UI
             return this;
         }
 
+        public ObjectContainerNode<UIComponent> GetParentListNode()
+        {
+            return _addedNode;
+        }
 
+        protected override Rect GetParentRect()
+        {
+            return _parent.LayoutRect;
+        }
+    }
 
+    public class UIContainer : UIComponent
 
+    {
+        public UIContainer(GamePlus game, UIComponent parent = null) : base(game, parent) {}
+
+        protected override void Draw(UIScreen screen, Rect targetRect)
+        {
+            // Do nothing
+        }
     }
 }

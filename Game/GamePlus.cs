@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Timers;
 using DREngine.Game.Audio;
+using DREngine.Game.Debugging;
 using DREngine.Game.Input;
 using DREngine.Game.UI;
 using DREngine.Util;
@@ -29,13 +31,15 @@ namespace DREngine.Game
         private IGameRunner _runner = null;
 
         ///  Debug stuff
-        private bool _debugTitle;
+        private bool _debug;
         private float _currentFPS = 0;
         private long _currentMemoryBytes = 0;
         private long _debugFrameCounter = 0;
         private float _fpsAverageAccum = 0;
         private Timer _debugTimer = new Timer();
         private DateTime _lastDebugTime;
+        private DebugControls _debugControls;
+        private DebugConsole _debugConsole;
 
         public float DebugMaxFPS = 60;
 
@@ -91,11 +95,11 @@ namespace DREngine.Game
 
         #endregion
 
-        public GamePlus(string windowTitle = "Untitled Game", bool debugTitle = true, IGameRunner gameRunner = null)
+        public GamePlus(string windowTitle = "Untitled Game", bool debug = true, IGameRunner gameRunner = null)
         {
             WindowTitle = windowTitle;
             _runner = gameRunner;
-            _debugTitle = debugTitle;
+            _debug = debug;
 
             // MonoGame config
             _graphics = new GraphicsDeviceManager(this)
@@ -107,15 +111,19 @@ namespace DREngine.Game
             IsMouseVisible = true;
             this.Window.Title = windowTitle;
 
-            // Debug config
-            _debugTimer.Interval = 1000f;
-            _debugTimer.AutoReset = true;
-
             SceneManager = new SceneManager(this);
             CollisionManager = new CollisionManager();
             UiScreen = new UIScreen(this);
 
             AudioOutput = new AudioOutput();
+
+            // Debug config
+            if (debug)
+            {
+                _debugTimer.Interval = 1000f;
+                _debugTimer.AutoReset = true;
+                _debugControls = new DebugControls(this);
+            }
         }
 
 
@@ -126,12 +134,18 @@ namespace DREngine.Game
             // Init
             base.Initialize();
 
-            // Start a debug timer for debug things.
-            if (_debugTitle)
+            // Initialize Debug Stuff
+            if (_debug)
             {
                 _debugTimer.Start();
                 _lastDebugTime = DateTime.Now;
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
+                _debugConsole = new DebugConsole(this,
+                    Content.Load<SpriteFont>("Debug/DebugFont"),
+                    256f,
+                    _debugControls.ConsoleOpen, _debugControls.ConsoleClose, _debugControls.ConsoleSubmit
+                );
+
             }
             DebugEffect = new BasicEffect(GraphicsDevice);
             DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
@@ -162,7 +176,7 @@ namespace DREngine.Game
             UiScreen.Update();
 
             // If we're debugging, handle that right off the bat.
-            if (_debugTitle)
+            if (_debug)
             {
                 if (UnscaledDeltaTime != 0)
                 {

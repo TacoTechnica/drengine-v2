@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,9 +54,17 @@ namespace DREngine.Game.UI
         {
             if (!Selected) return;
             // TODO: Make cursor blink (use a function of time)
-            Vector2 delta = _text.GetSize(Text.Substring(0, _cursorPos));
-            Vector2 cursorSize = new Vector2(2, _text.Font.LineSpacing);
-            screen.DrawRect(targetRect.Position + delta - cursorSize, cursorSize, _text.Color);
+            string sub = Text.Substring(0, _cursorPos);
+            try
+            {
+                Vector2 delta = _text.GetSize(sub);
+                Vector2 cursorSize = new Vector2(2, _text.Font.LineSpacing);
+                screen.DrawRect(targetRect.Position + delta - cursorSize, cursorSize, _text.Color);
+            }
+            catch (ArgumentException)
+            {
+                Debug.LogError($"INVALID TEXT: \"{sub}\"");
+            }
         }
 
         protected override void OnSelectVisual()
@@ -155,8 +164,9 @@ namespace DREngine.Game.UI
                     }
                 }
 
+                int prevPos = _cursorPos;
                 DeleteTextBack(count);
-                SetCursor(_cursorPos - count);
+                SetCursor(prevPos - count); // - count);
             }
         }
 

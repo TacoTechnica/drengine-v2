@@ -9,7 +9,7 @@ namespace DREngine.Game.UI
     {
         public string Text = "";
         public SpriteFont Font = null;
-        public Color Color = Color.Black;
+        public Color Color;
         public bool WordWrap = true;
 
         public TextHAlignMode TextHAlign = TextHAlignMode.Left;
@@ -20,6 +20,8 @@ namespace DREngine.Game.UI
 
         /// The top left corner of the text
         public Vector2 TextMin { get; private set; }
+
+        public float CachedDrawnTextHeight { get; private set; }
 
         public enum WrapVerticalMode
         {
@@ -42,15 +44,18 @@ namespace DREngine.Game.UI
             Bottom
         }
 
-        public UIText(GamePlus game, SpriteFont font, string text, UIComponent parent) : base(game, parent)
+        public UIText(GamePlus game, SpriteFont font, string text, Color textColor, UIComponent parent = null) : base(game, parent)
         {
             Text = text;
             Font = font;
+            Color = textColor;
         }
-        public UIText(GamePlus game, SpriteFont font, string text) : this(game, font, text, null) {}
+        public UIText(GamePlus game, SpriteFont font, string text = "", UIComponent parent = null) : this(game, font, text, Color.Black, parent) {}
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
+            //screen.DrawRectOutline(targetRect, Color.Lavender);
+
             _cachedTargetRect = targetRect;
             screen.SpriteBatchBegin();
 
@@ -113,9 +118,12 @@ namespace DREngine.Game.UI
                     screen.SpriteBatch.DrawString(Font, line, targetRect.Min + offset, Color);
                     h += size.Y;
                 }
+
+                CachedDrawnTextHeight = h;
             }
             else
             {
+                CachedDrawnTextHeight = Font.MeasureString(text).Y;
                 screen.SpriteBatch.DrawString(Font, text, targetRect.Min, Color);
             }
 
@@ -194,5 +202,6 @@ namespace DREngine.Game.UI
             TextVAlign = mode;
             return this;
         }
+
     }
 }

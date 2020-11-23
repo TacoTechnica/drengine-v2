@@ -50,7 +50,10 @@ namespace DREngine.Game.UI
             Margin.Offset(x, y);
             return this;
         }
-
+        public Layout OffsetBy(Vector2 offset)
+        {
+            return OffsetBy(offset.X, offset.Y);
+        }
         public Layout WithPivot(float x, float y)
         {
             Pivot = new Vector2(x, y);
@@ -179,7 +182,7 @@ namespace DREngine.Game.UI
                 Margin = new Margin(delta.X, delta.Y, -delta.X - width, -delta.Y - height)
             };
         }
-        public static Layout SideStretchLayout(int side, float size, float padding = 0)
+        public static Layout SideStretchLayout(int side, float size, float padding = 0, float offset = 0)
         {
             Layout result = new Layout {Margin = new Margin(padding, padding, padding, padding)};
             switch (side)
@@ -187,26 +190,26 @@ namespace DREngine.Game.UI
                 case Top:
                     result.AnchorMin = Vector2.Zero;
                     result.AnchorMax = Vector2.UnitX;
-                    result.Margin.Bottom = -size;
-                    result.Margin.Top = 0;
+                    result.Margin.Bottom = -size - offset;
+                    result.Margin.Top = offset;
                     break;
                 case Bottom:
                     result.AnchorMin = Vector2.UnitY;
                     result.AnchorMax = Vector2.One;
-                    result.Margin.Bottom = 0;
-                    result.Margin.Top = -size;
+                    result.Margin.Bottom = offset;
+                    result.Margin.Top = -size - offset;
                     break;
                 case Left:
                     result.AnchorMin = Vector2.Zero;
                     result.AnchorMax = Vector2.UnitY;
-                    result.Margin.Left = 0;
-                    result.Margin.Right = -size;
+                    result.Margin.Left = offset;
+                    result.Margin.Right = -size - offset;
                     break;
                 case Right:
                     result.AnchorMin = Vector2.UnitX;
                     result.AnchorMax = Vector2.One;
-                    result.Margin.Left = -size;
-                    result.Margin.Right = 0;
+                    result.Margin.Left = -size - offset;
+                    result.Margin.Right = offset;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
@@ -264,6 +267,33 @@ namespace DREngine.Game.UI
             Right -= x;
         }
 
+        public void Offset(Vector2 offset)
+        {
+            Offset(offset.X, offset.Y);
+        }
+
+        public void SetPosition(float x, float y)
+        {
+            SetX(x);
+            SetY(y);
+        }
+
+        public void SetX(float x)
+        {
+            float deltaX = -x - Left;
+            Left += deltaX;
+            Right -= deltaX;
+
+        }
+
+        public void SetY(float y)
+        {
+            float deltaY = -y - Top;
+            Top += deltaY;
+            Bottom -= deltaY;
+
+        }
+
         public Vector2 Min
         {
             get => new Vector2(Left, Top);
@@ -285,7 +315,7 @@ namespace DREngine.Game.UI
 
         public override string ToString()
         {
-            return $"({Top}, {Bottom}, {Left}, {Right}";
+            return $"({Top}, {Bottom}, {Left}, {Right})";
         }
     }
 }
