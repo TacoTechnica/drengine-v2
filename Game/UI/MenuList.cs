@@ -21,6 +21,7 @@ namespace DREngine.Game.UI
             }
         }
         private int _selectedIndex = -1;
+        private IMenuItem _pressed = null;
 
         private List<IMenuItem> _items = new List<IMenuItem>();
 
@@ -120,12 +121,16 @@ namespace DREngine.Game.UI
 
         private void OnSelectionPressKeyboard(InputActionButton obj)
         {
+            if (_pressed != _selected) _pressed?.OnMenuDepress(false);
             _selected?.OnMenuPress(false);
+            _pressed = _selected;
         }
 
         private void OnSelectionPressMouse(InputActionButton obj)
         {
+            if (_pressed != _selected) _pressed?.OnMenuDepress(false);
             _selected?.OnMenuPress(true);
+            _pressed = _selected;
         }
 
         private void OnPressedNext(InputActionButton obj)

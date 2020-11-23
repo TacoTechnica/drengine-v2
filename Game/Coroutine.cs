@@ -45,8 +45,6 @@ namespace DREngine.Game
         }
 
 
-        // TODO: Figure out how to make these classes, it will look nicer.
-
 
         /*
         public static IEnumerator WaitForSeconds(GamePlus _game, float duration)

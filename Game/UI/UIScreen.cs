@@ -4,7 +4,7 @@ using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace DREngine.Game.UI
 {
-    public class UIScreen : UIBaseComponent
+    public class UIScreen : UIComponentBase
     {
         public BasicEffect DrawEffect { get; private set; }
         public AlphaTestEffect DrawEffectAlpha { get; private set; }
@@ -14,7 +14,7 @@ namespace DREngine.Game.UI
         public Color DefaultDrawColor = Color.White;
 
         // Do we need to update selectables during the draw phase?
-        public bool NeedToUpdateSelectables = false;
+        public bool NeedToUpdateControl = false;
 
         // Testing
         private SpriteFont _textFont => ((DRGame)_game).GameProjectData.OverridableResources.DialogueFont.Font;
@@ -39,35 +39,34 @@ namespace DREngine.Game.UI
             DrawEffectAlpha = new AlphaTestEffect(GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-
-
             DrawEffect.VertexColorEnabled = true;
         }
 
         public void Draw()
         {
-            float w = GraphicsDevice.Viewport.Width,
-                h = GraphicsDevice.Viewport.Height;
+            Rect screenRect = GetParentRect();
+            float w = screenRect.Width,
+                  h = screenRect.Height;
             OpenGL2Pixel = Matrix.CreateScale(2f / w, -2f / h, 1) * Matrix.CreateTranslation(-1, 1, 0);
             CurrentWorld = Matrix.Identity;
-            Rect screenRect = new Rect(
-                0, 0,
-                w,
-                h
-            );
             DoDraw(this, CurrentWorld, screenRect);
-            NeedToUpdateSelectables = false;
+            NeedToUpdateControl = false;
         }
 
         public void Update()
         {
-            NeedToUpdateSelectables = true;
+            NeedToUpdateControl = true;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             // Do nothing here.
             //DrawRect(0, 0, targetRect.Width / 2, 100f, Color.Red, Color.Green, Color.Blue, Color.Yellow);
+        }
+
+        protected override Rect GetParentRect()
+        {
+            return new Rect(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
         }
 
         #region Drawing Utilities
@@ -126,6 +125,16 @@ namespace DREngine.Game.UI
         public void DrawRect(float x, float y, float width, float height)
         {
             DrawRect(x, y, width, height, DefaultDrawColor);
+        }
+
+        public void DrawRect(Vector2 pos, Vector2 size, Color color0, Color color1, Color color2, Color color3)
+        {
+            DrawRect(pos.X, pos.Y, size.X, size.Y, color0, color1, color2, color3);
+        }
+
+        public void DrawRect(Vector2 pos, Vector2 size, Color color)
+        {
+            DrawRect(pos, size, color, color, color, color);
         }
 
         public void DrawRect(Rect r, Color color0, Color color1, Color color2, Color color3)

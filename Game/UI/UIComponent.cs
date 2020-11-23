@@ -5,9 +5,9 @@ using Microsoft.Xna.Framework;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIComponent: UIBaseComponent
+    public abstract class UIComponent: UIComponentBase
     {
-        protected UIBaseComponent _parent;
+        protected UIComponentBase _parent;
 
         private ObjectContainerNode<UIComponent> _addedNode;
 
@@ -24,7 +24,7 @@ namespace DREngine.Game.UI
             }
         }
 
-        internal void ReceiveParent(UIBaseComponent parent, ObjectContainerNode<UIComponent> node)
+        internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UIComponent> node)
         {
             _parent?.RemoveEnqueueChild(_addedNode);
             _parent = parent;
@@ -72,13 +72,30 @@ namespace DREngine.Game.UI
                 throw new InvalidOperationException("Tried to set our UI parent to root when we already have a parent!");
             }
 
-            _game.UIScreen.AddChild(this);
+            _game.UiScreen.AddChild(this);
 
             return this;
         }
 
+        public ObjectContainerNode<UIComponent> GetParentListNode()
+        {
+            return _addedNode;
+        }
 
+        protected override Rect GetParentRect()
+        {
+            return _parent.LayoutRect;
+        }
+    }
 
+    public class UIContainer : UIComponent
 
+    {
+        public UIContainer(GamePlus game, UIComponent parent = null) : base(game, parent) {}
+
+        protected override void Draw(UIScreen screen, Rect targetRect)
+        {
+            // Do nothing
+        }
     }
 }

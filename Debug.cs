@@ -12,6 +12,9 @@ namespace DREngine
         public static bool ShortenPath = true;
         public static int padding = 20;
 
+        public static Action<string> OnLog;
+        public static Action<string> OnLogError;
+
         private static string GetPrint(string log)
         {
             if (PrintTrace)
@@ -47,12 +50,22 @@ namespace DREngine
 
         public static void Log(string log)
         {
-            Console.WriteLine(GetPrint(log));
+            LogSilent(log);
+            OnLog?.Invoke(log);
         }
 
         public static void LogError(string log)
         {
             Console.Error.WriteLine(GetPrint(log));
+            OnLogError?.Invoke(log);
+        }
+
+        /// <summary>
+        ///     Debug Logs without alerting anyone.
+        /// </summary>
+        public static void LogSilent(string log)
+        {
+            Console.WriteLine(GetPrint(log));
         }
     }
 }

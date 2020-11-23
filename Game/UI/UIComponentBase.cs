@@ -4,13 +4,29 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DREngine.Game.UI
 {
-    public abstract class UIBaseComponent
+    public abstract class UIComponentBase
     {
         protected GamePlus _game;
 
         public Transform3D LocalTransform = new Transform3D();
 
         public Layout Layout = new Layout();
+
+        public bool Active = true;
+
+        private Rect _layoutRect = null;
+        public Rect LayoutRect
+        {
+            get
+            {
+                if (true || _layoutRect == null)
+                {
+                    _layoutRect = Layout.GetTargetRect(GetParentRect());
+                }
+                return _layoutRect;
+            }
+            set => _layoutRect = value;
+        }
 
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
 
@@ -19,13 +35,15 @@ namespace DREngine.Game.UI
         private int _maskIndex = 0;
         //private RenderTarget2D _maskedRenderTarget = null;
 
-        public UIBaseComponent(GamePlus game)
+        public UIComponentBase(GamePlus game)
         {
             _game = game;
         }
 
         public void AddChild(UIComponent child)
         {
+            // If we already have our child.
+            if (_children.Contains(child.GetParentListNode())) return;
             if (this is UIMask mask)
             {
                 child._isMasked = true;
@@ -53,6 +71,8 @@ namespace DREngine.Game.UI
 
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
+            if (!Active) return;
+
             screen.CurrentWorld = worldMat;
 
             if (_isMasked)
@@ -70,6 +90,7 @@ namespace DREngine.Game.UI
                 };
             }
 
+            LayoutRect = targetRect;
             Draw(screen, targetRect);
 
             bool childSelected = false;
@@ -86,7 +107,7 @@ namespace DREngine.Game.UI
                     child.DoDraw(screen, screen.CurrentWorld, target);
 
                     // If any child is selected after the corresponding draw call, mark that.
-                    if (!childSelected && screen.NeedToUpdateSelectables && child is ICursorSelectable selectable)
+                    if (!childSelected && screen.NeedToUpdateControl && child is ICursorSelectable selectable)
                     {
                         if (selectable.__ChildWasSelected || selectable.CursorSelected) childSelected = true;
                     }
@@ -94,7 +115,7 @@ namespace DREngine.Game.UI
             );
 
             // if our object asks for it, do selection checking.
-            if (screen.NeedToUpdateSelectables && this is ICursorSelectable selectable)
+            if (screen.NeedToUpdateControl && this is ICursorSelectable selectable)
             {
                 selectable.__ChildWasSelected = childSelected;
 
@@ -117,14 +138,28 @@ namespace DREngine.Game.UI
                     selectable.CursorSelected = selected;
                 }
 
-                if (selectable.CursorSelected && !prevSelected)
+                bool newlySelected = selectable.CursorSelected && !prevSelected;
+
+                if (newlySelected)
                 {
                     // If we are part of a parent menu, inform the parent that we've been selected.
                     if (selectable is IMenuItem menuItem)
                     {
-                        if (menuItem.ParentMenu != null && menuItem.ParentMenu.UseMouse)
+                        if (menuItem.ParentMenu != null)
                         {
-                            menuItem.ParentMenu.SetSelected(menuItem);
+                            if (menuItem.ParentMenu.UseMouse)
+                            {
+                                menuItem.ParentMenu.SetSelected(menuItem);
+                            }
+                        }
+                        else
+                        {
+                            // No parent. Use default stuff.
+                            if (!menuItem.MenuSelected)
+                            {
+                                menuItem.MenuSelected = true;
+                                menuItem.OnMenuSelect();
+                            }
                         }
                     }
 
@@ -132,10 +167,43 @@ namespace DREngine.Game.UI
                 }
                 else if (!selectable.CursorSelected && prevSelected)
                 {
+                    // Deselected
                     selectable.OnCursorDeselect();
+                    // If we are a parent-less menu item, deselect manually by mouse.
+                    if (selectable is IMenuItem menuItem)
+                    {
+                        if (menuItem.ParentMenu == null)
+                        {
+                            if (menuItem.MenuSelected)
+                            {
+                                menuItem.MenuSelected = false;
+                                menuItem.OnMenuDeselect();
+                            }
+                        }
+                    }
                 }
 
+                // Now handle pressing if we are a menu item and we have no parent.
+                if (RawInput.MousePressed(MouseButton.Left) && selectable is IMenuItem menuItemm)
+                {
+                    if (menuItemm.ParentMenu == null)
+                    {
+                        if (menuItemm.MenuSelected)
+                        {
+                            menuItemm.OnMenuPress(true);
+                        }
+                        else
+                        {
+                            menuItemm.OnMenuDepress(true);
+                        }
+                    }
+                }
             }
+        }
+
+        protected virtual Rect GetParentRect()
+        {
+            return _game.UiScreen.LayoutRect;
         }
 
         protected abstract void Draw(UIScreen screen, Rect targetRect);
