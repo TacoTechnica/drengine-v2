@@ -39,7 +39,9 @@ namespace DREngine.Game
         private Timer _debugTimer = new Timer();
         private DateTime _lastDebugTime;
         private DebugControls _debugControls;
-        private DebugConsole _debugConsole;
+        private const string GLOBAL_DEBUG_COMMAND_NAMESPACE = "DREngine.Game.Debugging.CommandListGlobal";
+
+        public DebugConsole DebugConsole;
 
         public float DebugMaxFPS = 60;
 
@@ -95,7 +97,7 @@ namespace DREngine.Game
 
         #endregion
 
-        public GamePlus(string windowTitle = "Untitled Game", bool debug = true, IGameRunner gameRunner = null)
+        public GamePlus(string windowTitle = "Untitled Game", bool debug = true, IGameRunner gameRunner = null, string[] debugCommandNamespaces = null)
         {
             WindowTitle = windowTitle;
             _runner = gameRunner;
@@ -123,6 +125,13 @@ namespace DREngine.Game
                 _debugTimer.Interval = 1000f;
                 _debugTimer.AutoReset = true;
                 _debugControls = new DebugControls(this);
+                // Initialize commands
+                List<string> dcNamespaces = new List<string>(new string[]{GLOBAL_DEBUG_COMMAND_NAMESPACE});
+                if (debugCommandNamespaces != null)
+                {
+                    dcNamespaces.AddRange(debugCommandNamespaces);
+                }
+                Commands.Init(dcNamespaces.ToArray());
             }
         }
 
@@ -140,7 +149,7 @@ namespace DREngine.Game
                 _debugTimer.Start();
                 _lastDebugTime = DateTime.Now;
                 _debugTimer.Elapsed += DebugTimerOnElapsed;
-                _debugConsole = new DebugConsole(this,
+                DebugConsole = new DebugConsole(this,
                     Content.Load<SpriteFont>("Debug/DebugFont"),
                     256f,
                     _debugControls.ConsoleOpen, _debugControls.ConsoleClose, _debugControls.ConsoleSubmit

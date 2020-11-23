@@ -9,13 +9,14 @@ namespace DREngine.Game.Debugging
         private UIDebugConsole _ui;
         public bool Opened => _ui.Active;
 
-        private DebugConsoleExecutor _executor;
-
         private int _maxLines = 500;
         private int _lineCounter = 0;
 
+        private GamePlus _game;
+
         public DebugConsole(GamePlus game, SpriteFont font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
         {
+            _game = game;
             _ui = (UIDebugConsole) new UIDebugConsole(game, font, outputHeight).AddToRoot();
             openAction.Pressed += OnOpenPressed;
             closeAction.Pressed += OnClosePressed;
@@ -25,8 +26,6 @@ namespace DREngine.Game.Debugging
             Debug.OnLogError += OnGlobalLogError;
 
             _ui.Active = false;
-
-            _executor = new DebugConsoleExecutor();
         }
 
         #region External Control
@@ -42,6 +41,11 @@ namespace DREngine.Game.Debugging
         {
             if (!Opened) return;
             _ui.SetActive(false);
+        }
+
+        public void Clear()
+        {
+            _ui.OutputText = "";
         }
 
         public void PrintToOutput(string text)
@@ -62,6 +66,11 @@ namespace DREngine.Game.Debugging
             {
                 _ui.MoveLogToBottom();
             }
+        }
+
+        public void PrintErrorToOutput(string text)
+        {
+            PrintToOutput($"E: {text}");
         }
 
         #endregion
@@ -87,13 +96,20 @@ namespace DREngine.Game.Debugging
                 _ui.InputText = "";
                 _ui.MoveLogToBottom();
 
-                _executor.ExecuteInput(input);
+                try
+                {
+                    Commands.Run(_game, input);
+                }
+                catch (InvalidArgumentsException e)
+                {
+                    PrintErrorToOutput(e.Message);
+                }
             }
         }
 
         private void OnGlobalLogError(string text)
         {
-            PrintToOutput($"E: {text}");
+            PrintErrorToOutput(text);
         }
 
         private void OnGlobalLog(string text)
