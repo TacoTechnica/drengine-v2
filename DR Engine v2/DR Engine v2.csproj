@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>DREngine</RootNamespace>
+        <AssemblyName>DR Engine</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <MonoGameContentReference Include="Content\Content.mgcb" />
+    </ItemGroup>
+
+    <!-- DIRECTORIES to COPY -->
+    <ItemGroup>
+      <None Update="$(ProjectDir)themes/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="$(ProjectDir)projects/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="$(ProjectDir)default_resources/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

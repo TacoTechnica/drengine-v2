@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PublishReadyToRun>false</PublishReadyToRun>
+        <TieredCompilation>false</TieredCompilation>
+        <AssemblyName>GameEngine</AssemblyName>
+        <RootNamespace>GameEngine</RootNamespace>
+    </PropertyGroup>
+    <PropertyGroup>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>Icon.ico</ApplicationIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="Icon.ico" />
+        <None Remove="Icon.bmp" />
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Icon.ico" />
+        <EmbeddedResource Include="Icon.bmp" />
+    </ItemGroup>
+    <ItemGroup>
+        <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="GtkSharp" Version="3.22.25.128" />
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+        <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
+        <PackageReference Include="NDesk.Options" Version="0.2.1" />
+        <PackageReference Include="SpriteFontPlus" Version="0.8.5.43" />
+        <PackageReference Include="TextCopy" Version="4.2.0" />
+        <PackageReference Include="YamlDotNet" Version="8.1.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <!-- LIBS -->
+      <!-- ManagedBass: bass.dll -->
+      <ContentWithTargetPath Include="$(SolutionDir)GameEngine/libs/bass.dll" Condition=" '$(OS)' == 'Windows_NT' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>bass.dll</TargetPath>
+      </ContentWithTargetPath>
+      <ContentWithTargetPath Include="$(SolutionDir)GameEngine/libs/libbass.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>libbass.so</TargetPath>
+      </ContentWithTargetPath>
+      <!-- ManagedBass: bassmix.dll -->
+      <ContentWithTargetPath Include="$(SolutionDir)GameEngine/libs/bassmix.dll" Condition=" '$(OS)' == 'Windows_NT' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>bassmix.dll</TargetPath>
+      </ContentWithTargetPath>
+      <ContentWithTargetPath Include="$(SolutionDir)GameEngine/libs/libbassmix.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <TargetPath>libbassmix.so</TargetPath>
+      </ContentWithTargetPath>
+
+
+      <None Update="$(SolutionDir)themes/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="$(SolutionDir)projects/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="$(SolutionDir)default_resources/**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="ManagedBass, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>GameEngine\libs\ManagedBass.dll</HintPath>
+      </Reference>
+      <Reference Include="ManagedBass.Mix, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\ManagedBassBuild\src\AddOns\BassMix\bin\Debug\netstandard1.4\ManagedBass.Mix.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
