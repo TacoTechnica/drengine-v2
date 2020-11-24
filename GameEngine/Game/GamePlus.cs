@@ -173,7 +173,9 @@ namespace GameEngine.Game
                 string[] pathsToTry =
                 {
                     @"C:\\Windows\\Fonts\lucon.ttf",
-                    @"C:\\Windows\\Fonts\arial.ttf"
+                    @"C:\\Windows\\Fonts\arial.ttf",
+                    "/usr/share/fonts/TTF/consola.ttf",
+                    "/usr/share/fonts/TTF/arial.ttf"
                 };
                 bool foundValid = false;
                 foreach (string path in pathsToTry)
@@ -201,6 +203,7 @@ namespace GameEngine.Game
                     catch (Exception)
                     {
                         Debug.LogDebug("(Failed)");
+                        continue;
                     }
 
                     break;
