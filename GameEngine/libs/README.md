@@ -9,12 +9,12 @@ Install monogame. Run the "Getting Started" program to make sure it works. TODO:
 # NUGET LIBRARIES
 
 Get Nuget working and install the following libraries in the project:
-	- GtkSharp
-	- NDesk.Options
-	- SpriteFontPlus
-	- YamlDotNet
-	- BassMixer
-	- TextCopy
+- GtkSharp
+- NDesk.Options
+- SpriteFontPlus
+- YamlDotNet
+- BassMixer
+- TextCopy
 
 # BASS MIXER
 
