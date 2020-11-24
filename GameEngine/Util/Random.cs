@@ -26,6 +26,10 @@ namespace GameEngine.Util
         {
             return min + Value * (max - min);
         }
+        public static int GetRange(int min, int max)
+        {
+            return (int) (min + Value * (max - min));
+        }
 
         public static Vector3 GetRange(Vector3 min, Vector3 max)
         {
@@ -35,5 +39,12 @@ namespace GameEngine.Util
                     GetRange(min.Z, max.Z)
                 );
         }
+
+        public static Color Hue(float saturation, float value)
+        {
+            return Math.FromHSV(Value, saturation, value);
+        }
+
+        public static Color Color => new Color(GetRange(0, 255), GetRange(0, 255), GetRange(0, 255));
     }
 }

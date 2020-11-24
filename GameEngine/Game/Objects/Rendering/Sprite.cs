@@ -36,10 +36,13 @@ namespace GameEngine.Game
         public float Width => Texture.Width;
         public float Height => Texture.Height;
 
+        public bool Loaded { get; private set; }
+
         public Sprite(GamePlus game, Texture2D texture)
         {
             this._game = game;
             this.Texture = texture;
+            Loaded = true;
         }
 
         public Sprite(GamePlus game, Path path, Vector2 Pivot, float Scale = 0.01f)
@@ -49,7 +52,8 @@ namespace GameEngine.Game
             this.Scale = Scale;
             this._path = path;
 
-            _game.WhenSafeToLoad.AddListener(LoadSprite);
+            Loaded = false;
+            _game.LoadWhenSafe(LoadSprite);
         }
 
         public Sprite(GamePlus game, Path path) : this(game, path, Vector2.Zero) {}
@@ -57,7 +61,7 @@ namespace GameEngine.Game
         private void LoadSprite()
         {
             Texture = Texture2D.FromFile(_game.GraphicsDevice, _path);
-            _game.WhenSafeToLoad.RemoveListener(LoadSprite);
+            Loaded = true;
         }
     }
 }

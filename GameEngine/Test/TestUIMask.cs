@@ -1,10 +1,11 @@
-﻿using GameEngine.Game.Input;
+﻿using GameEngine.Game;
+using GameEngine.Game.Input;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameEngine.Game.Test
+namespace GameEngine.Test
 {
 
     public class TestUIMask : IGameRunner

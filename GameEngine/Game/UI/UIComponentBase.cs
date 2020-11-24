@@ -1,4 +1,5 @@
-﻿using GameEngine.Game.Input;
+﻿using System.Collections.Generic;
+using GameEngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -35,6 +36,9 @@ namespace GameEngine.Game.UI
         private int _maskIndex = 0;
         //private RenderTarget2D _maskedRenderTarget = null;
 
+        public IEnumerable<UIComponent> Children => _children;
+        public int ChildCount => _children.Count;
+
         public UIComponentBase(GamePlus game)
         {
             _game = game;
@@ -52,18 +56,18 @@ namespace GameEngine.Game.UI
             child.ReceiveParent(this, _children.Add(child));
         }
 
-        public void RemoveEnqueueChild(ObjectContainerNode<UIComponent> toRemove)
+        internal void RemoveEnqueueChild(ObjectContainerNode<UIComponent> toRemove)
         {
             // TODO: Where is this ^ used? Shouldn't you pass the child object instead?
             _children.RemoveEnqueue(toRemove);
         }
 
-        public void RunOnDestroy()
+        public void DestroyImmediate()
         {
             // Delete all children too.
             _children.LoopThroughAll((child) =>
             {
-                child.RunOnDestroy();
+                child.DestroyImmediate();
             });
             // Cleanup, may as well empty the list.
             _children.RemoveAllQueuedImmediate();
@@ -71,6 +75,7 @@ namespace GameEngine.Game.UI
 
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
+            screen.OnUIDraw(Active);
             if (!Active) return;
 
             screen.CurrentWorld = worldMat;

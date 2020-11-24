@@ -56,6 +56,8 @@ namespace GameEngine.Game.UI
         {
             //screen.DrawRectOutline(targetRect, Color.Lavender);
 
+            if (Font == null) return;
+
             _cachedTargetRect = targetRect;
             screen.SpriteBatchBegin();
 

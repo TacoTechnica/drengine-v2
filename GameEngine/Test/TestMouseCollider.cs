@@ -1,10 +1,8 @@
-﻿using System;
+﻿using GameEngine.Game;
 using GameEngine.Game.Input;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Random = GameEngine.Util.Random;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     class Obama : SpriteRenderer
     {

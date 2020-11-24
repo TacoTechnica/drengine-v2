@@ -18,6 +18,8 @@ namespace GameEngine.Game.Debugging
         public Action OnOpened;
         public Action OnClosed;
 
+        public SpriteFont Font => _ui.Font;
+
         public DebugConsole(GamePlus game, SpriteFont font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
         {
             _game = game;

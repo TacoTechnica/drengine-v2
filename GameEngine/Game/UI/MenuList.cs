@@ -25,6 +25,8 @@ namespace GameEngine.Game.UI
 
         private List<IMenuItem> _items = new List<IMenuItem>();
 
+        public IEnumerable<IMenuItem> Children => _items;
+
         public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton mouseSelect, InputActionButton nextAction, InputActionButton prevAction)
         {
             selectAction.Pressed += OnSelectionPressKeyboard;

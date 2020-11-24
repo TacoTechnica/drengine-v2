@@ -13,7 +13,7 @@ namespace GameEngine.Game
         private Action<GamePlus> _onLoad;
 
         public int UniqueId { get; private set; }
-        public BaseSceneLoader(GamePlus game, string[] names, Action<GamePlus> onLoad)
+        public BaseSceneLoader(GamePlus game, string[] names, Action<GamePlus> onLoad = null)
         {
             _game = game;
             _names = names;
@@ -21,16 +21,22 @@ namespace GameEngine.Game
 
             UniqueId = game.SceneManager.RegisterSceneLoader(this);
         }
+
+        public void Deregister()
+        {
+            _game.SceneManager.DeregisterSceneLoader(this);
+        }
+
         // One name constructor
-        public BaseSceneLoader(GamePlus game, string name, Action<GamePlus> onLoad) : this(game, new string[]{name}, onLoad ){}
+        public BaseSceneLoader(GamePlus game, string name, Action<GamePlus> onLoad = null) : this(game, new string[]{name}, onLoad ){}
         public IEnumerable<string> GetNames()
         {
             return _names;
         }
 
-        public void LoadScene()
+        public virtual void LoadScene()
         {
-            _onLoad.Invoke(_game);
+            _onLoad?.Invoke(_game);
         }
     }
 }

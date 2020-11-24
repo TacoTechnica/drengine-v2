@@ -1,11 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
+using GameEngine.Game;
 using GameEngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using YamlDotNet.Core.Tokens;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestCoroutine : IGameRunner
     {

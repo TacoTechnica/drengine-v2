@@ -79,6 +79,11 @@ namespace GameEngine.Game.UI
             return FullscreenLayout(new Vector2(xMinOffset, yMinOffset), new Vector2(xMaxOffset, yMaxOffset));
         }
 
+        public static Layout FullscreenLayout(float padding)
+        {
+            return FullscreenLayout(padding, padding, padding, padding);
+        }
+
         public static Layout FullscreenLayout()
         {
             return FullscreenLayout(Vector2.Zero, Vector2.Zero);
@@ -131,7 +136,7 @@ namespace GameEngine.Game.UI
             };
         }
 
-        public static Layout CornerLayout(int corner, float width, float height)
+        public static Layout CornerLayout(int corner, float width = 0, float height = 0)
         {
             Vector2 anchor = Vector2.Zero;
             Vector2 delta = Vector2.Zero;

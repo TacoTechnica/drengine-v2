@@ -60,22 +60,22 @@ namespace GameEngine.Game.Input
                         }
                     }
                 }
-            }
 
-            if (UseMouse)
-            {
-                Vector2 mouseDelta = RawInput.GetMouseDelta();
-                delta += mouseDelta;
-            }
+                if (UseMouse)
+                {
+                    Vector2 mouseDelta = RawInput.GetMouseDelta();
+                    delta += mouseDelta;
+                }
 
-            Position += delta;
+                Position += delta;
 
-            // Whether we were moving. Also check if we clicked something.
-            MovedLastFrame = (delta.LengthSquared() > 1);
+                // Whether we were moving. Also check if we clicked something.
+                MovedLastFrame = (delta.LengthSquared() > 1);
 
-            if (UseMouse)
-            {
-                RawInput.SetMousePos(Position);
+                if (UseMouse)
+                {
+                    RawInput.SetMousePos(Position);
+                }
             }
         }
 

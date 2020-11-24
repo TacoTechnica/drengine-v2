@@ -29,6 +29,12 @@ namespace GameEngine.Game.UI
             Layout = Layout.FullscreenLayout();
         }
 
+        // Debug stuff
+        private static int _debugActiveDrawCounter = 0;
+        private static int _debugTotalDrawCounter = 0;
+        private static int _debugActiveDrawCount = 0;
+        private static int _debugTotalDrawCount = 0;
+
         public void Initialize()
         {
             GraphicsDevice = _game.GraphicsDevice;
@@ -41,6 +47,10 @@ namespace GameEngine.Game.UI
 
         public void Draw()
         {
+            // Debug stuff
+            _debugActiveDrawCounter = 0;
+            _debugTotalDrawCounter = 0;
+
             Rect screenRect = GetParentRect();
             float w = screenRect.Width,
                   h = screenRect.Height;
@@ -48,11 +58,21 @@ namespace GameEngine.Game.UI
             CurrentWorld = Matrix.Identity;
             DoDraw(this, CurrentWorld, screenRect);
             NeedToUpdateControl = false;
+
+            // Debug stuff
+            _debugActiveDrawCount = _debugActiveDrawCounter;
+            _debugTotalDrawCount = _debugTotalDrawCounter;
         }
 
         public void Update()
         {
             NeedToUpdateControl = true;
+        }
+
+        internal void OnUIDraw(bool active)
+        {
+            if (active) ++_debugActiveDrawCounter;
+            ++_debugTotalDrawCounter;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
@@ -208,6 +228,10 @@ namespace GameEngine.Game.UI
         }
 
         #endregion
+
+        // Debug stuff
+        public int GetTotalUICountAfterDraw() { return _debugActiveDrawCount; }
+        public int GetActiveUICountAfterDraw() { return _debugTotalDrawCount; }
 
     }
 }

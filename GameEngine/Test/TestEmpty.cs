@@ -1,4 +1,6 @@
-﻿namespace GameEngine.Game
+﻿using GameEngine.Game;
+
+namespace GameEngine.Test
 {
     public class TestEmpty : IGameRunner
     {

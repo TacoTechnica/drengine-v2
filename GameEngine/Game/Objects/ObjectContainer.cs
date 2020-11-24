@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +24,7 @@ namespace GameEngine.Game
     ///     Represents a container of gameobjects that we can manage.
     /// </summary>
     /// <typeparam name="T"> The gameobject type. </typeparam>
-    public class ObjectContainer<T>
+    public class ObjectContainer<T> : IEnumerable<T>
     {
         private readonly LinkedList<T> _objects = new LinkedList<T>();
         private readonly HashSet<ObjectContainerNode<T>> _toDelete = new HashSet<ObjectContainerNode<T>>();
@@ -181,5 +182,18 @@ namespace GameEngine.Game
             setOfNodes.Clear();
         }
 
+        #region Enumerating Interface
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _objects.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
     }
 }

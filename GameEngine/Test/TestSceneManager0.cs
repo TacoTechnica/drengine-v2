@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GameEngine.Game;
 using GameEngine.Game.Input;
-using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Keyboard = Microsoft.Xna.Framework.Input.Keyboard;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestSceneManager0 : IGameRunner
     {

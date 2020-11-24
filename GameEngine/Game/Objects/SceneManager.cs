@@ -61,6 +61,15 @@ namespace GameEngine.Game
             return id;
         }
 
+        internal void DeregisterSceneLoader(ISceneLoader loader)
+        {
+            _sceneLoaders.Remove(loader);
+            foreach (string name in loader.GetNames())
+            {
+                _sceneLoaderNameMap.Remove(name);
+            }
+        }
+
         /// <summary>
         /// Does scene with `name` exist? AKA, Can scene `name` be loaded?
         /// </summary>

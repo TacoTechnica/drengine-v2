@@ -18,6 +18,8 @@ namespace GameEngine.Game.UI.Debugging
 
         private int _dropToBottomFlag = 0;
 
+        public SpriteFont Font => _log.Font;
+
         public string OutputText
         {
             get => _log.Text;

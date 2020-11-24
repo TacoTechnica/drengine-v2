@@ -56,9 +56,11 @@ namespace GameEngine.Game
 
         private GenericCursor _cursor = new GenericCursor();
 
+        private bool _safeToLoad = false;
+
         #endregion
 
-        #region Public Access and Handlers
+        #region Public Handlers and Variables
 
         public string WindowTitle;
 
@@ -89,7 +91,7 @@ namespace GameEngine.Game
         public EventManager UpdateBegan { get; private set; } = new EventManager();
         public EventManager UpdateFinished { get; private set; } = new EventManager();
 
-        public EventManager WhenSafeToLoad { get; private set; } = new EventManager();
+        private EventManager _whenSafeToLoad = new EventManager(true);// { get; private set; } = new EventManager();
 
         /// Time
         public float Time { get; private set; } = 0;
@@ -134,6 +136,22 @@ namespace GameEngine.Game
         }
 
 
+        #region Public Access
+
+        public void LoadWhenSafe(Action onSafeToLoad)
+        {
+            if (!_safeToLoad)
+            {
+                _whenSafeToLoad.AddListener(onSafeToLoad);
+            }
+            else
+            {
+                onSafeToLoad.Invoke();
+            }
+        }
+
+        #endregion
+
         #region Universal Game Loop
 
         protected override void Initialize()
@@ -151,7 +169,8 @@ namespace GameEngine.Game
 
             UiScreen.Initialize();
 
-            WhenSafeToLoad.InvokeAll();
+            _whenSafeToLoad.InvokeAll();
+            _safeToLoad = true;
 
             _runner?.Initialize(this);
         }
@@ -258,7 +277,7 @@ namespace GameEngine.Game
             }
 
             // Resources that want to load at the START may load now.
-            WhenSafeToLoad.InvokeAll();
+            //_whenSafeToLoad.InvokeAll();
 
             // If any objects were Enabled LAST frame, make sure our list reflects that.
             SceneManager.GameObjects.EnableAllQueuedImmediate((obj, node) =>
@@ -372,11 +391,14 @@ namespace GameEngine.Game
             Process proc = Process.GetCurrentProcess();
             _currentMemoryBytes = proc.PrivateMemorySize64;
 
+            // Get object and UI counts
             int objs = SceneManager.GameObjects.Count;
             int rends = SceneManager.GameRenderObjects.Count;
+            int uiActive = UiScreen.GetActiveUICountAfterDraw();
+            int uiTotal = UiScreen.GetTotalUICountAfterDraw();
 
             // Set window title
-            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB | {objs} Objects, {rends} Renderers";
+            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB | {objs} Objects, {rends} Renderers, {uiActive} / {uiTotal} UI";
 
             _lastDebugTime = DateTime.Now;
         }

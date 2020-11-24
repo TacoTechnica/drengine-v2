@@ -1,11 +1,10 @@
-﻿using GameEngine.Game.Input;
-using Gdk;
+﻿using GameEngine.Game;
+using GameEngine.Game.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Keyboard = Microsoft.Xna.Framework.Input.Keyboard;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestDeletion : IGameRunner
     {

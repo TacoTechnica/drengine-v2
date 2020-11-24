@@ -1,8 +1,9 @@
-﻿using GameEngine.Game.Audio;
+﻿using GameEngine.Game;
+using GameEngine.Game.Audio;
 using GameEngine.Game.Input;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestAudio : IGameRunner
     {

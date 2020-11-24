@@ -177,6 +177,11 @@ namespace GameEngine
             return vec;
         }
 
+        public static float Sqrt(float value)
+        {
+            return MathF.Sqrt(value);
+        }
+
         public static float Clamp01(float value)
         {
             return Clamp(value, 0, 1);
@@ -207,6 +212,51 @@ namespace GameEngine
         public static float Max(float a, float b)
         {
             return System.Math.Max(a, b);
+        }
+
+        public static float Floor(float x)
+        {
+            return MathF.Floor(x);
+        }
+        public static float Ceil(float x)
+        {
+            return MathF.Ceiling(x);
+        }
+
+        public static int FloorToInt(float x)
+        {
+            return (int) Floor(x);
+        }
+        public static int CeilToInt(float x)
+        {
+            return (int) Ceil(x);
+        }
+
+        public static Color FromHSV(float h, float s, float v)
+        {
+            // Convert from 0-360 to 0-1.
+            h *= 360f;
+            int hi = Convert.ToInt32(System.Math.Floor(h / 60)) % 6;
+            double f = h / 60 - System.Math.Floor(h / 60);
+
+            v = v * 255;
+            int x = Convert.ToInt32(v);
+            int p = Convert.ToInt32(v * (1 - s));
+            int q = Convert.ToInt32(v * (1 - f * s));
+            int t = Convert.ToInt32(v * (1 - (1 - f) * s));
+
+            if (hi == 0)
+                return new Color(x, t, p);
+            else if (hi == 1)
+                return new Color(q, x, p);
+            else if (hi == 2)
+                return new Color(p, x, t);
+            else if (hi == 3)
+                return new Color(p, q, x);
+            else if (hi == 4)
+                return new Color(t, p, x);
+            else
+                return new Color(x, p, q);
         }
     }
 }

@@ -10,6 +10,13 @@ namespace GameEngine.Util
     {
         private List<Action> _events = new List<Action>();
 
+        private bool _unsubscribeOnInvoke = false;
+
+        public EventManager(bool unsubscribeOnInvoke = false)
+        {
+            _unsubscribeOnInvoke = unsubscribeOnInvoke;
+        }
+
         public static EventManager operator +(EventManager e, Action a)
         {
             e.AddListener(a);
@@ -38,6 +45,11 @@ namespace GameEngine.Util
             for (int i = _events.Count - 1; i >= 0; --i)
             {
                 _events[i].Invoke();
+            }
+
+            if (_unsubscribeOnInvoke)
+            {
+                ClearAll();
             }
         }
 

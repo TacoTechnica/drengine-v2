@@ -1,6 +1,8 @@
 ﻿using System;
+using DREngine.Game.Controls;
 using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Test;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,9 +13,18 @@ namespace DREngine.Game
 {
     public class DRGame : GamePlus
     {
+
+        #region Public Handlers
+
+        public MenuControls MenuControls { get; private set; }
+
+        #endregion
+
         #region Util variables
 
         public ProjectData GameProjectData = new ProjectData();
+
+        private string _projectPath = null;
 
         #endregion
 
@@ -24,19 +35,26 @@ namespace DREngine.Game
 
             // For debugging UI
             this.Window.AllowUserResizing = true;
+
+            _projectPath = projectPath;
+
+            // Init controls
+            MenuControls = new MenuControls(this);
         }
 
         #region Public Access
 
-        public void LoadProject(string path)
+        public bool LoadProject(string path)
         {
             try
             {
                 GameProjectData = ProjectData.ReadFromFile(GraphicsDevice, path);
+                return true;
             }
             catch (Exception e)
             {
                 ShowMessagePopup($"Could not open project at path: {path}: {e.Message}");
+                return false;
             }
         }
 
@@ -52,10 +70,23 @@ namespace DREngine.Game
 
             base.Initialize();
 
-            // TODO: Loading project should use the defined project path, or if not defined it will load defaults.
             Debug.LogDebug("DRGame Initialize()");
-            LoadProject("projects/test_project");
-            // GameProjectData.LoadDefaults();
+            if (_projectPath != null && LoadProject(_projectPath))
+            {
+                // Success!
+            }
+            else
+            {
+                LoadSplash();
+            }
+        }
+
+        /// <summary>
+        /// When there is no project this will run.
+        /// </summary>
+        private void LoadSplash()
+        {
+
         }
 
         protected override void LoadContent()

@@ -1,9 +1,9 @@
-﻿using GameEngine.Game.Test;
+﻿using GameEngine.Game;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestTextInput : IGameRunner
     {

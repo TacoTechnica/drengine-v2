@@ -1,7 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Game;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class ExampleTriangleObject : SimpleMeshRenderer<VertexPositionColor>
     {

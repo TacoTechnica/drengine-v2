@@ -1,10 +1,10 @@
-﻿using GameEngine.Game.Input;
+﻿using GameEngine.Game;
+using GameEngine.Game.Input;
 using GameEngine.Game.Tween;
-using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace GameEngine.Game
+namespace GameEngine.Test
 {
     public class TestTween : IGameRunner
     {
