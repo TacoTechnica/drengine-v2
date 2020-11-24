@@ -1,10 +1,11 @@
 
 # Project
-themes/
-Imported/
+DR\ Engine\ v2/projects/
+DR\ Engine\ v2/themes/
 # Project resources
 *.wav
 *.png
+*.ttf
 *.dll
 *.so
 

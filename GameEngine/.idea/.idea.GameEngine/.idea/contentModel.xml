@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\adris\AppData\Local\JetBrains\Rider2020.2\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\adris\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\Rider\v202\SolutionCaches\_GameEngine.-1613350534.00" t="ExcludeRecursive" />
+    <e p="G:\Documents\Random Programming\drengine-v2\GameEngine" t="IncludeRecursive">
+      <e p=".gitignore" t="Include" />
+      <e p="app.manifest" t="Include" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="Content" t="Include">
+        <e p="bin" t="Include">
+          <e p="DesktopGL" t="Include">
+            <e p="Content" t="Include">
+              <e p="Debug" t="Include">
+                <e p="DebugFont.xnb" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="Content.mgcb" t="Include" />
+        <e p="Debug" t="Include">
+          <e p="Debug.spritefont" t="Include" />
+        </e>
+        <e p="obj" t="Include">
+          <e p="DesktopGL" t="Include">
+            <e p="Content" t="Include">
+              <e p=".mgcontent" t="Include" />
+              <e p=".mgstats" t="Include" />
+              <e p="Debug" t="Include">
+                <e p="DebugFont.mgcontent" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Debug.cs" t="Include" />
+      <e p="default_resources" t="Include">
+        <e p="Fonts" t="Include">
+          <e p="SourceSansPro" t="Include">
+            <e p="OFL.txt" t="Include" />
+            <e p="SourceSansPro-Bold.ttf" t="Include" />
+            <e p="SourceSansPro-BoldItalic.ttf" t="Include" />
+            <e p="SourceSansPro-Regular.ttf" t="Include" />
+            <e p="SourceSansPro-RegularItalic.ttf" t="Include" />
+          </e>
+        </e>
+        <e p="README.txt" t="Include" />
+      </e>
+      <e p="Game" t="Include">
+        <e p="Audio" t="Include">
+          <e p="AudioClip.cs" t="Include" />
+          <e p="AudioMixer.cs" t="Include" />
+          <e p="AudioOutput.cs" t="Include" />
+          <e p="AudioSource.cs" t="Include" />
+          <e p="AudioSourcePool.cs" t="Include" />
+          <e p="AudioStorageBase.cs" t="Include" />
+        </e>
+        <e p="Collision" t="Include">
+          <e p="BoxCollider.cs" t="Include" />
+          <e p="CollisionManager.cs" t="Include" />
+          <e p="ICollider.cs" t="Include" />
+          <e p="RectCollider2D.cs" t="Include" />
+        </e>
+        <e p="Coroutine.cs" t="Include" />
+        <e p="Debugging" t="Include">
+          <e p="Command.cs" t="Include" />
+          <e p="CommandListGlobal.cs" t="Include" />
+          <e p="DebugConsole.cs" t="Include" />
+          <e p="DebugControls.cs" t="Include" />
+        </e>
+        <e p="GamePlus.cs" t="Include" />
+        <e p="IGameRunner.cs" t="Include" />
+        <e p="Input" t="Include">
+          <e p="Controls.cs" t="Include" />
+          <e p="Cursor.cs" t="Include" />
+          <e p="GenericCursor.cs" t="Include" />
+          <e p="RawInput.cs" t="Include" />
+        </e>
+        <e p="ISceneLoader.cs" t="Include" />
+        <e p="Objects" t="Include">
+          <e p="BaseSceneLoader.cs" t="Include" />
+          <e p="GameObject.cs" t="Include" />
+          <e p="GameObjectRender.cs" t="Include" />
+          <e p="GameObjectRender3D.cs" t="Include" />
+          <e p="IGameObject.cs" t="Include" />
+          <e p="ObjectContainer.cs" t="Include" />
+          <e p="Rendering" t="Include">
+            <e p="BaseMeshRenderer.cs" t="Include" />
+            <e p="Camera3D.cs" t="Include" />
+            <e p="DebugDrawer.cs" t="Include" />
+            <e p="SimpleMeshAlphaTestRenderer.cs" t="Include" />
+            <e p="SimpleMeshRenderer.cs" t="Include" />
+            <e p="Sprite.cs" t="Include" />
+            <e p="SpriteRenderer.cs" t="Include" />
+          </e>
+          <e p="SceneManager.cs" t="Include" />
+          <e p="Transform.cs" t="Include" />
+        </e>
+        <e p="Path.cs" t="Include" />
+        <e p="Tween" t="Include">
+          <e p="Interpolation.cs" t="Include" />
+          <e p="ITween.cs" t="Include" />
+          <e p="Tween.cs" t="Include" />
+          <e p="Tweener.cs" t="Include" />
+          <e p="TweenerGameObject3D.cs" t="Include" />
+          <e p="TweenObjects.cs" t="Include" />
+        </e>
+        <e p="UI" t="Include">
+          <e p="Debugging" t="Include">
+            <e p="UIDebugConsole.cs" t="Include" />
+          </e>
+          <e p="ICursorSelectable.cs" t="Include" />
+          <e p="IMenu.cs" t="Include" />
+          <e p="IMenuItem.cs" t="Include" />
+          <e p="Layout.cs" t="Include" />
+          <e p="MenuList.cs" t="Include" />
+          <e p="Rect.cs" t="Include" />
+          <e p="UIColoredRect.cs" t="Include" />
+          <e p="UIComponent.cs" t="Include" />
+          <e p="UIComponentBase.cs" t="Include" />
+          <e p="UIMask.cs" t="Include" />
+          <e p="UIMenuButtonBase.cs" t="Include" />
+          <e p="UIScreen.cs" t="Include" />
+          <e p="UIScrollView.cs" t="Include" />
+          <e p="UISlider.cs" t="Include" />
+          <e p="UIText.cs" t="Include" />
+          <e p="UITextInput.cs" t="Include" />
+          <e p="UITextInputBase.cs" t="Include" />
+          <e p="UIUnit.cs" t="Include" />
+        </e>
+      </e>
+      <e p="GameEngine.csproj" t="IncludeRecursive" />
+      <e p="GameEngine.sln" t="IncludeFlat" />
+      <e p="Icon.bmp" t="Include" />
+      <e p="Icon.ico" t="Include" />
+      <e p="libs" t="Include">
+        <e p="bass.dll" t="Include" />
+        <e p="bassmix.dll" t="Include" />
+        <e p="freetype6.dll" t="Include" />
+        <e p="ManagedBass.dll" t="Include" />
+        <e p="ManagedBass.Mix.dll" t="Include" />
+        <e p="README.md" t="Include" />
+      </e>
+      <e p="LICENSE" t="Include" />
+      <e p="Makefile" t="Include" />
+      <e p="Microsoft.Xna.Framework.Content.ContentTypeReader" t="Include" />
+      <e p="obj" t="ExcludeRecursive">
+        <e p="Debug" t="Include">
+          <e p="netcoreapp3.1" t="Include">
+            <e p="GameEngine.AssemblyInfo.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="projects" t="Include">
+        <e p="README.txt" t="Include" />
+        <e p="test_project" t="Include">
+          <e p="project.yaml" t="Include" />
+          <e p="Sprites" t="Include">
+            <e p="Obama.png" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="README.md" t="Include" />
+      <e p="Test" t="Include">
+        <e p="ExampleTriangleObject.cs" t="Include" />
+        <e p="TestActiveDeactive.cs" t="Include" />
+        <e p="TestAudio.cs" t="Include" />
+        <e p="TestButtonSelection.cs" t="Include" />
+        <e p="TestCoroutine.cs" t="Include" />
+        <e p="TestDeletion.cs" t="Include" />
+        <e p="TestEmpty.cs" t="Include" />
+        <e p="TestGame.cs" t="Include" />
+        <e p="TestInputSystem.cs" t="Include" />
+        <e p="TestMouseCollider.cs" t="Include" />
+        <e p="TestNestedUI0.cs" t="Include" />
+        <e p="TestSceneManager0.cs" t="Include" />
+        <e p="TestScroll.cs" t="Include" />
+        <e p="TestSpriteRendering.cs" t="Include" />
+        <e p="TestTextInput.cs" t="Include" />
+        <e p="TestTween.cs" t="Include" />
+        <e p="TestUIMask.cs" t="Include" />
+      </e>
+      <e p="themes" t="Include">
+        <e p="README.txt" t="Include" />
+      </e>
+      <e p="Util" t="Include">
+        <e p="EventManager.cs" t="Include" />
+        <e p="IO.cs" t="Include" />
+        <e p="ListUtil.cs" t="Include" />
+        <e p="Math.cs" t="Include" />
+        <e p="Random.cs" t="Include" />
+      </e>
+    </e>
+  </component>
+</project>
