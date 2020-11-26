@@ -364,7 +364,7 @@ namespace GameEngine.Game.Debugging
         {
             _game = game;
             parser.LoadArgs(line);
-            Call(parser);
+            Call(game, parser);
         }
 
         public string GetHelpRepresentation()
@@ -387,7 +387,7 @@ namespace GameEngine.Game.Debugging
             DebugConsole.PrintErrorToOutput(message.ToString());
         }
 
-        protected abstract void Call ( ArgParser parser );
+        protected abstract void Call(GamePlus game, ArgParser parser);
     }
 
     #endregion

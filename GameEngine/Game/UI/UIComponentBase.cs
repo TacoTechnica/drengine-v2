@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GameEngine.Game.Input;
+using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +22,7 @@ namespace GameEngine.Game.UI
         {
             get
             {
+                // TODO: Comment out true to avoid recalculation.
                 if (true || _layoutRect == null)
                 {
                     _layoutRect = Layout.GetTargetRect(GetParentRect());
@@ -33,8 +36,10 @@ namespace GameEngine.Game.UI
 
         private bool _isMasked = false;
 
-        private int _maskIndex = 0;
+        private UIMask _mask = null;
         //private RenderTarget2D _maskedRenderTarget = null;
+
+        protected UIComponentBase _copyLayoutFrom = null;
 
         public IEnumerable<UIComponent> Children => _children;
         public int ChildCount => _children.Count;
@@ -51,7 +56,11 @@ namespace GameEngine.Game.UI
             if (this is UIMask mask)
             {
                 child._isMasked = true;
-                child._maskIndex = mask.MaskIndex;
+                child._mask = mask;
+            } else if (_isMasked)
+            {
+                child._isMasked = true;
+                child._mask = _mask;
             }
             child.ReceiveParent(this, _children.Add(child));
         }
@@ -62,11 +71,12 @@ namespace GameEngine.Game.UI
             _children.RemoveEnqueue(toRemove);
         }
 
-        public void DestroyImmediate()
+        public virtual void DestroyImmediate()
         {
             // Delete all children too.
             _children.LoopThroughAll((child) =>
             {
+                _children.RemoveEnqueue(child.GetParentListNode());
                 child.DestroyImmediate();
             });
             // Cleanup, may as well empty the list.
@@ -76,21 +86,25 @@ namespace GameEngine.Game.UI
         public void DoDraw(UIScreen screen, Matrix worldMat, Rect targetRect)
         {
             screen.OnUIDraw(Active);
+
             if (!Active) return;
+
+            if (_copyLayoutFrom != null)
+            {
+                Layout = new Layout(_copyLayoutFrom.Layout);
+            }
 
             screen.CurrentWorld = worldMat;
 
             if (_isMasked)
             {
-
-
                 // Allow masking
                 screen.GraphicsDevice.DepthStencilState = new DepthStencilState
                 {
                     StencilEnable = true,
-                    StencilFunction = CompareFunction.LessEqual,
+                    StencilFunction = CompareFunction.Equal,
                     StencilPass = StencilOperation.Keep,
-                    ReferenceStencil = _maskIndex,
+                    ReferenceStencil = _mask.MaskIndex,
                     DepthBufferEnable = false,
                 };
             }
@@ -99,7 +113,6 @@ namespace GameEngine.Game.UI
             Draw(screen, targetRect);
 
             bool childSelected = false;
-
 
             _children.LoopThroughAllAndDeleteQueued(
                 child =>
@@ -136,6 +149,12 @@ namespace GameEngine.Game.UI
                 else
                 {
                     selected = targetRect.Contains(cursorPos);
+                }
+
+                // Selection can be obfuscated by the mask.
+                if (_isMasked)
+                {
+                    selected = selected && _mask.LayoutRect.Contains(cursorPos);
                 }
 
                 if (isCursorMoving)
@@ -212,5 +231,11 @@ namespace GameEngine.Game.UI
         }
 
         protected abstract void Draw(UIScreen screen, Rect targetRect);
+
+
+        public override string ToString()
+        {
+            return GetType().Name + (Active? "" : " (not active) ");
+        }
     }
 }

@@ -23,8 +23,14 @@ namespace GameEngine.Game.Input
         protected override void UpdateCursorPosition(GamePlus _game)
         {
             Vector2 delta = Vector2.Zero;;
+
+            Rectangle viewportRect = _game.GraphicsDevice.Viewport.Bounds;
+
+            Position.X = Math.Clamp(Position.X, viewportRect.Left, viewportRect.Right);
+            Position.Y = Math.Clamp(Position.Y, viewportRect.Top, viewportRect.Bottom);
+
             // While we're inside, do some funky stuff.
-            if (InBounds(_game, Position))
+            if (true || InBounds(_game, Position))
             {
                 // TODO: If we decide for SURE that we won't be using a list delete this.
                 foreach (InputActionAxis2D ov in new InputActionAxis2D[] {_override})
@@ -61,20 +67,27 @@ namespace GameEngine.Game.Input
                     }
                 }
 
-                if (UseMouse)
+                bool mouseInBounds = InBounds(_game, RawInput.GetMousePosition());
+                Vector2 mouseDelta = RawInput.GetMouseDelta();
+                bool mouseMoved = (mouseDelta.LengthSquared() > 1);
+
+                /*
+                if (UseMouse && mouseInBounds)
                 {
-                    Vector2 mouseDelta = RawInput.GetMouseDelta();
                     delta += mouseDelta;
                 }
-
-                Position += delta;
-
-                // Whether we were moving. Also check if we clicked something.
-                MovedLastFrame = (delta.LengthSquared() > 1);
-
-                if (UseMouse)
+                */
+                if (UseMouse && mouseInBounds && mouseMoved)
                 {
-                    RawInput.SetMousePos(Position);
+                    Position = RawInput.GetMousePosition();
+                    MovedLastFrame = true;
+                }
+                else
+                {
+                    Position += delta;
+
+                    // Whether we were moving. Also check if we clicked something.
+                    MovedLastFrame = (delta.LengthSquared() > 1);
                 }
             }
         }

@@ -15,7 +15,7 @@ namespace GameEngine.Test
 
         private Color BACKGROUND => Color.SlateBlue;
 
-        public TestGame() : base("Game Engine Test", "Content", true, new TestLayout()) {}
+        public TestGame() : base("Game Engine Test", "Content", true, new TestUIMask()) {}
 
         #region Extra help with testing + simple background
 

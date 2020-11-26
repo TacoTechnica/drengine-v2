@@ -23,7 +23,7 @@ namespace GameEngine.Game.Debugging
         public DebugConsole(GamePlus game, SpriteFont font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
         {
             _game = game;
-            _ui = (UIDebugConsole) new UIDebugConsole(game, font, outputHeight).AddToRoot();
+            _ui = (UIDebugConsole) new UIDebugConsole(game, font, outputHeight).AddToRoot(true);
             openAction.Pressed += OnOpenPressed;
             closeAction.Pressed += OnClosePressed;
             submitAction.Pressed += OnSubmitPressed;

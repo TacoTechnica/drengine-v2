@@ -14,11 +14,32 @@ namespace GameEngine.Game.UI
 
         public bool AutoResizeToChildren = true;
 
-        public UIVerticalLayout(GamePlus game, float childHeight, UIComponent parent = null) : base(game, parent)
+        public UIVerticalLayout(GamePlus game, float childHeight, float spacing = 0,UIComponent parent = null) : base(game, parent)
         {
             ChildHeight = childHeight;
+            Spacing = spacing;
         }
 
+        public UIVerticalLayout PadLeft(float left)
+        {
+            Padding.Left = left;
+            return this;
+        }
+        public UIVerticalLayout PadRight(float right)
+        {
+            Padding.Right = right;
+            return this;
+        }
+        public UIVerticalLayout PadTop(float top)
+        {
+            Padding.Top = top;
+            return this;
+        }
+        public UIVerticalLayout PadBottom(float bottom)
+        {
+            Padding.Bottom = bottom;
+            return this;
+        }
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             if (AutoResizeToChildren)

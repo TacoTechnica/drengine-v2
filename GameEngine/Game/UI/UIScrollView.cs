@@ -30,7 +30,7 @@ namespace GameEngine.Game.UI
 
         public bool ResizeSliderHandle = true;
 
-        public bool MaintainContentOffsetOnResize = true;
+        public bool AutoHideSlider = true;
 
         public UIScrollView(GamePlus game, UIComponent contents, UIComponent viewport = null, UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null) : base(game, parent)
         {
@@ -85,7 +85,6 @@ namespace GameEngine.Game.UI
 
                 if (ResizeSliderHandle)
                 {
-                    //Debug.LogSilent($"VERTICAL BULLSHIT: {contentMax.Y} => {contentMin.Y}: {contentMax.Y - contentMin.Y} / {viewMax.Y - viewMin.Y}");
                     _sliderVertical.HandleSizePercent =
                         GetViewPercent(viewMin.Y, viewMax.Y, contentMin.Y, contentMax.Y);
                 }
@@ -111,6 +110,10 @@ namespace GameEngine.Game.UI
         {
             slider.StartValue = 0;
             slider.EndValue = (contentMax - contentMin) - (viewMax - viewMin);
+            if (AutoHideSlider)
+            {
+                slider.Active = (slider.StartValue < slider.EndValue);
+            }
         }
 
         float GetViewPosFromSliderPercent(float sliderPercent, float viewMin, float viewMax, float contentMin,
@@ -131,30 +134,6 @@ namespace GameEngine.Game.UI
             float contentMax)
         {
             return Math.Clamp01((viewMax - viewMin) / (contentMax - contentMin));
-        }
-
-        void RestrictMovement(Vector2 targetMin, Rect viewRect)
-        {
-            switch (Movement)
-            {
-                case MovementType.Unrestricted:
-                    // No restrictions.
-                    break;
-                case MovementType.Clamped:
-                {
-                    Vector2 delta = targetMin - _contents.LayoutRect.Min;
-                    _contents.Layout.OffsetBy(delta);
-                    break;
-                }
-                case MovementType.Elastic:
-                {
-                    Vector2 delta = ElasticCoefficient * (targetMin - _contents.LayoutRect.Min) * _game.UnscaledDeltaTime;
-                    _contents.Layout.OffsetBy(delta);
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         private static Vector2 GetTargetMin(Rect targetRect, Rect contentRect)
@@ -197,7 +176,82 @@ namespace GameEngine.Game.UI
 
             return targetMin;
         }
+        public UIScrollView WithContentLayout(Layout layout)
+        {
+            _contents.WithLayout(layout);
+            return this;
+        }
+
+        /// <summary>
+        ///     Given a rect, move the view to fit that rect. Does no centering.
+        ///     For example, if the target rect is below the viewport, the viewport will move such that
+        ///     the target rect appears at the bottom.
+        ///
+        ///     You can also give it some padding around the rect that the view will allocate for it.
+        /// </summary>
+        public void FitRectInView(Rect rect, float padLeft = 0, float padRight = 0, float padTop = 0, float padBottom = 0) {
+            float left = rect.Left - padLeft;
+            float right = rect.Right + padRight;
+            float top = rect.Top - padTop;
+            float bot = rect.Bottom + padBottom;
+
+            Rect view = _viewport.LayoutRect;
+
+            float dx = 0;
+            float dy = 0;
+            // Fit X
+            if (padLeft + padRight + rect.Width > view.Width)
+            {
+                // rect is too big
+                dx = ((left + right) / 2f) - ((view.Left + view.Right) / 2f);
+            }
+            else if (right > view.Right)
+            {
+                // We're too far right
+                dx = right - view.Right;
+            }
+            else if (left < view.Left)
+            {
+                // We're too far left
+                dx = left - view.Left;
+            }
+
+            // Fit Y
+            if (padTop + padBottom + rect.Height > view.Height)
+            {
+                // rect is too big
+                dy = ((top + bot) / 2f) - ((view.Top + view.Bottom) / 2f);
+            }
+            else if (bot > view.Bottom)
+            {
+                // We're too far right
+                dy = bot - view.Bottom;
+            }
+            else if (top < view.Top)
+            {
+                // We're too far left
+                dy = top - view.Top;
+            }
+
+            _contents.Layout.OffsetBy(dx, dy);
+
+            if (_sliderHorizontal != null)
+            {
+                _sliderHorizontal.Value += dx;
+            }
+            if (_sliderVertical != null)
+            {
+                _sliderVertical.Value += dy;
+            }
+        }
+
+        public void FitRectInView(Rect rect, Padding padding)
+        {
+            FitRectInView(rect, padding.Left, padding.Right, padding.Top, padding.Bottom);
+        }
     }
+
+
     public class UIScrollViewMasked : UIScrollView
     {
         // Transparent background

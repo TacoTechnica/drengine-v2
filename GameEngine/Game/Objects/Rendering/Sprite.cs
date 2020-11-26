@@ -10,7 +10,7 @@ namespace GameEngine.Game
     /// </summary>
     public class Sprite
     {
-        private Texture2D _texture;
+        private Texture2D _texture = null;
 
         public Texture2D Texture
         {
@@ -57,6 +57,11 @@ namespace GameEngine.Game
         }
 
         public Sprite(GamePlus game, Path path) : this(game, path, Vector2.Zero) {}
+
+        ~Sprite()
+        {
+            _texture?.Dispose();
+        }
 
         private void LoadSprite()
         {

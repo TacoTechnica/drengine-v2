@@ -26,7 +26,7 @@ namespace GameEngine
         {
             if (x < 0)
             {
-                return m - (int)(Abs(x) % m);
+                return (m - (int)(Abs(x) % m)) % m;
             }
             return x % m;
         }

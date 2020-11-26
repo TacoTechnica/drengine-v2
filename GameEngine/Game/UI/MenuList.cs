@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using GameEngine.Game.Input;
+using Action = Gtk.Action;
 
 namespace GameEngine.Game.UI
 {
@@ -11,6 +12,8 @@ namespace GameEngine.Game.UI
     public class MenuList : IMenu
     {
         public bool UseMouse { get; set; }
+
+        public Action<IMenuItem> ItemSelected;
 
         private IMenuItem _selected
         {
@@ -27,24 +30,47 @@ namespace GameEngine.Game.UI
 
         public IEnumerable<IMenuItem> Children => _items;
 
+        private InputActionButton _selectAction,
+            _mouseSelect,
+            _nextAction,
+            _prevAction;
+
         public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton mouseSelect, InputActionButton nextAction, InputActionButton prevAction)
         {
-            selectAction.Pressed += OnSelectionPressKeyboard;
+            _selectAction = selectAction;
+            _mouseSelect = mouseSelect;
+            _prevAction = prevAction;
+            _nextAction = nextAction;
+            _selectAction.Pressed += OnSelectionPressKeyboard;
             if (mouseSelect != null)
             {
                 UseMouse = true;
-                mouseSelect.Pressed += OnSelectionPressMouse;
+                _mouseSelect.Pressed += OnSelectionPressMouse;
             }
             else
             {
                 UseMouse = false;
             }
 
-            nextAction.Pressed += OnPressedNext;
-            prevAction.Pressed += OnPressedPrev;
+            _nextAction.Pressed += OnPressedNext;
+            _prevAction.Pressed += OnPressedPrev;
+
         }
         // Constructor without mouse
         public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton nextAction, InputActionButton prevAction) : this(game, selectAction, null, nextAction, prevAction) {}
+
+        public void Destroy()
+        {
+            // ReSharper disable DelegateSubtraction
+            _selectAction.Pressed -= OnSelectionPressKeyboard;
+            if (_mouseSelect != null)
+            {
+                _mouseSelect.Pressed -= OnSelectionPressMouse;
+            }
+
+            _nextAction.Pressed -= OnPressedNext;
+            _prevAction.Pressed -= OnPressedPrev;
+        }
 
         public MenuList AddChild(IMenuItem item)
         {
@@ -106,6 +132,7 @@ namespace GameEngine.Game.UI
             {
                 item.MenuSelected = true;
                 item.OnMenuSelect();
+                ItemSelected?.Invoke(item);
             }
         }
 
@@ -147,12 +174,15 @@ namespace GameEngine.Game.UI
         private void ChangeSelectIndex(int delta)
         {
             int targetIndex = Math.Mod(_selectedIndex + delta, _items.Count);
+            Debug.Log($"OOF? {_selectedIndex} + {delta} % {_items.Count} => {targetIndex}");
             DeselectItem(_selectedIndex);
             DeselectCursorItem(_selectedIndex);
             _selectedIndex = targetIndex;
-            SelectItem(targetIndex);
-            DeselectCursorItem(targetIndex);
-
+            if (_items.Count > 0)
+            {
+                SelectItem(targetIndex);
+                DeselectCursorItem(targetIndex);
+            }
         }
     }
 }

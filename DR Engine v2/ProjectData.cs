@@ -15,10 +15,8 @@ namespace DREngine
     {
         #region Data
 
-        /// <summary>
-        /// Actual Serialized Project Data
-        /// </summary>
         public string Name;
+        public string Author;
 
         public class ProjectResourceList
         {
@@ -69,14 +67,14 @@ namespace DREngine
                 if (!File.Exists(fpath) && !Directory.Exists(fpath))
                 {
                     fpath = Path.Combine(Environment.CurrentDirectory, fpath);
-                    Debug.Log($"RELATIVE PATH: {fpath}");
+                    //Debug.Log($"RELATIVE PATH: {fpath}");
                 }
                 // We might be given the project directory, so try to find the project file within it.
                 if (Directory.Exists(fpath))
                 {
                     fpath += "/project.yaml";
                 }
-                Debug.Log($"OPENING: {fpath}");
+                //Debug.Log($"OPENING: {fpath}");
                 string text = IO.ReadTextFile(fpath);
                 //Debug.Log($"OUTPUT: {text}");
                 ProjectData result = deserializer.Deserialize<ProjectData>(text);

@@ -2,6 +2,7 @@
 // ReSharper disable ArrangeTypeModifiers
 
 using System.Collections.Generic;
+using GameEngine.Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace GameEngine.Game.Debugging.CommandListGlobal
@@ -13,7 +14,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             new Arg<string>("command", "", 0, false)
         ) {}
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             string command = parser.Get<string>();
 
@@ -65,7 +66,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
                 new Arg<TempEnum>("choice")
         ) {}
 
-        protected override void Call ( ArgParser args )
+        protected override void Call(GamePlus game, ArgParser args)
         {
             string stringA = args.Get<string>();     // First arg
             int num1 = args.Get<int>();                // Second (optional) arg
@@ -84,7 +85,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             "clear", "Clears the console.")
         { }
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             DebugConsole.Clear();
         }
@@ -96,7 +97,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             "close", "Closes the console. Pressing Escape also works."
         ) { }
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             DebugConsole.Close();
         }
@@ -110,7 +111,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             new Arg<string>("text")
         ) { }
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             string text = parser.Get<string>();
             Debug.Log(text);
@@ -126,7 +127,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
         private static HashSet<string> scenesBuilt = null;
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             string scene = parser.Get<string>();
 
@@ -142,7 +143,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             "reload", "Reloads the current scene."
         ) { }
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             LogError("Not implemented.");
             //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -155,9 +156,59 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             "restart", "Restarts the game."
         ) { }
 
-        protected override void Call ( ArgParser parser )
+        protected override void Call(GamePlus game, ArgParser parser)
         {
             LogError("Not implemented.");
+        }
+    }
+
+    class TreeUI : Command
+    {
+        public TreeUI () : base(
+            "uitree", "Prints a tree of the current UI structure."
+            ) {}
+
+        protected override void Call(GamePlus game, ArgParser parser)
+        {
+            UIComponentBase ui = game.UiScreen;
+
+            Print("=========================");
+            Print("UI TREE:");
+            Print("=========================");
+
+            PrintSubtree(ui, 0, true);
+
+            Print("=========================");
+        }
+
+        private void PrintSubtree(UIComponentBase ui, int depth, bool parentEnabled)
+        {
+            if (ui == null) return;
+
+            string pref = "";
+            for (int i = 0; i < depth; ++i)
+            {
+                pref += "   .";
+            }
+
+            if (!ui.Active)
+            {
+                parentEnabled = false;
+            }
+
+            string post = parentEnabled ? "" : " X";
+
+            Print($"{pref}{ui}{post}");
+
+            foreach (UIComponent b in ui.Children)
+            {
+                PrintSubtree(b, depth + 1, parentEnabled);
+            }
+        }
+
+        private void Print(string a)
+        {
+            Debug.Log(a);
         }
     }
 }

@@ -31,6 +31,18 @@ namespace GameEngine.Game.UI
             _addedNode = node;
         }
 
+        public override void DestroyImmediate()
+        {
+            _parent?.RemoveEnqueueChild(_addedNode);
+            base.DestroyImmediate();
+        }
+
+        public UIComponent CopyLayoutFrom(UIComponentBase toCopy)
+        {
+            _copyLayoutFrom = toCopy;
+            return this;
+        }
+
         public UIComponent WithLayout(Layout layout)
         {
             Layout = layout;
@@ -65,14 +77,14 @@ namespace GameEngine.Game.UI
             return this;
         }
 
-        public UIComponent AddToRoot()
+        public UIComponent AddToRoot(bool forceBase = false)
         {
             if (_parent != null)
             {
                 throw new InvalidOperationException("Tried to set our UI parent to root when we already have a parent!");
             }
 
-            _game.UiScreen.AddChild(this);
+            _game.UiScreen.AddRootChild(this, forceBase);
 
             return this;
         }

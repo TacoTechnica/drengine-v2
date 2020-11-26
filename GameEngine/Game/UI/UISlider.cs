@@ -88,13 +88,13 @@ namespace GameEngine.Game.UI
         public UISlider(GamePlus game, SliderDirection direction = SliderDirection.TopToBottom, UISliderHandle handle = null, UIComponent background = null, UIComponent parent = null) : base(game, parent)
         {
             // Defaults for slider handle and background
-            if (handle == null)
-            {
-                handle = new UISliderHandleDefault(game, this);
-            }
             if (background == null)
             {
-                background = new UIColoredRect(game, Color.Firebrick, true);
+                background = new UIColoredRect(game, Color.Lerp(Color.Firebrick, Color.Black, 0.5f));
+            }
+            if (handle == null)
+            {
+                handle = new UISliderHandleDefault(game);
             }
 
 
@@ -105,8 +105,8 @@ namespace GameEngine.Game.UI
 
             background.WithLayout(Layout.FullscreenLayout());
 
-            AddChild(handle);
             AddChild(background);
+            AddChild(handle);
 
             HandleSizePercent = 0.1f;
             SlidePercent = 0f;
@@ -225,7 +225,7 @@ namespace GameEngine.Game.UI
 
         public abstract class UISliderHandle : UIMenuButtonBase
         {
-            private UISlider _parent;
+            private UISlider _parentSlider => (UISlider) this._parent;
             private Vector2 _dragMousePrev;
             private bool _dragging = false;
 
@@ -234,7 +234,6 @@ namespace GameEngine.Game.UI
 
             public UISliderHandle(GamePlus game, UISlider parent = null) : base(game, parent)
             {
-                _parent = parent;
             }
 
             protected override void Draw(UIScreen screen, Rect targetRect)
@@ -260,7 +259,7 @@ namespace GameEngine.Game.UI
 
                     if (_dragging)
                     {
-                        _parent.ChangeSliderPosition(mousePos - _dragMousePrev);
+                        _parentSlider?.ChangeSliderPosition(mousePos - _dragMousePrev);
 
                         _dragMousePrev = mousePos;
                     }

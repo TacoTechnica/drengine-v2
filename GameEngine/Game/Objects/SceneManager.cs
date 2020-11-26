@@ -110,7 +110,7 @@ namespace GameEngine.Game
             _game.UpdateBegan.AddListener(LoadSceneAtEndOfFrame);
         }
 
-        private void LoadScene(ISceneLoader loader)
+        public void LoadScene(ISceneLoader loader)
         {
             // Do the loading
             _toLoadNext = loader;

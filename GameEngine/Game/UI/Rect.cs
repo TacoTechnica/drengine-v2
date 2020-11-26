@@ -11,6 +11,11 @@ namespace GameEngine.Game.UI
         public float Width;
         public float Height;
 
+        public float Left => X;
+        public float Right => X + Width;
+        public float Top => Y;
+        public float Bottom => Y + Height;
+
         public Rect(float x, float y, float width, float height)
         {
             X = x;
@@ -65,6 +70,11 @@ namespace GameEngine.Game.UI
         public override string ToString()
         {
             return $"[Pos: ({X}, {Y}) Size: ({Width}, {Height})]";
+        }
+
+        public static implicit operator Rectangle(Rect rect)
+        {
+            return new Rectangle((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
         }
     }
 }

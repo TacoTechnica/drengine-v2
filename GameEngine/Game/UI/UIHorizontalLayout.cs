@@ -14,9 +14,10 @@ namespace GameEngine.Game.UI
 
         public bool AutoResizeToChildren = true;
 
-        public UIHorizontalLayout(GamePlus game, float childWidth, UIComponent parent = null) : base(game, parent)
+        public UIHorizontalLayout(GamePlus game, float childWidth, float spacing = 0, UIComponent parent = null) : base(game, parent)
         {
             ChildWidth = childWidth;
+            Spacing = 0;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)

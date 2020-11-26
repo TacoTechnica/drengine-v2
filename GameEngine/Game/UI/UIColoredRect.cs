@@ -41,5 +41,10 @@ namespace GameEngine.Game.UI
             Color2 = color;
             Color3 = color;
         }
+
+        public override string ToString()
+        {
+            return base.ToString() + $" {Color0}";
+        }
     }
 }

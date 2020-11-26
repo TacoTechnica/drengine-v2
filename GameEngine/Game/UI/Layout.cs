@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Reflection;
 using Pango;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -35,6 +36,15 @@ namespace GameEngine.Game.UI
             Bottom = 1,
             Left = 2,
             Right = 3;
+
+        // Empty constructor
+        public Layout() { }
+        public Layout(Layout toCopy) : this()
+        {
+            Margin = new Margin(toCopy.Margin);
+            AnchorMin = toCopy.AnchorMin;
+            AnchorMax = toCopy.AnchorMax;
+        }
 
         public Rect GetTargetRect(Rect parent)
         {
@@ -187,7 +197,7 @@ namespace GameEngine.Game.UI
                 Margin = new Margin(delta.X, delta.Y, -delta.X - width, -delta.Y - height)
             };
         }
-        public static Layout SideStretchLayout(int side, float size, float padding = 0, float offset = 0)
+        public static Layout SideStretchLayout(int side, float size = 0, float padding = 0, float offset = 0)
         {
             Layout result = new Layout {Margin = new Margin(padding, padding, padding, padding)};
             switch (side)
@@ -263,6 +273,9 @@ namespace GameEngine.Game.UI
         {
             // Empty constructor
         }
+
+        // Copy constructor
+        public Margin(Margin toCopy) : this(toCopy.Left, toCopy.Top, toCopy.Right, toCopy.Bottom) {}
 
         public void Offset(float x, float y)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using DREngine.Game.Controls;
+using DREngine.Game.CoreScenes;
 using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Test;
@@ -14,6 +15,12 @@ namespace DREngine.Game
     public class DRGame : GamePlus
     {
 
+        #region Constants
+
+        private const string PROJECTS_DIRECTORY = "projects";
+
+        #endregion
+
         #region Public Handlers
 
         public MenuControls MenuControls { get; private set; }
@@ -23,12 +30,14 @@ namespace DREngine.Game
         #region Util variables
 
         public ProjectData GameProjectData = new ProjectData();
-
         private string _projectPath = null;
+
+        private SplashScene SplashScene;
+        private ProjectMainMenu ProjectMainMenu;
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", "Content", true, new TestMouseCollider())
+        public DRGame(string projectPath = null) : base("DR Game Test Draft", "Content", true)
         {
             this._graphics.SynchronizeWithVerticalRetrace = true;
             this.IsFixedTimeStep = false;
@@ -40,6 +49,10 @@ namespace DREngine.Game
 
             // Init controls
             MenuControls = new MenuControls(this);
+
+            // Init Core Scenes
+            SplashScene = new SplashScene(this, PROJECTS_DIRECTORY);
+            ProjectMainMenu = new ProjectMainMenu(this);
         }
 
         #region Public Access
@@ -48,7 +61,9 @@ namespace DREngine.Game
         {
             try
             {
+                Debug.LogDebug($"Loading Project at {path}");
                 GameProjectData = ProjectData.ReadFromFile(GraphicsDevice, path);
+                SceneManager.LoadScene(ProjectMainMenu);
                 return true;
             }
             catch (Exception e)
@@ -73,10 +88,11 @@ namespace DREngine.Game
             Debug.LogDebug("DRGame Initialize()");
             if (_projectPath != null && LoadProject(_projectPath))
             {
-                // Success!
+                Debug.LogDebug($"Loaded Project at {_projectPath}");
             }
             else
             {
+                Debug.LogDebug($"Project \"{_projectPath}\" either not specified or invalid. Going to Splash Screen.");
                 LoadSplash();
             }
         }
@@ -86,7 +102,7 @@ namespace DREngine.Game
         /// </summary>
         private void LoadSplash()
         {
-
+            SceneManager.LoadScene(SplashScene);
         }
 
         protected override void LoadContent()

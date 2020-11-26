@@ -57,6 +57,7 @@ namespace GameEngine.Game.UI
             //screen.DrawRectOutline(targetRect, Color.Lavender);
 
             if (Font == null) return;
+            if (Text == null) return;
 
             _cachedTargetRect = targetRect;
             screen.SpriteBatchBegin();
@@ -125,7 +126,15 @@ namespace GameEngine.Game.UI
             }
             else
             {
-                CachedDrawnTextHeight = Font.MeasureString(text).Y;
+                try
+                {
+                    CachedDrawnTextHeight = Font.MeasureString(text).Y;
+                }
+                catch (NullReferenceException)
+                {
+                    CachedDrawnTextHeight = 0;
+                }
+
                 screen.SpriteBatch.DrawString(Font, text, targetRect.Min, Color);
             }
 
@@ -205,5 +214,11 @@ namespace GameEngine.Game.UI
             return this;
         }
 
+        public override string ToString()
+        {
+            const int max = 40;
+            string text = (Text.Length > max) ? Text.Substring(0, max) + "..." : Text;
+            return base.ToString() + $" \"{text}\"";
+        }
     }
 }

@@ -159,6 +159,8 @@ namespace GameEngine.Game
             // Init
             base.Initialize();
 
+            UiScreen.Initialize();
+
             // Initialize Debug Stuff
             if (_debug)
             {
@@ -166,8 +168,6 @@ namespace GameEngine.Game
             }
             DebugEffect = new BasicEffect(GraphicsDevice);
             DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            UiScreen.Initialize();
 
             _whenSafeToLoad.InvokeAll();
             _safeToLoad = true;
