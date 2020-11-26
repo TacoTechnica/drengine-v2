@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.CompilerServices;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.UI;
@@ -52,13 +54,6 @@ namespace DREngine.Game.CoreScenes
 
             int count = 0;
 
-            /*
-            // FOR TESTING ONLY
-            for (int i = 0; i < 10; ++i)
-            {
-                _ui.AddProjectOption($"EMPTY PROJ {i}", "mee", null, () => {});
-            }
-            */
 
             // Go through all directories and check inside for project.yaml
             foreach (string dir in Directory.GetDirectories(_projectDirectories))
@@ -95,6 +90,15 @@ namespace DREngine.Game.CoreScenes
                     }
                 }
             }
+            // FOR TESTING ONLY
+            if (count != 0)
+            {
+                for (int i = 0; i < 10; ++i)
+                {
+                    _ui.AddProjectOption($"EMPTY PROJ {i}", "mee", null, () => { });
+                }
+            }
+
             if (count == 0)
             {
                 _ui.SetFailText($"No projects found in {_projectDirectories}. Make sure all project folders are stored here, one folder per project within this path.");
@@ -113,10 +117,10 @@ namespace DREngine.Game.CoreScenes
         {
             private UIProjectList _projectList;
             private UIText _failText;
-
             private UIColoredRect _background;
-
             private UIText _header;
+            private UIText _version;
+
             public UIHandler(DRGame game) : base(game)
             {
                 SpriteFont font = game.GameProjectData.OverridableResources.MenuFont.Font;
@@ -140,7 +144,19 @@ namespace DREngine.Game.CoreScenes
                     .WithLayout(Layout.FullscreenLayout(128, 64 + 64 + 12, 128, 64))
                     .AddToRoot();
                 _failText = (UIText) new UIText(game, font, "", Color.White)
+                    .WithoutWordWrap()
+                    .WithHAlign(UIText.TextHAlignMode.Center)
+                    .WithLayout(Layout.CenteredLayout())
                     .AddToRoot();
+
+                _version = (UIText) new UIText(game, font, Program.Version, Color.White)
+                    .WithHAlign(UIText.TextHAlignMode.Right)
+                    .WithVAlign(UIText.TextVAlignMode.Bottom)
+                    .WithoutWordWrap()
+                    .WithLayout(Layout.CornerLayout(Layout.BottomRight, 0, 0).OffsetBy(-4, -4))
+                    .AddToRoot();
+
+
 
             }
 
@@ -152,9 +168,9 @@ namespace DREngine.Game.CoreScenes
                 _projectList.Active = !_failText.Active;
             }
 
-            public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action OnPress)
+            public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action onPress)
             {
-                _projectList.AddProjectOption(projectName, projectAuthor, icon, OnPress);
+                _projectList.AddProjectOption(projectName, projectAuthor, icon, onPress);
             }
 
             public void ClearProjectOptions()
@@ -169,6 +185,7 @@ namespace DREngine.Game.CoreScenes
                 _background.DestroyImmediate();
                 _failText.DestroyImmediate();
                 _header.DestroyImmediate();
+                _version.DestroyImmediate();
             }
         }
 
@@ -177,7 +194,7 @@ namespace DREngine.Game.CoreScenes
         /// </summary>
         class UIProjectList : UIComponent
         {
-            public Action<string> OnProjectPick;
+            public Action<string> OnProjectPick = null;
 
             private MenuList _menu;
             private SpriteFont _font;
@@ -219,6 +236,7 @@ namespace DREngine.Game.CoreScenes
                 _menu.ItemSelected += OnMenuSelected;
             }
 
+            [SuppressMessage("ReSharper", "DelegateSubtraction")]
             public override void DestroyImmediate()
             {
                 _menu.Destroy();
@@ -249,7 +267,7 @@ namespace DREngine.Game.CoreScenes
 
             public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action OnPress)
             {
-                var button = new UIProjectOptionButton(_game, _font, projectName, projectAuthor, icon);
+                var button = new UIProjectOptionButton(_game, _font, projectName, projectAuthor, icon, _layout.ChildCount);
                 _layout.AddChild(button);
                 _menu.AddChild(button);
 
@@ -271,7 +289,7 @@ namespace DREngine.Game.CoreScenes
                 private UIText _authorText;
                 private UIColoredRect _background;
 
-                public UIProjectOptionButton(GamePlus game, SpriteFont font, string name, string author, Sprite icon, UIComponent parent = null) : base(game, parent)
+                public UIProjectOptionButton(GamePlus game, SpriteFont font, string name, string author, Sprite icon, int index, UIComponent parent = null) : base(game, parent)
                 {
                     _background = (UIColoredRect) new UIColoredRect(game, _deselectBackgroundColor, false, this)
                         .WithLayout(Layout.FullscreenLayout());
@@ -298,8 +316,10 @@ namespace DREngine.Game.CoreScenes
                         .WithoutWordWrap()
                         .WithLayout(Layout.CornerLayout(Layout.TopLeft).OffsetBy(dx, dy));
 
-
                     SetVisualState(_deselectTextColor, _deselectBackgroundColor);
+
+                    // Tween in for fun
+                    Tweener.TweenPositionXDelta(-500, 0.5f).Immediate().SetEaseExpoOut().SetDelay(0.1f * index);
                 }
 
                 protected override void Draw(UIScreen screen, Rect targetRect)
@@ -309,11 +329,13 @@ namespace DREngine.Game.CoreScenes
 
                 protected override void OnSelectVisual()
                 {
+                    Debug.Log("SELECT");
                     SetVisualState(_selectTextColor, _selectBackgroundColor);
                 }
 
                 protected override void OnDeselectVisual()
                 {
+                    Debug.Log("dESELECT");
                     SetVisualState(_deselectTextColor, _deselectBackgroundColor);
                 }
 
@@ -331,13 +353,14 @@ namespace DREngine.Game.CoreScenes
                 {
                     // Shade the bottom part for fun.
                     Color tinted = Color.Lerp(backgroundColor, Color.Black, 0.2f);
-                    _background.Color0 = backgroundColor;
-                    _background.Color1 = backgroundColor;
-                    _background.Color2 = tinted;
-                    _background.Color3 = tinted;
+                    _background.Tweener.CancelAll();
+                    _background.Tweener.TweenBackgroundColor(backgroundColor, backgroundColor, tinted, tinted, 0.3f)
+                        .SetEaseExpoOut();
                     // Text
-                    _nameText.Color = textColor;
-                    _authorText.Color = textColor;
+                    _nameText.Tweener.CancelAll();
+                    _nameText.Tweener.TweenTextColor(textColor, 0.3f).SetEaseCircOut();
+                    _authorText.Tweener.CancelAll();
+                    _authorText.Tweener.TweenTextColor(textColor, 0.3f).SetEaseCircOut();
                 }
             }
         }

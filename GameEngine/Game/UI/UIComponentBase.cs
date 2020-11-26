@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GameEngine.Game.Input;
+using GameEngine.Game.Tween;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,9 +45,12 @@ namespace GameEngine.Game.UI
         public IEnumerable<UIComponent> Children => _children;
         public int ChildCount => _children.Count;
 
+        public TweenerUI Tweener { get; private set; }
+
         public UIComponentBase(GamePlus game)
         {
             _game = game;
+            Tweener = new TweenerUI(game, this);
         }
 
         public void AddChild(UIComponent child)
@@ -89,6 +93,11 @@ namespace GameEngine.Game.UI
 
             if (!Active) return;
 
+            if (screen.NeedToUpdateControl)
+            {
+                Tweener.RunUpdate();
+            }
+
             if (_copyLayoutFrom != null)
             {
                 Layout = new Layout(_copyLayoutFrom.Layout);
@@ -96,6 +105,7 @@ namespace GameEngine.Game.UI
 
             screen.CurrentWorld = worldMat;
 
+            DepthStencilState prevStencil = screen.GraphicsDevice.DepthStencilState;
             if (_isMasked)
             {
                 // Allow masking
@@ -131,6 +141,11 @@ namespace GameEngine.Game.UI
                     }
                 }
             );
+
+            if (_isMasked)
+            {
+                screen.GraphicsDevice.DepthStencilState = prevStencil;
+            }
 
             // if our object asks for it, do selection checking.
             if (screen.NeedToUpdateControl && this is ICursorSelectable selectable)

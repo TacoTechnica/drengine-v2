@@ -45,7 +45,7 @@ namespace GameEngine.Game.Tween
             }
         }
 
-        public void AddTween(ITween t)
+        internal void AddTween(ITween t)
         {
             _tweens.Add(t);
         }
@@ -67,6 +67,11 @@ namespace GameEngine.Game.Tween
         public Tween<Quaternion> TweenValue(Quaternion start, Quaternion end, Action<Quaternion> onTween, float duration)
         {
             return new TweenQuaternion(this, start, end, duration, onTween);
+        }
+
+        public Tween<Color> TweenValue(Color start, Color end, Action<Color> onTween, float duration)
+        {
+            return new TweenColor(this, start, end, duration, onTween);
         }
 
         public void CancelAll()

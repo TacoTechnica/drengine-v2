@@ -136,7 +136,7 @@ namespace GameEngine.Game.UI
             };
         }
 
-        public static Layout CenteredLayout(float width, float height)
+        public static Layout CenteredLayout(float width = 0, float height = 0)
         {
             return new Layout
             {

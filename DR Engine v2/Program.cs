@@ -14,6 +14,8 @@ namespace DREngine
     {
         #region Public Accessors
 
+        public static readonly Version Version = new Version("InDev", 0,1,0);
+
         public static string RootDirectory { get; private set; }
 
         #endregion

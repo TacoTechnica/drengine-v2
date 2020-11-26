@@ -72,7 +72,7 @@ namespace GameEngine.Game.Tween
             {
                 timePassed -= _delay;
 
-                float progress = timePassed / _duration;
+                float progress = Math.Clamp01(timePassed / _duration);
 
                 if (_ease == EaseType.Custom)
                 {
@@ -80,6 +80,7 @@ namespace GameEngine.Game.Tween
                 }
                 else
                 {
+                    float prev = progress;
                     progress = Interpolation.Apply(_ease, progress);
                 }
 
@@ -130,6 +131,15 @@ namespace GameEngine.Game.Tween
             _onCancel?.Invoke();
             _onCancel = null;
             _onComplete = null;
+        }
+
+        public Tween<T> Immediate()
+        {
+            T value = _tweenFunction(0);
+            _onTween.Invoke(value);
+            Update(value);
+
+            return this;
         }
 
         public Tween<T> SetFrom(T start)

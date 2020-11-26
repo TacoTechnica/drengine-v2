@@ -16,6 +16,8 @@ namespace GameEngine.Game.UI
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
+            if (Sprite == null) return;
+
             screen.SpriteBatchBegin();
             if (PreserveAspect)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+// ReSharper disable ConvertToLambdaExpression
 
 // There are multiple data types we want to tween, and this is our exhaustive list of all of them.
 
@@ -38,5 +39,14 @@ namespace GameEngine.Game.Tween
         {
             return start + (end - start) * progress;
         }) { }
+    }
+
+    public class TweenColor : Tween<Color>
+    {
+        public TweenColor(Tweener parent, Color start, Color end, float duration, Action<Color> onTween) : base(parent, start, end, duration, onTween,
+            progress =>
+            {
+                return Color.Lerp(start, end, progress);
+            }) {}
     }
 }
