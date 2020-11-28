@@ -118,7 +118,7 @@ namespace GameEngine.Game
             _graphics = new GraphicsDeviceManager(this)
             {
                 // Add a depth stencil buffer
-                //PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
+                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
             };
             _graphics.SynchronizeWithVerticalRetrace = false; //Vsync
             Content.RootDirectory = contentPath;
