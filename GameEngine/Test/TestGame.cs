@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,11 +12,14 @@ namespace GameEngine.Test
     /// </summary>
     public class TestGame : GamePlus
     {
-        public SpriteFont TestFont => DebugConsole.Font;
+        public Font TestFont => DebugConsole.Font;
 
         private Color BACKGROUND => Color.SlateBlue;
 
-        public TestGame() : base("Game Engine Test", "Content", true, new TestUIMask()) {}
+        public TestGame() : base("Game Engine Test", "Content", true, new TestUIMask())
+        {
+            this.Window.AllowUserResizing = true;
+        }
 
         #region Extra help with testing + simple background
 

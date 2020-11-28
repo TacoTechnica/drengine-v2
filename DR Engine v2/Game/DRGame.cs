@@ -7,7 +7,7 @@ using GameEngine.Test;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using Newtonsoft.Json;
 using Debug = GameEngine.Debug;
 
 namespace DREngine.Game
@@ -25,22 +25,26 @@ namespace DREngine.Game
 
         public MenuControls MenuControls { get; private set; }
 
+        public ProjectData GameProjectData = new ProjectData();
+        public ProjectResources ProjectResources;
+
         #endregion
 
         #region Util variables
 
-        public ProjectData GameProjectData = new ProjectData();
+
         private string _projectPath = null;
 
         private SplashScene SplashScene;
-        private ProjectMainMenu ProjectMainMenu;
+        private ProjectMainMenuScene _projectMainMenuScene;
 
         #endregion
 
         public DRGame(string projectPath = null) : base("DR Game Test Draft", "Content", true)
         {
             this._graphics.SynchronizeWithVerticalRetrace = true;
-            this.IsFixedTimeStep = false;
+            // Fixed timestep causes framerate issues, not sure why. Most likely will not set to true
+            //this.IsFixedTimeStep = false;
 
             // For debugging UI
             this.Window.AllowUserResizing = true;
@@ -52,7 +56,11 @@ namespace DREngine.Game
 
             // Init Core Scenes
             SplashScene = new SplashScene(this, PROJECTS_DIRECTORY);
-            ProjectMainMenu = new ProjectMainMenu(this);
+            _projectMainMenuScene = new ProjectMainMenuScene(this);
+
+            ProjectResources = new ProjectResources(this);
+            ProjectResourceConverter.OnInitGame(this);
+
         }
 
         #region Public Access
@@ -63,12 +71,12 @@ namespace DREngine.Game
             {
                 Debug.LogDebug($"Loading Project at {path}");
                 GameProjectData = ProjectData.ReadFromFile(GraphicsDevice, path);
-                SceneManager.LoadScene(ProjectMainMenu);
+                SceneManager.LoadScene(_projectMainMenuScene);
                 return true;
             }
             catch (Exception e)
             {
-                ShowMessagePopup($"Could not open project at path: {path}: {e.Message}");
+                Debug.LogError($"Could not open project at path: {path}: {e.Message}");
                 return false;
             }
         }
@@ -80,10 +88,9 @@ namespace DREngine.Game
         protected override void Initialize()
         {
             // Init data that should be available at the start.
-            Debug.Log("(pre init)");
-            GameProjectData.LoadDefaults(GraphicsDevice);
-
             base.Initialize();
+
+            GameProjectData.LoadDefaults(GraphicsDevice);
 
             Debug.LogDebug("DRGame Initialize()");
             if (_projectPath != null && LoadProject(_projectPath))

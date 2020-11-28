@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GameEngine.Game.Resources;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +11,7 @@ namespace GameEngine.Game.UI
     public class UITextInput : UITextInputBase
     {
 
-        private SpriteFont _font;
+        private Font _font;
         private UIText _text;
 
         public int SelectBegin { get; private set; } = -1;
@@ -33,7 +34,7 @@ namespace GameEngine.Game.UI
 
         private int _cursorPos;
 
-        public UITextInput(GamePlus game, SpriteFont font, Color color, UIComponent parent = null) : base(game, parent)
+        public UITextInput(GamePlus game, Font font, Color color, UIComponent parent = null) : base(game, parent)
         {
             _font = font;
 
@@ -48,7 +49,7 @@ namespace GameEngine.Game.UI
             _text.Color = color;
 
         }
-        public UITextInput(GamePlus game, SpriteFont font, UIComponent parent = null) : this(game, font, Color.Black, parent) {}
+        public UITextInput(GamePlus game, Font font, UIComponent parent = null) : this(game, font, Color.Black, parent) {}
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
@@ -58,7 +59,7 @@ namespace GameEngine.Game.UI
             try
             {
                 Vector2 delta = _text.GetSize(sub);
-                Vector2 cursorSize = new Vector2(2, _text.Font.LineSpacing);
+                Vector2 cursorSize = new Vector2(2, _text.Font.SpriteFont.LineSpacing);
                 screen.DrawRect(targetRect.Position + delta - cursorSize, cursorSize, _text.Color);
             }
             catch (ArgumentException)
@@ -332,7 +333,7 @@ namespace GameEngine.Game.UI
         {
             Vector2 startPos = _text.TextMin + _text.GetSize(Text.Substring(0, SelectBegin)),
                 endPos = _text.TextMin + _text.GetSize(Text.Substring(0, SelectEnd));//SelectBegin, SelectEnd - SelectBegin));
-            startPos.Y -= _font.LineSpacing;
+            startPos.Y -= _font.SpriteFont.LineSpacing;
             // TODO: Multi line support
             _selectRect.Layout.Margin = new Margin(startPos.X, startPos.Y,  -endPos.X, -endPos.Y);
 

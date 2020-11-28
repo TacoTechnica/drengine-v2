@@ -80,6 +80,38 @@ namespace GameEngine
             return angles;
         }
 
+        public static float AddAngleAndClamp(float angle, float delta, float min, float max)
+        {
+            float dMin = AngleDifference(angle, min),
+                dMax = AngleDifference(angle, max);
+            bool aboveMin = dMin > 0;
+            bool belowMax = dMax < 0;
+
+            bool failedBefore = !(aboveMin && belowMax);
+
+            // We're inside of range. Add and check.
+            angle += delta;
+
+            dMin = AngleDifference(angle, min);
+            dMax = AngleDifference(angle, max);
+            aboveMin = dMin > 0;
+            belowMax = dMax < 0;
+
+            if (!(aboveMin && belowMax))
+            {
+                if (failedBefore)
+                {
+                    // We're outside of range already, expect snappy behaviour.
+                    return (Abs(dMin) < Abs(dMax))? min : max;
+                }
+
+                // We WERE inside and now have moved outside. This check is easier.
+                return (delta < 0) ? min : max;
+            }
+
+            return angle;
+        }
+
         public static Quaternion FromEuler (Vector3 v)
         {
             return FromEuler (v.X, v.Y, v.Z);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework.Graphics;
 using YamlDotNet.Core;
@@ -66,7 +67,7 @@ namespace DREngine.Game.CoreScenes
                     // We have a project
                     try
                     {
-                        ProjectData dat = ProjectData.ReadFromFile(_game.GraphicsDevice, projectPath);
+                        ProjectData dat = ProjectData.ReadFromFile(_game.GraphicsDevice, projectPath, false);
 
                         string projectName = dat.Name;
                         string projectAuthor = dat.Author;
@@ -123,7 +124,7 @@ namespace DREngine.Game.CoreScenes
 
             public UIHandler(DRGame game) : base(game)
             {
-                SpriteFont font = game.GameProjectData.OverridableResources.MenuFont.Font;
+                Font font = game.ProjectResources.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
 
                 // Tinted Background
                 Color dark = Color.Black;
@@ -197,13 +198,13 @@ namespace DREngine.Game.CoreScenes
             public Action<string> OnProjectPick = null;
 
             private MenuList _menu;
-            private SpriteFont _font;
+            private Font _font;
 
             private UIVerticalLayout _layout;
 
             private UIScrollView _scrollView;
 
-            public UIProjectList(DRGame game, SpriteFont font, float childHeight, float spacing) : base(game)
+            public UIProjectList(DRGame game, Font font, float childHeight, float spacing) : base(game)
             {
                 _font = font;
 
@@ -289,7 +290,7 @@ namespace DREngine.Game.CoreScenes
                 private UIText _authorText;
                 private UIColoredRect _background;
 
-                public UIProjectOptionButton(GamePlus game, SpriteFont font, string name, string author, Sprite icon, int index, UIComponent parent = null) : base(game, parent)
+                public UIProjectOptionButton(GamePlus game, Font font, string name, string author, Sprite icon, int index, UIComponent parent = null) : base(game, parent)
                 {
                     _background = (UIColoredRect) new UIColoredRect(game, _deselectBackgroundColor, false, this)
                         .WithLayout(Layout.FullscreenLayout());
@@ -329,13 +330,11 @@ namespace DREngine.Game.CoreScenes
 
                 protected override void OnSelectVisual()
                 {
-                    Debug.Log("SELECT");
                     SetVisualState(_selectTextColor, _selectBackgroundColor);
                 }
 
                 protected override void OnDeselectVisual()
                 {
-                    Debug.Log("dESELECT");
                     SetVisualState(_deselectTextColor, _deselectBackgroundColor);
                 }
 

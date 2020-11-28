@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using GameEngine.Game.Tween;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game
 {
@@ -11,6 +12,7 @@ namespace GameEngine.Game
 
         private bool _gottaStart = true;
 
+        [JsonIgnore]
         public bool Active { get; private set; }
         protected internal bool _activeAsChild { get; private set; } // Whether we should automatically get activated as a child.
         protected internal bool _parentActive { get; private set; }
@@ -27,6 +29,7 @@ namespace GameEngine.Game
         private List<Coroutine> _routines = new List<Coroutine>();
         private List<ICollider> _colliders = new List<ICollider>();
 
+        [JsonIgnore]
         public Tweener Tweener { get; private set; }
 
         public GameObject(GamePlus game)

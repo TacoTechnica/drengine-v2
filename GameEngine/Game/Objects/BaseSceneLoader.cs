@@ -9,17 +9,21 @@ namespace GameEngine.Game
     public class BaseSceneLoader  : ISceneLoader
     {
         private string[] _names;
-        private GamePlus _game;
+        protected GamePlus _game;
         private Action<GamePlus> _onLoad;
 
         public int UniqueId { get; private set; }
         public BaseSceneLoader(GamePlus game, string[] names, Action<GamePlus> onLoad = null)
         {
-            _game = game;
-            _names = names;
-            _onLoad = onLoad;
+            // If _game is null, we are dealing with serialization.
+            if (game != null)
+            {
+                _game = game;
+                _names = names;
+                _onLoad = onLoad;
 
-            UniqueId = game.SceneManager.RegisterSceneLoader(this);
+                UniqueId = game.SceneManager.RegisterSceneLoader(this);
+            }
         }
 
         public void Deregister()

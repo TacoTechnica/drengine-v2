@@ -16,18 +16,21 @@ namespace GameEngine.Game.Audio
         {
             _fpath = audioFile;
             _output = targetOutput;
-
-            LoadClip();
-            //_game.WhenSafeToLoad.AddListener(LoadClip);
         }
 
-        private void LoadClip()
+        public void Load()
         {
             OnLoad(_fpath);
             //_game.WhenSafeToLoad.RemoveListener(LoadClip);
         }
 
+        public void Unload()
+        {
+            OnUnload();
+        }
+
         protected abstract void OnLoad(Path path);
+        protected abstract void OnUnload();
 
         public abstract int GetStream();
         public abstract int GetSample();
@@ -39,14 +42,31 @@ namespace GameEngine.Game.Audio
     public class AudioStorageCached : AudioStorageBase
     {
         private Path _path;
+
+        private int _sample = -1;
         public AudioStorageCached(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
         {
-
+            _sample = -1;
         }
 
         protected override void OnLoad(Path path)
         {
             _path = path;
+            if (_sample != -1)
+            {
+                Unload();
+            }
+
+            _sample = Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerMatrix | BassFlags.Decode);
+        }
+
+        protected override void OnUnload()
+        {
+            if (_sample != -1)
+            {
+                Bass.SampleFree(_sample);
+                _sample = -1;
+            }
         }
 
         public override int GetStream()
@@ -56,7 +76,7 @@ namespace GameEngine.Game.Audio
 
         public override int GetSample()
         {
-            return Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerMatrix | BassFlags.Decode);
+            return _sample;
         }
     }
 
@@ -71,6 +91,11 @@ namespace GameEngine.Game.Audio
         protected override void OnLoad(Path path)
         {
             _path = path;
+        }
+
+        protected override void OnUnload()
+        {
+            // Do nothing, we're streamed.
         }
 
         public override int GetStream()

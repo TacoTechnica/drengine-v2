@@ -136,7 +136,6 @@ namespace GameEngine.Game.Tween
                     c1 = rect.Color1,
                     c2 = rect.Color2,
                     c3 = rect.Color3;
-                Debug.Log("########TWEEN START");
                 return TweenValue(0f, 1f, progress =>
                 {
                     //Debug.Log($"PROG: {progress}");

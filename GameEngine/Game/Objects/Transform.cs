@@ -1,11 +1,13 @@
 ﻿
+using System;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game
 {
+    [Serializable]
     public class Transform3D
     {
-
         private Vector3 _position = Vector3.Zero;
         private Quaternion _rotation = Quaternion.Identity;
         private Vector3 _scale = Vector3.One;
@@ -50,6 +52,7 @@ namespace GameEngine.Game
             _scaleMat = Matrix.CreateScale(_scale);
         }
 
+        [JsonIgnore]
         public Matrix Local { get; private set; } = Matrix.Identity;
 
         public Vector3 Position
@@ -69,6 +72,7 @@ namespace GameEngine.Game
             set
             {
                 _rotation = value;
+                _rotation.Normalize();
                 _rotMat = Matrix.CreateFromQuaternion(_rotation);
                 UpdateWorld();
             }

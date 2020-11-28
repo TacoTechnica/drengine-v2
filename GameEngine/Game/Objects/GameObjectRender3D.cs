@@ -1,14 +1,18 @@
-﻿using GameEngine.Game.Tween;
+﻿using System;
+using GameEngine.Game.Tween;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game
 {
+    [Serializable]
     public abstract class GameObjectRender3D : GameObjectRender
     {
 
-        public Transform3D Transform = new Transform3D();
+        public Transform3D Transform { get; set; } = new Transform3D();
 
+        [JsonIgnore]
         public new TweenerGameObject3D Tweener => (TweenerGameObject3D)base.Tweener;
 
         public GameObjectRender3D(GamePlus game, Vector3 position, Quaternion rotation) : base(game)

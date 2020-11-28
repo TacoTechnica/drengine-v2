@@ -4,11 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game
 {
-    // TODO: Support holding animation data/multiple frames.
     /// <summary>
     ///     A sprite object.
     /// </summary>
-    public class Sprite
+    ///
+    public class Sprite : IGameResource
     {
         private Texture2D _texture = null;
 
@@ -31,42 +31,58 @@ namespace GameEngine.Game
         public readonly float Scale;
         private GamePlus _game;
 
-        private Path _path;
+        public string Path { get; set; }
 
         public float Width => Texture.Width;
         public float Height => Texture.Height;
 
         public bool Loaded { get; private set; }
 
+        /*
         public Sprite(GamePlus game, Texture2D texture)
         {
             this._game = game;
             this.Texture = texture;
             Loaded = true;
         }
+        */
 
         public Sprite(GamePlus game, Path path, Vector2 Pivot, float Scale = 0.01f)
         {
             this._game = game;
             this.Pivot = Pivot;
             this.Scale = Scale;
-            this._path = path;
+            this.Path = path;
 
             Loaded = false;
-            _game.LoadWhenSafe(LoadSprite);
+            _game.LoadWhenSafe(() =>
+            {
+                Load(_game);
+            });
         }
 
         public Sprite(GamePlus game, Path path) : this(game, path, Vector2.Zero) {}
+
+        // Deserialize Constructor
+        public Sprite() {}
 
         ~Sprite()
         {
             _texture?.Dispose();
         }
 
-        private void LoadSprite()
+        public void Load(GamePlus game)
         {
-            Texture = Texture2D.FromFile(_game.GraphicsDevice, _path);
+            Debug.Log($"LOADING SPRITE: {Path}");
+            _game = game;
+            Texture = Texture2D.FromFile(game.GraphicsDevice, Path);
             Loaded = true;
+        }
+
+        public void Unload(GamePlus game)
+        {
+            Texture.Dispose();
+            Loaded = false;
         }
     }
 }

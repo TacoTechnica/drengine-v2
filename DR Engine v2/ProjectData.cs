@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using GameEngine;
+using GameEngine.Game.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Path = GameEngine.Game.Path;
 
 namespace DREngine
 {
@@ -18,44 +20,43 @@ namespace DREngine
         public string Name;
         public string Author;
 
-        public class ProjectResourceList
-        {
-            public Dictionary<string, string> Rooms = new Dictionary<string, string>();
-            public Dictionary<string, string> Characters = new Dictionary<string, string>();
-            public Dictionary<string, string> Sprites = new Dictionary<string, string>();
-            public Dictionary<string, string> Sfx = new Dictionary<string, string>();
-            public Dictionary<string, string> Va = new Dictionary<string, string>();
-            public Dictionary<string, string> Bgm = new Dictionary<string, string>();
-            public Dictionary<string, string> Dialogue = new Dictionary<string, string>();
-        }
-
         //public ProjectResourceList Resources = new ProjectResourceList();
 
         public class OverrideableResourceList
         {
-            public OverridableSpriteFont MenuFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 16);
-            public OverridableSpriteFont DialogueFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Regular.ttf", 16);
-            public OverridableSpriteFont TitleFont = new OverridableSpriteFont("Fonts/SourceSansPro/SourceSansPro-Bold.ttf", 24);
+            public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+            public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+            public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
         }
         public OverrideableResourceList OverridableResources = new OverrideableResourceList();
 
         /// <summary>
-        /// Directories we will read to/create when modifying our project.
+        /// Default directories of our resources.
+        /// THESE ARE NOT ENFORCED! They only serve as suggestions.
         /// </summary>
-        public const string RoomDir = "rooms";
-        public const string CharactersDir = "characters";
-        public const string SpritesDir = "sprites";
-        public const string SfxDir = "sfx";
-        public const string VaDir = "va";
-        public const string BgmDir = "bgm";
-        public const string DialogueDir = "dialogue";
+        public const string ROOM_DEFAULT_DIR = "rooms";
+        public const string CHARACTERS_DEFAULT_DIR = "characters";
+        public const string SPRITES_DEFAULT_DIR = "sprites";
+        public const string SFX_DEFAULT_DIR = "sfx";
+        public const string VA_DEFAULT_DIR = "va";
+        public const string BGM_DEFAULT_DIR = "bgm";
+        public const string DIALOGUE_DEFAULT_DIR = "dialogue";
 
         #endregion
 
         private const string CommentHeader = "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
-        // TODO: Use GamePath instead of a string. That will eliminate the need to pre-process it.
-        public static ProjectData ReadFromFile(GraphicsDevice g, string fpath)
+        private Path _fullProjectPath;
+
+        /// <summary>
+        /// Loads a project from a file.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="fpath"></param>
+        /// <param name="fullLoad"> If false, it will NOT do any extra project loading. Use this for quick surface level project parsing. </param>
+        /// <returns></returns>
+        /// <exception cref="YamlException"></exception>
+        public static ProjectData ReadFromFile(GraphicsDevice g, Path fpath, bool fullLoad = true)
         {
             try
             {
@@ -66,7 +67,7 @@ namespace DREngine
                 // We might be given a relative directory, so try that first.
                 if (!File.Exists(fpath) && !Directory.Exists(fpath))
                 {
-                    fpath = Path.Combine(Environment.CurrentDirectory, fpath);
+                    fpath = System.IO.Path.Combine(Environment.CurrentDirectory, fpath);
                     //Debug.Log($"RELATIVE PATH: {fpath}");
                 }
                 // We might be given the project directory, so try to find the project file within it.
@@ -78,13 +79,13 @@ namespace DREngine
                 string text = IO.ReadTextFile(fpath);
                 //Debug.Log($"OUTPUT: {text}");
                 ProjectData result = deserializer.Deserialize<ProjectData>(text);
-                result.LoadDefaults(g);
+                result._fullProjectPath = fpath;
+                if (fullLoad)
+                {
+                    result.LoadDefaults(g);
+                }
+
                 return result;
-                /*
-                using StreamReader reader = File.OpenText(fpath);
-                Debug.Log($"OPENED!");
-                return deserializer.Deserialize<ProjectData>(reader);
-                */
             }
             catch (YamlException e)
             {
@@ -104,15 +105,59 @@ namespace DREngine
 
         public void LoadDefaults(GraphicsDevice g)
         {
-            CallOnDeserializeOn(g, OverridableResources);
+            //CallOnDeserializeOn(g, OverridableResources);
         }
 
+        public string GetFullProjectPath(string relative = "")
+        {
+            string dir = System.IO.Path.GetDirectoryName(_fullProjectPath);
+            return System.IO.Path.Join(dir, relative);
+        }
+
+        public string GetRelativeProjectPath(string fullPath)
+        {
+            string dir = GetFullProjectPath();
+            string result = System.IO.Path.GetRelativePath(dir, fullPath);
+            //Debug.Log($"{fullPath} from {_fullProjectPath} => {result}");
+            if (result.StartsWith(".."))
+            {
+                throw new InvalidArgumentsException($"Full path {fullPath} does not reside within project path: {dir}.");
+            }
+
+            return result;
+        }
+
+        public string GetFullDefaultResourcePath(string relative = "")
+        {
+            string rootDir = System.IO.Path.GetDirectoryName(_fullProjectPath);
+            return System.IO.Path.Join(rootDir, DefaultResourcePath.DEFAULT_RESOURCE_FOLDER, relative);
+        }
+
+        public string GetRelativeDefaultResourcePath(string fullPath)
+        {
+            string dir = GetFullDefaultResourcePath();
+            string result = System.IO.Path.GetRelativePath(dir, fullPath);
+            //Debug.Log($"{fullPath} from {_fullProjectPath} => {result}");
+            if (result.StartsWith(".."))
+            {
+                throw new InvalidArgumentsException($"Full path {fullPath} does not reside within default resource path: {dir}.");
+            }
+
+            return result;
+        }
+
+        public bool IsDefaultResourcePath(string fullPath)
+        {
+            return fullPath.StartsWith(GetFullDefaultResourcePath());
+        }
+
+        /*
         /// <summary>
         ///     Goes through every object that has a OnDeserialize method (from interface) and calls that method.
         /// </summary>
         private void CallOnDeserializeOn(GraphicsDevice g, object parent)
         {
-            Debug.Log("OKI DOKI");
+            Debug.Log("ProjectData On Deserialize");
             foreach (var field in parent.GetType().GetFields())
             {
                 object b = field.GetValue(parent);
@@ -122,5 +167,6 @@ namespace DREngine
                 }
             }
         }
+        */
     }
 }

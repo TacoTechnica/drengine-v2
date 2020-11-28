@@ -25,7 +25,12 @@ namespace GameEngine.Game
         // Makes it so that we can use gamepaths instead of strings. Very handy.
         public static implicit operator string(Path p)
         {
-            return p.ToString();
+            return p?.ToString();
+        }
+
+        public static implicit operator Path(string s)
+        {
+            return new Path(s);
         }
 
         public override string ToString()
@@ -36,6 +41,11 @@ namespace GameEngine.Game
 
     public class EnginePath : Path {
 
-        public EnginePath(string path) : base($"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/{path}") {}
+        public EnginePath(string path) : base(path) {}
+
+        public override string ToString()
+        {
+            return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{_inputPath}";
+        }
     }
 }

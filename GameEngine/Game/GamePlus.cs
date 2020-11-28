@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Intrinsics.X86;
 using System.Timers;
 using GameEngine.Game.Audio;
 using GameEngine.Game.Debugging;
 using GameEngine.Game.Debugging.CommandListGlobal;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using GameEngine.Util;
 using Gdk;
@@ -39,6 +41,7 @@ namespace GameEngine.Game
         private long _currentMemoryBytes = 0;
         private long _debugFrameCounter = 0;
         private float _fpsAverageAccum = 0;
+        private float _fpsMin = float.PositiveInfinity;
         private Timer _debugTimer = new Timer();
         private DateTime _lastDebugTime;
         private DebugControls _debugControls;
@@ -107,6 +110,8 @@ namespace GameEngine.Game
             WindowTitle = windowTitle;
             _runner = gameRunner;
             _debug = debug;
+
+            RawInput.SetGame(this);
 
             // MonoGame config
             _graphics = new GraphicsDeviceManager(this)
@@ -180,60 +185,37 @@ namespace GameEngine.Game
             _debugTimer.Start();
             _lastDebugTime = DateTime.Now;
             _debugTimer.Elapsed += DebugTimerOnElapsed;
-            SpriteFont debugFont = null;
-            string defaultContentPath = "Debug/DebugFontA";
-            try
+            Font debugFont = null;
+            string[] pathsToTry =
             {
-                debugFont = Content.Load<SpriteFont>(defaultContentPath);
+                @"C:\\Windows\\Fonts\lucon.ttf",
+                @"C:\\Windows\\Fonts\arial.ttf",
+                "/usr/share/fonts/TTF/consola.ttf",
+                "/usr/share/fonts/TTF/arial.ttf"
+            };
+            bool foundValid = false;
+            foreach (string path in pathsToTry)
+            {
+                Debug.LogDebug($"Trying {path}...");
+                try
+                {
+                    debugFont = new Font(this, path, 16);
+                    foundValid = true;
+                }
+                catch (Exception)
+                {
+                    Debug.LogDebug("(Failed)");
+                    continue;
+                }
+
+                break;
             }
-            catch (ContentLoadException)
+
+            if (!foundValid)
             {
-                Debug.LogDebug($"Failed to load default font at Content Path {defaultContentPath}, will try some system defaults.");
-                string[] pathsToTry =
-                {
-                    @"C:\\Windows\\Fonts\lucon.ttf",
-                    @"C:\\Windows\\Fonts\arial.ttf",
-                    "/usr/share/fonts/TTF/consola.ttf",
-                    "/usr/share/fonts/TTF/arial.ttf"
-                };
-                bool foundValid = false;
-                foreach (string path in pathsToTry)
-                {
-                    Debug.LogDebug($"Trying {path}...");
-                    try
-                    {
-                        var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(path),
-                            12,
-                            1024,
-                            1024,
-                            new[]
-                            {
-                                CharacterRange.BasicLatin,
-                                CharacterRange.Latin1Supplement,
-                                CharacterRange.LatinExtendedA,
-                                CharacterRange.Cyrillic
-                            }
-                        );
-
-                        debugFont = fontBakeResult.CreateSpriteFont(GraphicsDevice);
-                        Debug.LogDebug("Success!");
-                        foundValid = true;
-                    }
-                    catch (Exception)
-                    {
-                        Debug.LogDebug("(Failed)");
-                        continue;
-                    }
-
-                    break;
-                }
-
-                if (!foundValid)
-                {
-                    throw new ContentLoadException($"Failed to load default debug font from: {pathsToTry}. " +
-                                                   "Either add a font to the content pipeline at \"Debug/DebugFont\" or " +
-                                                   "make sure one of the tried system fonts is available.");
-                }
+                throw new ContentLoadException($"Failed to load default debug font from: {pathsToTry}. " +
+                                               "Either add a font to the content pipeline at \"Debug/DebugFont\" or " +
+                                               "make sure one of the tried system fonts is available.");
             }
             DebugConsole = new DebugConsole(this,
                 debugFont,
@@ -266,7 +248,12 @@ namespace GameEngine.Game
                 if (UnscaledDeltaTime != 0)
                 {
                     ++_debugFrameCounter;
-                    _fpsAverageAccum += 1f / UnscaledDeltaTime;
+                    float currentFPS = 1f / UnscaledDeltaTime;
+                    _fpsAverageAccum += currentFPS;
+                    if (currentFPS < _fpsMin)
+                    {
+                        _fpsMin = currentFPS;
+                    }
                 }
             }
 
@@ -398,8 +385,9 @@ namespace GameEngine.Game
             int uiTotal = UiScreen.GetTotalUICountAfterDraw();
 
             // Set window title
-            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB | {objs} Objects, {rends} Renderers, {uiActive} / {uiTotal} UI";
+            Window.Title = $"{WindowTitle} | {_currentFPS:0.00} FPS ({_fpsMin:0.00} Worst) | {((float)_currentMemoryBytes / (1000f*1000f)):0.00} mB | {objs} Objects, {rends} Renderers, {uiActive} / {uiTotal} UI";
 
+            _fpsMin = float.PositiveInfinity;
             _lastDebugTime = DateTime.Now;
         }
 

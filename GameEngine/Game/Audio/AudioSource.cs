@@ -34,7 +34,7 @@ namespace GameEngine.Game.Audio
                 }
                 _currentClip = clip;
                 _channel = clip.GetNewChannelSource(out _toFree);
-                Debug.Log($"NEW: {_toFree}");
+                //Debug.Log($"NEW: {_toFree}");
             }
 
             _mixer.PlayChannel(_channel);
@@ -55,14 +55,10 @@ namespace GameEngine.Game.Audio
         {
             _mixer.StopChannel(_channel);
 
-            if (_currentClip.UsesSample)
-            {
-                Bass.SampleFree(_toFree);
-                Debug.Log($"DELETE: {_toFree}");
-            }
-            else
+            if (!_currentClip.UsesSample)
             {
                 Bass.StreamFree(_channel);
+                //Debug.Log($"DELETE: {_toFree}");
             }
         }
     }

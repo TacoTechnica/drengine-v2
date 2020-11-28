@@ -62,7 +62,7 @@ namespace DREngine
             string projectPath = null;
             var opts = new OptionSet() {
                 {
-                    "g|game", v => {
+                    "g|game:", v => {
                         useGame = true;
                         projectPath = v;
                     }

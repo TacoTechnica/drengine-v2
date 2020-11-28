@@ -25,10 +25,10 @@ namespace GameEngine.Test
             SFX = new AudioMixer(game.AudioOutput);
 
             // fuuck why didn't I pick these songs from the getgo this makes debugging so much more tolerable
-            music0 = new AudioClip(game.AudioOutput, new EnginePath("default_resources/Audio/dominoline.wav"), AudioClipType.Streamed);
-            music1 = new AudioClip(game.AudioOutput, new EnginePath("default_resources/Audio/Chameleon.wav"), AudioClipType.Streamed);
+            music0 = new AudioClip(game, new EnginePath("default_resources/Audio/dominoline.wav"), AudioClipType.Streamed);
+            music1 = new AudioClip(game, new EnginePath("default_resources/Audio/Chameleon.wav"), AudioClipType.Streamed);
 
-            click = new AudioClip(game.AudioOutput, new EnginePath("default_resources/Audio/boof.wav"), AudioClipType.Cached);
+            click = new AudioClip(game, new EnginePath("default_resources/Audio/boof.wav"), AudioClipType.Cached);
             clicker = new AudioSource(SFX);
 
             music = new AudioSource(BGM);

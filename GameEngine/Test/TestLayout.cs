@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using GameEngine.Util;
 using Microsoft.Xna.Framework;
@@ -143,7 +144,7 @@ namespace GameEngine.Test
 
         class UITestItem : UIComponent
         {
-            public UITestItem(GamePlus game, SpriteFont font, string text, UIComponent parent = null) : base(game, parent)
+            public UITestItem(GamePlus game, Font font, string text, UIComponent parent = null) : base(game, parent)
             {
                 new UIColoredRect(game, Random.Hue(0.5f, 0.7f), false, this)
                     .WithChild(

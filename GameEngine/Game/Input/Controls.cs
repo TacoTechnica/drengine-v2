@@ -17,8 +17,9 @@ namespace GameEngine.Game.Input
 
         protected GamePlus _game;
 
-        public Controls(GamePlus _game)
+        public Controls(GamePlus game)
         {
+            _game = game;
             _game.AddControls(this);
         }
 
@@ -68,6 +69,8 @@ namespace GameEngine.Game.Input
         private Buttons _gamepadButton;
         private GamepadAxis _gamepadAxis;
 
+        public bool Inverted;
+
         public InputAxis(Keys keys)
         {
             _keys = keys;
@@ -98,7 +101,7 @@ namespace GameEngine.Game.Input
             _type = Type.GamepadButton;
         }
 
-        public float  ReadCurrentAxis()
+        public float ReadCurrentAxis()
         {
             switch (_type)
             {
@@ -107,8 +110,19 @@ namespace GameEngine.Game.Input
                 case Type.Mouse:
                     return RawInput.MousePressing(_mbutton)? 1f : 0;
                 case Type.MouseAxis:
-                    Vector2 mp = RawInput.GetMousePosition();
-                    return (_mouseAxis == MouseAxis.X) ? mp.X : mp.Y;
+                    switch (_mouseAxis)
+                    {
+                        case MouseAxis.X:
+                            return RawInput.GetMousePosition().X;
+                        case MouseAxis.Y:
+                            return RawInput.GetMousePosition().Y;
+                        case MouseAxis.DX:
+                            return RawInput.GetMouseDelta().X;
+                        case MouseAxis.DY:
+                            return RawInput.GetMouseDelta().Y;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 case Type.GamepadButton:
                     return RawInput.GamepadPressing(_gamepadButton)? 1f : 0;
                 case Type.GamepadAxis:
@@ -286,10 +300,10 @@ namespace GameEngine.Game.Input
             new InputAxis[0], mode) { }
         public InputActionAxis1D(Controls controls, InputAxis negative, InputAxis positive, AxisMode mode = AxisMode.Sum) : this(
             controls,
-            new InputAxis[]{negative}, new InputAxis[]{positive}, mode ) {}
+            new[]{negative}, new[]{positive}, mode ) {}
         public InputActionAxis1D(Controls controls, InputAxis positive, AxisMode mode = AxisMode.Sum) : this(
             controls,
-            new InputAxis[0], new InputAxis[]{positive}, mode ) {}
+            new InputAxis[0], new[]{positive}, mode ) {}
 
         internal override void Update()
         {
@@ -309,7 +323,7 @@ namespace GameEngine.Game.Input
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            foreach (InputAxis p in _positive)
+            foreach (InputAxis p in _negative)
             {
                 float val = p.ReadCurrentAxis();
                 switch (_axisMode)
@@ -370,6 +384,13 @@ namespace GameEngine.Game.Input
             _left = new List<InputAxis>(left);
             _right = new List<InputAxis>(right);
         }
+        /// <summary>
+        /// Two axis Constructor.
+        /// </summary>
+        public InputActionAxis2D(Controls controls, InputAxis[] axisY, InputAxis[] axisX, AxisMode mode = AxisMode.Sum) :
+            this(controls, axisY, new InputAxis[]{}, new InputAxis[]{}, axisX, mode ) {}
+        public InputActionAxis2D(Controls controls, InputAxis axisY, InputAxis axisX, AxisMode mode = AxisMode.Sum) :
+            this(controls, new []{axisY}, new []{axisX}, mode) {}
         /// <summary>
         /// Empty Constructor
         /// </summary>

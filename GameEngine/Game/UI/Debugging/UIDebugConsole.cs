@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Text;
+using GameEngine.Game.Resources;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,7 +19,7 @@ namespace GameEngine.Game.UI.Debugging
 
         private int _dropToBottomFlag = 0;
 
-        public SpriteFont Font => _log.Font;
+        public Font Font => _log.Font;
 
         public string OutputText
         {
@@ -34,7 +35,7 @@ namespace GameEngine.Game.UI.Debugging
 
         private float _outputViewHeight;
 
-        public UIDebugConsole(GamePlus game, SpriteFont font, float outputHeight, UIComponent parent = null) : base(game, parent)
+        public UIDebugConsole(GamePlus game, Font font, float outputHeight, UIComponent parent = null) : base(game, parent)
         {
             _outputViewHeight = outputHeight;
 
@@ -44,7 +45,7 @@ namespace GameEngine.Game.UI.Debugging
             float sliderWidth = 12f;
 
             // Text input
-            float inputHeight = font.LineSpacing + textPadding * 2;
+            float inputHeight = font.SpriteFont.LineSpacing + textPadding * 2;
             _input = (UITextInput) new UITextInput(game, font, Color.White);
 
             UIComponent textBackground = new UIMaskRect(game, Color.Black, this) // new UIColoredRect(game, Color.Black, false, this) //

@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,7 +18,7 @@ namespace GameEngine.Test
         private UIScrollView _scrollView;
         private UIComponent _contents;
 
-        private SpriteFont _textFont => _game.TestFont;
+        private Font _textFont => _game.TestFont;
 
         private const string contentText = "BOO!! Sorry did I scare you?! WASSUP GURL😉😉😊 ITS ALMOST COCKTOBER 😈🌚🍂🍃🍁 AND IF YOU👈🏽 ARE GETTING THIS👇🏽😘 IT MEANS UR A HALLOWEEN 👻🎃 HOE😏😩👅💦 every year in Cocktober the jack o slut🎃 comes to life🙀😻🙌🏽👏👏🙌🏽 coming to harvest 🍁🍂🍃 his hoes for THOT-O-WEEN😏😏💥💥🎈🎂🎉 send this to 10 other Halloween Hoes or else you a TRICK🎃👻👻 🎃 IF YOU GET 4 BACK UR A THOT-O-WEEN TREAT😋 IF YOU GET 6 BACK UR A SLUTTY WITCH BITCH👄😍✨🔮 BUT IF YOU GET 10 BACK UR THE SPOOKIEST SLUT ON THE BLOCK😜💦⚰🎉🎉💯🎃 If you don’t send this to 1️⃣0️⃣other thots💁😩👄 you will get NO DICK 👋 this COCKTOBER🎃";
 

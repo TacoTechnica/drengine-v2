@@ -1,16 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game
 {
     public abstract class BaseMeshRenderer<VType> : GameObjectRender3D where VType : struct, IVertexType
     {
 
+        [JsonIgnore]
         public PrimitiveType PrimitiveType = PrimitiveType.TriangleList;
 
         protected VertexBuffer _vertexBuffer = null;
 
         private VType[] _vertices = new VType[0];
+        [JsonIgnore]
         public VType[] Vertices
         {
             get => _vertices;

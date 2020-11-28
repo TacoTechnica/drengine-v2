@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game
 {
@@ -8,54 +9,76 @@ namespace GameEngine.Game
 
         #region Public access to our effect
 
+
+        [JsonIgnore]
         public bool VertexColorEnabled
         {
-            get => _effect.VertexColorEnabled;
-            set => _effect.VertexColorEnabled = value;
+            get => Effect.VertexColorEnabled;
+            set => Effect.VertexColorEnabled = value;
         }
+        [JsonIgnore]
         public bool LightingEnabled
         {
-            get => _effect.LightingEnabled;
-            set => _effect.LightingEnabled = value;
+            get => Effect.LightingEnabled;
+            set => Effect.LightingEnabled = value;
         }
+        [JsonIgnore]
         public bool TextureEnabled
         {
-            get => _effect.TextureEnabled;
-            set => _effect.TextureEnabled = value;
+            get => Effect.TextureEnabled;
+            set => Effect.TextureEnabled = value;
         }
 
+        [JsonIgnore]
         public Texture2D Texture
         {
-            get => _effect.Texture;
-            set => _effect.Texture = value;
+            get => Effect.Texture;
+            set => Effect.Texture = value;
         }
 
+        [JsonIgnore]
         public bool CullingEnabled = true;
 
         #endregion
 
-        private BasicEffect _effect;
+        private BasicEffect _effect = null;
+
+        private BasicEffect Effect
+        {
+            get
+            {
+                if (_effect == null)
+                {
+                    Assert.IsNotNull(_game.GraphicsDevice);
+                    _effect = new BasicEffect(_game.GraphicsDevice)
+                    {
+                        Alpha = 1.0f,
+                        VertexColorEnabled = true,
+                        LightingEnabled = false,
+                        TextureEnabled = true
+                    };
+                }
+                return _effect;
+            }
+            set => _effect = value;
+        }
 
         public SimpleMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
 
         public override void Start()
         {
-            // Shader Abstraction Handling
-            _effect = new BasicEffect(_game.GraphicsDevice);
-            _effect.Alpha = 1.0f;
-            _effect.VertexColorEnabled = true;
-            _effect.LightingEnabled = false;
+
         }
 
         protected override Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
-            _effect.Projection = cam.ProjectionMatrix;
-            _effect.View = cam.ViewMatrix;
-            _effect.World = transform.Local;
+            Effect.Projection = cam.ProjectionMatrix;
+            Effect.View = cam.ViewMatrix;
+            Effect.World = transform.Local;
 
             g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
 
-            return _effect;
+            return Effect;
         }
 
     }

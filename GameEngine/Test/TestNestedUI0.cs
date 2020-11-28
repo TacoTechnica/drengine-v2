@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,7 +16,7 @@ namespace GameEngine.Test
         private UIComponent _rotater;
         private UIComponent _rotater2;
 
-        private SpriteFont _textFont => ((TestGame)_game).TestFont;
+        private Font _textFont => ((TestGame)_game).TestFont;
         public void Initialize(GamePlus game)
         {
             _game = game;

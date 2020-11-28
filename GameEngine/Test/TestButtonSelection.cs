@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -65,7 +66,7 @@ namespace GameEngine.Test
         class ExampleUiMenuButton : UIMenuButtonBase
         {
 
-            private SpriteFont _textFont => ((TestGame)_game).TestFont;
+            private Font _textFont => ((TestGame)_game).TestFont;
 
             private Color _normalColor;
             private Color _selectedColor;

@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,7 +15,7 @@ namespace GameEngine.Test
 
         private TestGame _game;
 
-        private SpriteFont _textFont => _game.TestFont;
+        private Font _textFont => _game.TestFont;
 
         public void Initialize(GamePlus game)
         {

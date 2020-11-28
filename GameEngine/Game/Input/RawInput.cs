@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Framework.Utilities;
 
 namespace GameEngine.Game.Input
 {
-
     public enum MouseButton
     {
         Left,
@@ -17,7 +16,9 @@ namespace GameEngine.Game.Input
     public enum MouseAxis
     {
         X,
-        Y
+        Y,
+        DX,
+        DY
     }
 
     public enum GamepadAxis
@@ -44,6 +45,16 @@ namespace GameEngine.Game.Input
         public static Action<Keys[]> OnKeysPressed;
 
         private static HashSet<Keys> _pressedKeys = new HashSet<Keys>();
+
+        private static bool _mouseLocked = false;
+
+        // Dang... I really didn't want to do this but for some situations it's required.
+        private static GamePlus _game;
+
+        public static void SetGame(GamePlus game)
+        {
+            _game = game;
+        }
 
         public static bool KeyPressing(Keys k)
         {
@@ -87,6 +98,27 @@ namespace GameEngine.Game.Input
         {
             Mouse.SetPosition((int)pos.X, (int)pos.Y);
             _currMouseState = Mouse.GetState();
+        }
+
+        public static void SetMouseLock(bool enabled)
+        {
+            _mouseLocked = enabled;
+            SetMouseVisibility(!enabled);
+        }
+
+        public static bool IsMouseLocked()
+        {
+            return _mouseLocked;
+        }
+
+        public static void SetMouseVisibility(bool visible)
+        {
+            _game.IsMouseVisible = visible;
+        }
+
+        public static bool GetMouseVisibility()
+        {
+            return _game.IsMouseVisible;
         }
 
         public static bool GamepadPressing(Buttons b)
@@ -244,6 +276,15 @@ namespace GameEngine.Game.Input
             _currMouseState = Mouse.GetState();
             _prevGamepadState = _currGamepadState;
             _currGamepadState = GamePad.GetState(PlayerIndex.One);
+
+            if (_mouseLocked)
+            {
+                Rectangle r = _game.GraphicsDevice.Viewport.Bounds;
+                // We must make sure our prev state has a centered mouse.
+                Point center = r.Center;//new Vector2(, _game.GraphicsDevice.Viewport.Height / 2);
+                Mouse.SetPosition((int)center.X, (int)center.Y);
+                _prevMouseState = Mouse.GetState();
+            }
 
             var currentKeys = _currKeyboardState.GetPressedKeys();
             if (currentKeys.Length != 0)

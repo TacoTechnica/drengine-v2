@@ -71,6 +71,7 @@ namespace GameEngine
         public static void LogError(string log)
         {
             Console.Error.WriteLine(GetPrint(log, 0));
+            Console.Out.WriteLine(new StackTrace(true));
             OnLogError?.Invoke(log);
         }
 

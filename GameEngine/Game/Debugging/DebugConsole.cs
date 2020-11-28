@@ -1,5 +1,6 @@
 ﻿using System;
 using GameEngine.Game.Input;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -18,9 +19,9 @@ namespace GameEngine.Game.Debugging
         public Action OnOpened;
         public Action OnClosed;
 
-        public SpriteFont Font => _ui.Font;
+        public Font Font => _ui.Font;
 
-        public DebugConsole(GamePlus game, SpriteFont font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
+        public DebugConsole(GamePlus game, Font font, float outputHeight, InputActionButton openAction, InputActionButton closeAction, InputActionButton submitAction)
         {
             _game = game;
             _ui = (UIDebugConsole) new UIDebugConsole(game, font, outputHeight).AddToRoot(true);
