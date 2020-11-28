@@ -1,4 +1,5 @@
-﻿using GameEngine.Game;
+﻿using System;
+using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
@@ -18,7 +19,17 @@ namespace GameEngine.Test
 
         public TestGame() : base("Game Engine Test", "Content", true, new TestRichText())
         {
+            /*
             this.Window.AllowUserResizing = true;
+            _graphics.SynchronizeWithVerticalRetrace = true;
+            this.IsFixedTimeStep = false
+            */
+
+            IsFixedTimeStep = true;
+            TargetElapsedTime = TimeSpan.FromSeconds(1f / 120f);
+            //InactiveSleepTime = TimeSpan.Zero; // Didn't fix it.
+
+            //_graphics.SynchronizeWithVerticalRetrace = true;
         }
 
         #region Extra help with testing + simple background

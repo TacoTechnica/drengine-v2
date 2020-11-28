@@ -43,13 +43,13 @@ namespace GameEngine.Game
         private float _fpsAverageAccum = 0;
         private float _fpsMin = float.PositiveInfinity;
         private Timer _debugTimer = new Timer();
+        private Stopwatch _frameTimer = new Stopwatch();
+        private long _lastFrameInterval;
         private DateTime _lastDebugTime;
         private DebugControls _debugControls;
         private const string GLOBAL_DEBUG_COMMAND_NAMESPACE = "DREngine.Game.Debugging.CommandListGlobal";
 
         public DebugConsole DebugConsole;
-
-        public float DebugMaxFPS = 60;
 
         internal BasicEffect DebugEffect;
         public bool DebugDrawColliders = false;
@@ -111,23 +111,28 @@ namespace GameEngine.Game
             _runner = gameRunner;
             _debug = debug;
 
-            RawInput.SetGame(this);
+            IsFixedTimeStep = true;
+            TargetElapsedTime = TimeSpan.FromSeconds(1f / 60f);
 
             // MonoGame config
             _graphics = new GraphicsDeviceManager(this)
             {
                 // Add a depth stencil buffer
-                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
+                //PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
             };
+            _graphics.SynchronizeWithVerticalRetrace = false; //Vsync
             Content.RootDirectory = contentPath;
             IsMouseVisible = true;
             Window.Title = windowTitle;
+
+            RawInput.SetGame(this);
 
             SceneManager = new SceneManager(this);
             CollisionManager = new CollisionManager();
             UiScreen = new UIScreen(this);
 
             AudioOutput = new AudioOutput();
+
 
             // Debug config
             if (debug)
@@ -226,6 +231,8 @@ namespace GameEngine.Game
 
         protected override void Update(GameTime gameTime)
         {
+            long elapsed = _lastFrameInterval;
+
             // Update input First.
             RawInput.UpdateState();
 
@@ -245,10 +252,11 @@ namespace GameEngine.Game
             // If we're debugging, handle that right off the bat.
             if (_debug)
             {
-                if (UnscaledDeltaTime != 0)
+                if (elapsed != 0)
                 {
+                    float deltaSeconds = (float) elapsed / 1000f;
                     ++_debugFrameCounter;
-                    float currentFPS = 1f / UnscaledDeltaTime;
+                    float currentFPS = 1f / deltaSeconds;
                     _fpsAverageAccum += currentFPS;
                     if (currentFPS < _fpsMin)
                     {
@@ -315,12 +323,13 @@ namespace GameEngine.Game
 
             // We've finished the update frame.
             UpdateFinished.InvokeAll();
+
         }
 
         protected override void Draw(GameTime gameTime)
         {
             // Set Default Graphics
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             // Draw all render-able objects.
             SceneManager.GameRenderObjects.LoopThroughAll((obj) =>
@@ -340,8 +349,15 @@ namespace GameEngine.Game
             base.Draw(gameTime);
             _runner?.Draw();
 
+
             // Draw UI
             UiScreen.Draw();
+
+            _frameTimer.Stop();
+            _lastFrameInterval = _frameTimer.ElapsedMilliseconds;
+            //Debug.Log($"OOF: {_frameTimer.ElapsedMilliseconds}");
+            _frameTimer.Restart();
+
         }
 
         #endregion
@@ -370,7 +386,8 @@ namespace GameEngine.Game
             //if (second_difference == 0) return;
             //_currentFPS = (_debugFrameCounter / second_difference);
             if (_debugFrameCounter == 0) return;
-            _currentFPS = MathF.Min(_fpsAverageAccum / _debugFrameCounter, DebugMaxFPS);
+            float maxFPS = 1000f / TargetElapsedTime.Milliseconds;
+            _currentFPS = MathF.Min(_fpsAverageAccum / _debugFrameCounter, maxFPS);
             _fpsAverageAccum = 0;
             _debugFrameCounter = 0;
 
