@@ -1,21 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace GameEngine.Game.UI
 {
     public class UIText : UIComponent
     {
-        public string Text = "";
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                if (RichText)
+                {
+                    ParseRichText();
+                }
+            }
+        }
         public Font Font = null;
         public Color Color;
         public bool WordWrap = true;
 
-        public bool RichText = false;
+        private bool _richText = false;
+
+        public bool RichText
+        {
+            get => _richText;
+            set
+            {
+                if (!_richText)
+                {
+                    ParseRichText();
+                }
+                _richText = true;
+            }
+        }
 
         public TextHAlignMode TextHAlign = TextHAlignMode.Left;
         public TextVAlignMode TextVAlign = TextVAlignMode.Top;
@@ -28,10 +55,13 @@ namespace GameEngine.Game.UI
 
         public float CachedDrawnTextHeight { get; private set; }
 
+        private string _text = "";
+        private string _richTextNormalText = "";
         // Rich Text realtime state
         private bool _richTextBold = false;
         private bool _richTextItalics = false;
         private Color _richTextColor;
+        private Dictionary<int, RichTextTag> _tagMapIgnoreNewlines = new Dictionary<int, RichTextTag>();
 
         private SpriteFont SFont => Font.SpriteFont;
 
@@ -80,10 +110,10 @@ namespace GameEngine.Game.UI
             _cachedTargetRect = targetRect;
             screen.SpriteBatchBegin();
 
-            string text = Text;
+            string text = RichText? _richTextNormalText : Text;
             if (WordWrap)
             {
-                text = WrapText(SFont, Text, targetRect.Width, targetRect.Height);
+                text = WrapText(SFont, text, targetRect.Width, targetRect.Height);
             }
 
             TextMin = Vector2.Zero;
@@ -105,6 +135,7 @@ namespace GameEngine.Game.UI
 
                 }
                 float h = 0;
+                int indexCounter = 0;
                 foreach (string line in lines)
                 {
                     Vector2 offset = Vector2.Zero + Vector2.UnitY * h;
@@ -136,7 +167,8 @@ namespace GameEngine.Game.UI
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    DrawString(screen, SFont, line, targetRect.Min + offset);
+                    DrawString(screen, SFont, line, targetRect.Min + offset, indexCounter);
+                    indexCounter += line.Length;
                     h += size.Y;
                 }
 
@@ -160,21 +192,22 @@ namespace GameEngine.Game.UI
         }
 
         static readonly HashSet<char> DelimSet = new HashSet<char>(new []{' ', '\t', '\n', '\0'});
-        private static string WrapText(SpriteFont font, string text, float maxLineWidth, float maxLineHeight)
+        private string WrapText(SpriteFont font, string text, float maxLineWidth, float maxLineHeight)
         {
             int lastDelim = 0;
             bool lastDelimIsStart = true;
             int i = 0;
+            int originalStringCounter = 0;
             float widthAccum = 0;
 
             StringBuilder result = new StringBuilder(text.Length);
 
             text += '\0';
 
-            Debug.Log("$$$$$$$$$$$$$$$$");
-
             foreach (char c in text)
             {
+                ++originalStringCounter;
+
                 widthAccum += font.MeasureString(c.ToString()).X;
                 result.Append(c);
 
@@ -245,6 +278,8 @@ namespace GameEngine.Game.UI
                 ++i;
             }
 
+
+
             // Remove null at the end.
             result.Remove(result.Length - 1, 1);
 
@@ -272,14 +307,112 @@ namespace GameEngine.Game.UI
             return result.ToString();
         }
 
-        private void DrawString(UIScreen screen, SpriteFont font, string text, Vector2 pos)
+        private void ParseRichText()
+        {
+            bool noParse = false;
+
+            _richTextColor = Color;
+
+            StringBuilder result = new StringBuilder(_text.Length);
+
+            int index = 0;
+            int newlineCount = 0;
+
+            foreach (string segment in Regex.Split(_text, @"(<[^>]*>)"))
+            {
+                bool tag = segment.StartsWith("<") && segment.EndsWith(">");
+                if (tag)
+                {
+                    string inner = segment.Substring(1, segment.Length - 2);
+                    bool open = !inner.StartsWith("/");
+                    if (!open)
+                    {
+                        inner = inner.Substring(1);
+                    }
+
+                    RichTextTag newTag = null;
+                    //Debug.Log($"OUTER: \"{segment}\" INNER: \"{inner}\"");
+                    switch (inner)
+                    {
+                        case "b":
+                            newTag = new BoldTag(open);
+                            break;
+                        case "color":
+                            newTag = new ColorTag();
+                            break;
+                        default:
+                            // Check for custom color
+                            if (inner.StartsWith("#"))
+                            {
+                                newTag = new ColorTag(inner);
+                            }
+                            break;
+                    }
+
+                    // We have a new valid tag
+                    if (newTag != null)
+                    {
+                        _tagMapIgnoreNewlines[index - newlineCount] = newTag;
+                    }
+                    else
+                    {
+                        // Invalid, regular string.
+                        result.Append(segment);
+                        index += segment.Length;
+                        newlineCount += segment.Split('\n').Length - 1;
+                    }
+
+                }
+                else
+                {
+                    result.Append(segment);
+                    index += segment.Length;
+                    newlineCount += segment.Split('\n').Length - 1;
+                }
+            }
+
+            _richTextNormalText = result.ToString();
+        }
+
+        private void DrawString(UIScreen screen, SpriteFont font, string text, Vector2 pos, int indexOffset=0)
         {
             if (RichText)
             {
-                // TODO: Parse RichText. Store rich text properties into this items state.
+                Vector2 start = Vector2.Zero;
+                // TODO: richTextFont
+                int i = 0;
+                int newLines = 0;
+                foreach (char c in text)
+                {
+                    int tagIndex = i - newLines;
+                    bool isTag = _tagMapIgnoreNewlines.ContainsKey(tagIndex);
+                    if (isTag)
+                    {
+                        RichTextTag tag = _tagMapIgnoreNewlines[tagIndex];
+                        tag.Activate(this);
+                    }
+
+                    switch (c)
+                    {
+                        case '\n':
+                            start.Y += font.LineSpacing;
+                            start.X = 0;
+                            newLines += 1;
+                            break;
+                        case '\r':
+                            break;
+                        default:
+                            screen.SpriteBatch.DrawString(font, c.ToString(), pos + start, _richTextColor);
+                            start.X += font.MeasureString(c.ToString()).X;
+                            break;
+                    }
+
+                    ++i;
+                }
             } else {
                 screen.SpriteBatch.DrawString(font, text, pos, Color);
             }
+
         }
 
         public Vector2 GetSize(string text)
@@ -319,6 +452,71 @@ namespace GameEngine.Game.UI
             const int max = 40;
             string text = (Text.Length > max) ? Text.Substring(0, max) + "..." : Text;
             return base.ToString() + $" \"{text}\"";
+        }
+
+        abstract class RichTextTag
+        {
+            private bool _open;
+
+            public RichTextTag(bool open)
+            {
+                _open = open;
+            }
+
+            public void Activate(UIText parent)
+            {
+                Activate(parent, _open);
+            }
+            protected abstract void Activate(UIText parent, bool open);
+        }
+
+        class BoldTag : RichTextTag
+        {
+            public BoldTag(bool open) : base(open) { }
+            protected override void Activate(UIText parent, bool open)
+            {
+                if (open)
+                {
+                    parent._richTextColor = Color.Green;
+                }
+                else
+                {
+                    parent._richTextColor = parent.Color;
+                }
+            }
+
+
+        }
+
+        class ColorTag : RichTextTag
+        {
+            private Color _color;
+            public ColorTag(Color color) : base(true)
+            {
+                _color = color;
+            }
+
+            public ColorTag(string hex) : base(true)
+            {
+                var c = ColorTranslator.FromHtml(hex);
+                _color = new Color(c.R, c.G, c.B, c.A);
+            }
+
+            public ColorTag()  : base(false)
+            {
+            }
+            protected override void Activate(UIText parent, bool open)
+            {
+                if (open)
+                {
+                    parent._richTextColor = _color;
+                }
+                else
+                {
+                    parent._richTextColor = parent.Color;
+                }
+            }
+
         }
     }
 }
