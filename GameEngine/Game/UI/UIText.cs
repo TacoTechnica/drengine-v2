@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
@@ -157,51 +159,117 @@ namespace GameEngine.Game.UI
             screen.SpriteBatchEnd();
         }
 
-        private static string WrapText(SpriteFont font, string text, float maxLineWidth, float maxLineHeight=-1)
+        static readonly HashSet<char> DelimSet = new HashSet<char>(new []{' ', '\t', '\n', '\0'});
+        private static string WrapText(SpriteFont font, string text, float maxLineWidth, float maxLineHeight)
         {
-            string[] words = text.Split(' ');
-            StringBuilder sb = new StringBuilder();
-            float lineWidth = 0f;
-            float spaceWidth = font.MeasureString(" ").X;
+            int lastDelim = 0;
+            bool lastDelimIsStart = true;
+            int i = 0;
+            float widthAccum = 0;
 
-            foreach (string word in words)
+            StringBuilder result = new StringBuilder(text.Length);
+
+            text += '\0';
+
+            Debug.Log("$$$$$$$$$$$$$$$$");
+
+            foreach (char c in text)
             {
-                Vector2 size = font.MeasureString(word);
+                widthAccum += font.MeasureString(c.ToString()).X;
+                result.Append(c);
 
-                if (lineWidth + size.X < maxLineWidth)
+                bool delim = DelimSet.Contains(c);
+                bool over = widthAccum > maxLineWidth;
+
+                if (delim)
                 {
-                    sb.Append(word + " ");
-                    lineWidth += size.X + spaceWidth;
-                }
-                else
-                {
-                    if (size.X > maxLineWidth)
+                    int startB = lastDelim,
+                        lengthB = i - lastDelim;
+                    string subB = result.ToString().Substring(startB, lengthB);
+                    //Debug.Log($"SUB: {subB} : {over}");
+
+                    //bool isNull = c == '\0';
+                    if (over)
                     {
-                        if (word.Length > 1)
+                        // Split!
+                        if (lastDelimIsStart)
                         {
-                            if (sb.ToString() == "")
-                            {
-                                sb.Append(WrapText(font, word.Insert(word.Length / 2, " ") + " ", maxLineWidth));
-                            }
-                            else
-                            {
-                                sb.Append("\n" + WrapText(font, word.Insert(word.Length / 2, " ") + " ", maxLineWidth));
-                            }
+                            // Force split
+                            int start = lastDelim,
+                                length = i - lastDelim;
+                            string sub = result.ToString().Substring(start, length);
+                            //Debug.Log($"START SUB: {sub}");
+                            float lastWidth;
+                            // Newline should not be included at the start of the string.
+                            string subToReplace = (lastDelim != 0? "\n" : "") + GetWordSplitted(font, sub, maxLineWidth, out lastWidth);
+                            result.Remove(start, length);
+                            result.Insert(start, subToReplace);
+                            i += (subToReplace.Length - length) + 1;
+                            widthAccum = lastWidth;
+
+                            lastDelim = i - 1;
+                            lastDelimIsStart = true;
+                            continue;
                         }
                         else
                         {
-                            sb.Append(word + "\n");
+                            // Nice split
+                            result.Insert(lastDelim + 1, '\n');
+                            string sub = result.ToString().Substring(lastDelim + 2, i - lastDelim);
+                            //Debug.Log($"nice SUB: {sub}");
+                            widthAccum = font.MeasureString(sub).X;
+                            i += 2;
+                            lastDelim = i - 1;
+                            lastDelimIsStart = true;
+                            continue;
                         }
                     }
                     else
                     {
-                        sb.Append("\n" + word + " ");
-                        lineWidth = size.X + spaceWidth;
+                        if (c == '\n')
+                        {
+                            widthAccum = 0;
+                            lastDelimIsStart = true;
+                            lastDelim = i;
+                            ++i;
+                            continue;
+                        }
+                        else
+                        {
+                            lastDelimIsStart = false;
+                        }
                     }
+                    lastDelim = i;
                 }
+
+                ++i;
             }
 
-            return sb.ToString();
+            // Remove null at the end.
+            result.Remove(result.Length - 1, 1);
+
+            return result.ToString();
+        }
+
+        private static string GetWordSplitted(SpriteFont font, string text, float maxWidth, out float lastTextWidth)
+        {
+            float widthAccum = 0;
+            StringBuilder result = new StringBuilder(text.Length);
+            foreach (char c in text)
+            {
+                float cwidth = font.MeasureString(c.ToString()).X;
+                if (widthAccum + cwidth > maxWidth)
+                {
+                    result.Append('\n');
+                    widthAccum = 0;
+                }
+                widthAccum += cwidth;
+                result.Append(c);
+            }
+
+            lastTextWidth = widthAccum;
+
+            return result.ToString();
         }
 
         private void DrawString(UIScreen screen, SpriteFont font, string text, Vector2 pos)

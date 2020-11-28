@@ -16,7 +16,7 @@ namespace GameEngine.Test
 
         private Color BACKGROUND => Color.SlateBlue;
 
-        public TestGame() : base("Game Engine Test", "Content", true, new TestUIMask())
+        public TestGame() : base("Game Engine Test", "Content", true, new TestRichText())
         {
             this.Window.AllowUserResizing = true;
         }
