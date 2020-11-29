@@ -1,6 +1,7 @@
 ﻿using System;
 using DREngine.Game.Controls;
 using DREngine.Game.CoreScenes;
+using DREngine.Game.VN;
 using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Test;
@@ -27,6 +28,10 @@ namespace DREngine.Game
 
         public ProjectData GameProjectData = new ProjectData();
         public ProjectResources ProjectResources;
+
+        public VNRunner VNRunner;
+
+        public SaveState SaveState;
 
         #endregion
 
@@ -61,6 +66,10 @@ namespace DREngine.Game
             ProjectResources = new ProjectResources(this);
             ProjectResourceConverter.OnInitGame(this);
 
+            VNRunner = new VNRunner(this);
+
+            SaveState = new SaveState(this);
+
         }
 
         #region Public Access
@@ -70,7 +79,7 @@ namespace DREngine.Game
             try
             {
                 Debug.LogDebug($"Loading Project at {path}");
-                GameProjectData = ProjectData.ReadFromFile(GraphicsDevice, path);
+                GameProjectData = ProjectData.LoadFromFile(GraphicsDevice, path);
                 SceneManager.LoadScene(_projectMainMenuScene);
                 return true;
             }
@@ -129,6 +138,14 @@ namespace DREngine.Game
             {
                 Debug.LogDebug("Toggling Debug Collider Drawing");
                 DebugDrawColliders = !DebugDrawColliders;
+            }
+
+            if (RawInput.KeyPressed(Keys.NumPad0))
+            {
+                SaveState.Save(new ProjectPath(this, "TEST.save"));
+            } else if (RawInput.KeyPressed(Keys.NumPad1))
+            {
+                SaveState.Load(new ProjectPath(this, "TEST.save"));
             }
 
 

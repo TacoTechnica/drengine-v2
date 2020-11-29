@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.Game
 {
@@ -12,6 +13,7 @@ namespace GameEngine.Game
         protected GamePlus _game;
         private Action<GamePlus> _onLoad;
 
+        [JsonIgnore]
         public int UniqueId { get; private set; }
         public BaseSceneLoader(GamePlus game, string[] names, Action<GamePlus> onLoad = null)
         {

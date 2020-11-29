@@ -10,7 +10,7 @@ namespace GameEngine.Game.Audio
     {
         public AudioClipType Type { get; set; }
         public bool UsesSample { get; private set; } = true;
-        public string Path { get; set; }
+        public Path Path { get; set; }
 
         private AudioStorageBase _clip = null;
 
@@ -58,6 +58,12 @@ namespace GameEngine.Game.Audio
 
             Assert.IsNotNull(_clip);
             _clip.Load();
+            // TODO: Load Extra Data
+        }
+
+        public void Save(Path path)
+        {
+            // TODO: Save Extra Data
         }
 
         public void Unload(GamePlus game)

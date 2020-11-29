@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using GameEngine;
+using GameEngine.Game;
 using GameEngine.Game.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 using YamlDotNet.Core;
@@ -56,7 +57,7 @@ namespace DREngine
         /// <param name="fullLoad"> If false, it will NOT do any extra project loading. Use this for quick surface level project parsing. </param>
         /// <returns></returns>
         /// <exception cref="YamlException"></exception>
-        public static ProjectData ReadFromFile(GraphicsDevice g, Path fpath, bool fullLoad = true)
+        public static ProjectData LoadFromFile(GraphicsDevice g, Path fpath, bool fullLoad = true)
         {
             try
             {
@@ -106,12 +107,26 @@ namespace DREngine
         public void LoadDefaults(GraphicsDevice g)
         {
             //CallOnDeserializeOn(g, OverridableResources);
+            // TODO:
         }
 
-        public string GetFullProjectPath(string relative = "")
+        public string GetFullProjectPath(Path path = null)
         {
             string dir = System.IO.Path.GetDirectoryName(_fullProjectPath);
-            return System.IO.Path.Join(dir, relative);
+            string relativePath;
+            if (path is ProjectPath pp)
+            {
+                relativePath = pp.RelativePath;
+            } else if (path is EnginePath ep)
+            {
+                throw new NotImplementedException();
+                relativePath = ep.RelativePath;
+            }
+            else
+            {
+                relativePath = path;
+            }
+            return System.IO.Path.Join(dir, relativePath);
         }
 
         public string GetRelativeProjectPath(string fullPath)

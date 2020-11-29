@@ -23,7 +23,7 @@ namespace DREngine
         public DefaultResourcePath(string path) : base(path) { }
         public override string ToString()
         {
-            return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{DEFAULT_RESOURCE_FOLDER}/{_inputPath}";
+            return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{DEFAULT_RESOURCE_FOLDER}/{RelativePath}";
         }
     }
 

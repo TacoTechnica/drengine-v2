@@ -12,7 +12,7 @@ namespace DREngine.Game.CoreScenes
 
         public ProjectMainMenuScene(DRGame game) : base(game, SCENE_NAME)
         {
-            TestScene = new DRScene(game, "TestScene", new EnginePath("TEST_SCENE.scene"), false);
+            TestScene = new DRScene(game, "TestScene", new ProjectPath(game, "TEST_SCENE.scene"), false);
         }
 
         public override void LoadScene()

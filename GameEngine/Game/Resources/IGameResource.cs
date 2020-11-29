@@ -6,8 +6,9 @@ namespace GameEngine.Game
     /// </summary>
     public interface IGameResource
     {
-        string Path { get; set; }
+        Path Path { get; set; }
         void Load(GamePlus game);
+        void Save(Path path);
         void Unload(GamePlus game);
     }
 }

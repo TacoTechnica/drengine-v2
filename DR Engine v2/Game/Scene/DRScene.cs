@@ -1,6 +1,6 @@
-﻿// ReSharper disable InconsistentNaming
-using System;
+﻿using System;
 using System.Collections.Generic;
+using DREngine.Game.VN;
 using GameEngine;
 using GameEngine.Game;
 using Microsoft.Xna.Framework;
@@ -10,20 +10,20 @@ using Path = GameEngine.Game.Path;
 namespace DREngine.Game.Scene
 {
     [Serializable]
-    public class DRScene : BaseSceneLoader
+    public class DRScene : BaseSceneLoader, IGameResource, IDependentOnDRGame
     {
+
+        [JsonIgnore]
+        public Path Path { get; set; }
         public List<ISceneObject> Objects { get; set; } = new List<ISceneObject>();
 
         private bool _testFlag;
-
-        private Path _scenePath;
-
-        private DRGame _game;
+        public DRGame Game { get; set; }
 
         public DRScene(DRGame game, string name, Path scenePath, bool testFlag) : base(game, name)
         {
-            _game = game;
-            _scenePath = scenePath;
+            Game = game;
+            Path = scenePath;
             _testFlag = testFlag;
         }
 
@@ -35,45 +35,22 @@ namespace DREngine.Game.Scene
 
         public override void LoadScene()
         {
-            new FreeCamera3D(_game, Vector3.Zero, Quaternion.Identity);
-            if (_testFlag)
+            new FreeCamera3D(Game, Vector3.Zero, Quaternion.Identity);
+            TEST_DELETE_ME();
+            var copy = JsonHelper.LoadFromJson<DRScene>(Game, Path);
+            if (copy != null)
             {
-                Debug.Log("MAKING");
-
-                ProjectPath sprPath = new ProjectPath(_game, "icon.png");
-                Sprite spr = new Sprite(_game, sprPath);
-
-                // Save directly
-                Objects.Add(new Cube(_game,new Vector3(4, 2, 1), spr, new Vector3(1, 2, -3), Quaternion.Identity));
-                Objects.Add(new Cube(_game,new Vector3(2, 1, 2), spr, new Vector3(4, 4, -3), Quaternion.Identity));
-                Objects.Add(new Billboard(_game, new Vector3(6, 9, 0), Quaternion.Identity));
-                Objects.Add(new Billboard(_game, new Vector3(1, 7, 3), Quaternion.Identity));
-                Save();
+                Objects.Clear();
+                Objects.AddRange(copy.Objects);
             }
             else
             {
-                Debug.Log("LOADING & SAVING");
-                string text = IO.ReadTextFile(_scenePath);
-                // Load & then save directly
-                //SceneObjectJsonConverter.InitConversion((DRGame)_game);
-                ISceneObject.CurrentGame = _game;
-                var copy = JsonConvert.DeserializeObject<DRScene>(text, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
-                if (copy != null)
-                {
-                    Objects.Clear();
-                    Objects.AddRange(copy.Objects);
-                    Save();
-                }
-                else
-                {
-                    Debug.LogError($"Invalid JSON file to read scene from: {_scenePath}. Please check to make sure the json at this path is a valid scene!");
-                }
+                Debug.LogError($"Invalid JSON file to read scene from: {Path}. Please check to make sure the json at this path is a valid scene!");
             }
         }
 
-        private void Save()
+        public void Save(Path path)
         {
-
             /*
             using (StreamWriter writer = File.CreateText(_scenePath))
             {
@@ -83,13 +60,41 @@ namespace DREngine.Game.Scene
             */
             //SceneObjectJsonConverter.InitConversion((DRGame)_game);
             //IO.WriteTextFile(_scenePath, JsonConvert.SerializeObject(this, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto}));
-            ISceneObject.CurrentGame = _game;
-            IO.WriteTextFile(_scenePath, JsonConvert.SerializeObject(this, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented}));
+            JsonHelper.SaveToJson(this, path);
             /* No custom conversion
             string jsonString = JsonSerializer.Serialize(this);
             IO.WriteTextFile(_scenePath, jsonString);
             */
-            Debug.LogDebug($"Saved scene to {_scenePath}");
+            Debug.LogDebug($"Saved scene to {path}");
+        }
+
+        public void Load(GamePlus game)
+        {
+            // Nothing really. File reading happens later.
+            Game = (DRGame)game;
+        }
+
+        public void Unload(GamePlus game)
+        {
+            // Nothing.
+            Objects.Clear();
+        }
+
+        public void TEST_DELETE_ME()
+        {
+            VNScript script = new VNScript(Game);
+
+            script.Commands = new List<VNCommand>(new VNCommand[]
+            {
+                new LabelCommand() {Label = "STARTO"},
+                new PrintCommand() {Text = "poopity scoop"},
+                new PrintCommand() {Text = "scoopity poop"},
+                new LabelCommand() {Label = "ENDO"}
+            });
+
+            Game.VNRunner.State.CurrentScript = script;
+
+            script.Save(new ProjectPath(Game, "TEST_SCRIPT.vn"));
         }
     }
 }

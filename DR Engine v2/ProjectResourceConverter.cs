@@ -16,7 +16,7 @@ namespace DREngine
 
         public const string RESOURCE_PATH_PREFIX = "DRPROJECT://";
         public const string DEFAULT_RESOURCE_PATH_PREFIX = "DEFAULT://";
-        public const string INVALID_PATH_SIGNIFIER = "###INVALID###";
+        public const string INVALID_PATH_SIGNIFIER = "###INVALID###://";
         public const string NULL_PATH_SIGNIFIER = "(empty)";
 
         public static void OnInitGame(DRGame game)
@@ -56,7 +56,10 @@ namespace DREngine
                 }
                 catch (InvalidArgumentsException e)
                 {
-                    storedPath = INVALID_PATH_SIGNIFIER;
+                    // Get path relative to program path, so we have something to work with.
+                    string dir = Program.RootDirectory;
+                    string relativeProgramPath = System.IO.Path.GetRelativePath(dir, value.Path);
+                    storedPath = $"{INVALID_PATH_SIGNIFIER}{relativeProgramPath}";
                 }
             }
 
@@ -69,13 +72,13 @@ namespace DREngine
             string data = (string)reader.Value;
             //Debug.Log($"!!!!!!!!!!!!!!READING RESOURCE: {data}");
 
-            if (data == NULL_PATH_SIGNIFIER)
+            if (data == NULL_PATH_SIGNIFIER || data == null)
             {
                 // Intentionally empty path
                 return null;
             }
 
-            if (data == INVALID_PATH_SIGNIFIER)
+            if (data.StartsWith(INVALID_PATH_SIGNIFIER))
             {
                 // Bad path
                 return null;

@@ -12,7 +12,7 @@ namespace DREngine
         }
         public override string ToString()
         {
-            return _game.GameProjectData.GetFullProjectPath(_inputPath);
+            return _game.GameProjectData.GetFullProjectPath(RelativePath);
         }
     }
 }

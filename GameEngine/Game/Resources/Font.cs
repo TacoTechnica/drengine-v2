@@ -7,13 +7,13 @@ namespace GameEngine.Game.Resources
 {
     public class Font : IGameResource
     {
-        public string Path { get; set; }
+        public Path Path { get; set; }
         public int Size;
 
         [JsonIgnore]
         public SpriteFont SpriteFont;
 
-        public Font(GamePlus game, string path, int size)
+        public Font(GamePlus game, Path path, int size)
         {
             Path = path;
             Size = size;
@@ -28,6 +28,7 @@ namespace GameEngine.Game.Resources
 
         public void Load(GamePlus game)
         {
+            // TODO: Load extra data
             var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(Path),
                 Size,
                 1024,
@@ -42,6 +43,12 @@ namespace GameEngine.Game.Resources
             );
 
             SpriteFont = fontBakeResult.CreateSpriteFont(game.GraphicsDevice);
+        }
+
+        public void Save(Path path)
+        {
+            Path = path;
+            // TODO: Save extra data
         }
 
         public void Unload(GamePlus game)

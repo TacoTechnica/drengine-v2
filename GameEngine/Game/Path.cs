@@ -16,10 +16,10 @@ namespace GameEngine.Game
     /// </summary>
     public class Path
     {
-        protected string _inputPath;
+        public string RelativePath;
         public Path(string path)
         {
-            _inputPath = path.Replace('\\', '/');
+            RelativePath = path.Replace('\\', '/');
         }
 
         // Makes it so that we can use gamepaths instead of strings. Very handy.
@@ -35,7 +35,7 @@ namespace GameEngine.Game
 
         public override string ToString()
         {
-            return _inputPath;
+            return RelativePath;
         }
     }
 
@@ -45,7 +45,7 @@ namespace GameEngine.Game
 
         public override string ToString()
         {
-            return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{_inputPath}";
+            return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{RelativePath}";
         }
     }
 }

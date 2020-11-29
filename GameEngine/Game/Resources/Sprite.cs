@@ -31,7 +31,7 @@ namespace GameEngine.Game
         public readonly float Scale;
         private GamePlus _game;
 
-        public string Path { get; set; }
+        public Path Path { get; set; }
 
         public float Width => Texture.Width;
         public float Height => Texture.Height;
@@ -77,6 +77,13 @@ namespace GameEngine.Game
             _game = game;
             Texture = Texture2D.FromFile(game.GraphicsDevice, Path);
             Loaded = true;
+            // TODO: Load extra data
+        }
+
+        public void Save(Path path)
+        {
+            Path = path;
+            // TODO: Save extra data
         }
 
         public void Unload(GamePlus game)

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace DREngine.Game.Scene
 {
     //[Serializable]
-    public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject
+    public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnDRGame
     {
         public string Type { get; set; } = "Cube";
 
@@ -115,8 +115,12 @@ namespace DREngine.Game.Scene
             }
         }
 
-        public Cube(GamePlus game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game, position, rotation)
+        [JsonIgnore]
+        public DRGame Game { get; set; }
+
+        public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game, position, rotation)
         {
+            Game = game;
             PrimitiveType = PrimitiveType.TriangleList;
             Blend = Color.White;
             Size = size;
@@ -124,7 +128,7 @@ namespace DREngine.Game.Scene
         }
 
         // Required Empty constructor for deserializing
-        public Cube() : this(ISceneObject.CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity) {}
+        public Cube() : this(IDependentOnDRGame.CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity) {}
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
