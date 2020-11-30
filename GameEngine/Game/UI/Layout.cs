@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Reflection;
-using Pango;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameEngine.Game.UI

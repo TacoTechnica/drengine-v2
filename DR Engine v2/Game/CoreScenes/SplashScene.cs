@@ -67,7 +67,7 @@ namespace DREngine.Game.CoreScenes
                     // We have a project
                     try
                     {
-                        ProjectData dat = ProjectData.LoadFromFile(_game.GraphicsDevice, projectPath, false);
+                        ProjectData dat = ProjectData.LoadFromFile(projectPath, false);
 
                         string projectName = dat.Name;
                         string projectAuthor = dat.Author;

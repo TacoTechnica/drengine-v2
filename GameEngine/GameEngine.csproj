@@ -23,7 +23,6 @@
         <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="GtkSharp" Version="3.22.25.128" />
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
         <PackageReference Include="NDesk.Options" Version="0.2.1" />

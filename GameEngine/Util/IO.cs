@@ -1,6 +1,4 @@
-﻿using Gtk;
-
-namespace GameEngine
+﻿namespace GameEngine.Util
 {
     public static class IO
     {

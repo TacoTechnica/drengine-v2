@@ -1,10 +1,11 @@
 using System;
-using System.Runtime.Loader;
-using DREngine.Editor;
 using GameEngine;
+using GameEngine.Game;
 using Gtk;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace DREngine
+namespace DREngine.Editor
 {
     public class DREditor : IDisposable
     {
@@ -14,14 +15,21 @@ namespace DREngine
         // TODO: Make this set to nothing or a custom/licensed theme.
         private const string STARTING_THEME = "themes/Material-Black-Lime/gtk-3.0/gtk.css";
 
+        public ProjectData ProjectData;
+        private string _projectPath;
+
+        public DRProjectRunner ProjectRunner;
+
         // Poo poo singleton
         public static DREditor Instance = null;
 
         public DREditor()
         {
             // Poo poo singleton
-            if (Instance == null) Debug.LogError("Editor already initialized! Will see problems.");
+            if (Instance != null) Debug.LogError("Editor already initialized! Will see problems.");
             Instance = this;
+
+            ProjectRunner = new DRProjectRunner();
         }
         ~DREditor() {
             Dispose(false);
@@ -29,31 +37,64 @@ namespace DREngine
 
         public void Run()
         {
+            Debug.LogDebug("Editor Run()");
             GLib.ExceptionManager.UnhandledException += OnHandleExceptionEvent;
-            Initialize();
-        }
-
-        private void Initialize() {
-            Debug.LogDebug("Editor Initialize()");
-
             // Init app
             Application.Init();
 
             Window = new DREditorMainWindow();
-            Window.MakeWindow("DREditor InDev", 640, 480);
+            Window.MakeWindow("DR Editor", 640, 480);
             Window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
             Window.Show();
             Window.DeleteEvent += WindowOnDeleteEvent;
 
-            if (STARTING_THEME != null && STARTING_THEME != "")
+
+            if (!string.IsNullOrEmpty(STARTING_THEME))
             {
                 Window.SetTheme(STARTING_THEME);
             }
-
-            SubWindow test = new SubWindow("Test window");
-            test.ShowAll();
-
+            Initialize();
             Application.Run();
+        }
+
+        public void RunCurrentProject()
+        {
+            if (ProjectData == null)
+            {
+                Window.AlertProblem("No project is loaded, will not run anything.");
+            }
+            else
+            {
+                ProjectRunner.RunProject(_projectPath);
+            }
+        }
+
+        public void EmptyProject()
+        {
+            Debug.LogDebug("Loading empty project");
+            ProjectData = null;
+            _projectPath = "";
+            Window.EmptyProject();
+        }
+
+        public void LoadProject(string fullPath)
+        {
+            ProjectData = ProjectData.LoadFromFile(fullPath);
+            if (ProjectData != null)
+            {
+                _projectPath = fullPath;
+                Window.LoadProject(ProjectData, fullPath);
+                Window.Title = $"DREditor {Program.Version}: {ProjectData.Name}";
+            }
+        }
+
+        private void Initialize() {
+
+            EmptyProject();
+            LoadProject(new EnginePath("projects/test_project"));
+
+            SubWindow test = new SubWindow(this, "Test window");
+            test.ShowAll();
         }
 
         private void OnHandleExceptionEvent(GLib.UnhandledExceptionArgs args)
@@ -97,7 +138,12 @@ namespace DREngine
                 output.Editable = false;
                 output.Monospace = true;
                 output.CursorVisible = false;
-                output.Buffer.Text = $"Message: {e.Message}\n\nStacktrace:\n{e.StackTrace}";
+                string message = $"Message: {e.Message}\n\nStacktrace:\n{e.StackTrace}";
+                TextTag errTag = new TextTag("error");
+                errTag.Foreground = "#FF3311";
+                output.Buffer.TagTable.Add(errTag);
+                TextIter start = output.Buffer.EndIter;
+                output.Buffer.InsertWithTags(ref start, message, errTag);
                 output.Margin = 10;
                 output.Show();
                 b.Add(output);
@@ -129,7 +175,7 @@ namespace DREngine
             Dispose();
         }
 
-#region Resource Management
+#region Disposable
 
         public void Dispose() {
             Dispose(true);

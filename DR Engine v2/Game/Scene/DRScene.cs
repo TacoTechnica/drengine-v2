@@ -36,7 +36,7 @@ namespace DREngine.Game.Scene
         public override void LoadScene()
         {
             new FreeCamera3D(Game, Vector3.Zero, Quaternion.Identity);
-            TEST_DELETE_ME();
+            //TEST_DELETE_ME();
             var copy = JsonHelper.LoadFromJson<DRScene>(Game, Path);
             if (copy != null)
             {

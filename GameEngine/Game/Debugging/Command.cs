@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 
 namespace GameEngine.Game.Debugging
 {
@@ -384,7 +385,7 @@ namespace GameEngine.Game.Debugging
 
         protected void LogError(object message)
         {
-            DebugConsole.PrintErrorToOutput(message.ToString());
+            DebugConsole.PrintErrorToOutput(message.ToString(), new StackTrace(1, true).ToString());
         }
 
         protected abstract void Call(GamePlus game, ArgParser parser);

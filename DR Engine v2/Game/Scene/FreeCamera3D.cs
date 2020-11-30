@@ -16,6 +16,8 @@ namespace DREngine.Game.Scene
         public float MoveAcceleration = 30f;
         public float MoveDamping = 10f;
 
+        private bool _focused = false;
+
         public FreeCamera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation, fov)
         {
             _controls = new CamControls(game);
@@ -24,15 +26,38 @@ namespace DREngine.Game.Scene
             _controls.UnFocus.Pressed += OnUnfocus;
 
             _targetLook = rotation;
+
+            if (game.DebugConsole != null)
+            {
+                game.DebugConsole.OnOpened += OnDebugOpened;
+                game.DebugConsole.OnClosed += OnDebugClosed;
+            }
+        }
+
+
+        private void OnDebugOpened()
+        {
+            RawInput.SetMouseLock(false);
+            _controls.Enabled = false;
+        }
+        private void OnDebugClosed()
+        {
+            if (_focused)
+            {
+                RawInput.SetMouseLock(true);
+            }
+            _controls.Enabled = true;
         }
 
         private void OnUnfocus(InputActionButton obj)
         {
+            _focused = false;
             RawInput.SetMouseLock(false);
         }
 
         private void OnFocus(InputActionButton obj)
         {
+            _focused = true;
             RawInput.SetMouseLock(true);
         }
 
@@ -46,7 +71,7 @@ namespace DREngine.Game.Scene
         void HandleLook(float dt)
         {
             // Only move if we're locked with the mouse. Otherwise we might be doing other things.
-            if (RawInput.IsMouseLocked())
+            if (_focused && _controls.Enabled)
             {
                 Vector2 input = _controls.MouseLook.Value;
                 Vector3 targetEuler = Math.ToEuler(_targetLook);
@@ -64,11 +89,16 @@ namespace DREngine.Game.Scene
 
         void HandleMove(float dt)
         {
-            Vector3 input = Vector3.Forward * _controls.ForwardBack.Value
-                            + Vector3.Right * _controls.RightLeft.Value
-                            + Vector3.Up * _controls.UpDown.Value;
-            input = Math.RotateVector(input, Rotation);
-            _velocity += input * (MoveAcceleration * dt);
+            if (_focused && _controls.Enabled)
+            {
+
+                Vector3 input = Vector3.Forward * _controls.ForwardBack.Value
+                                + Vector3.Right * _controls.RightLeft.Value
+                                + Vector3.Up * _controls.UpDown.Value;
+                input = Math.RotateVector(input, Rotation);
+                _velocity += input * (MoveAcceleration * dt);
+            }
+
             _velocity -= _velocity * (MoveDamping * dt);
             Position += _velocity * dt;
         }

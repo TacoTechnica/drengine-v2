@@ -6,6 +6,7 @@ using System.Reflection;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Debugging;
+using GameEngine.Util;
 using Microsoft.Xna.Framework.Graphics;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
@@ -57,7 +58,7 @@ namespace DREngine
         /// <param name="fullLoad"> If false, it will NOT do any extra project loading. Use this for quick surface level project parsing. </param>
         /// <returns></returns>
         /// <exception cref="YamlException"></exception>
-        public static ProjectData LoadFromFile(GraphicsDevice g, Path fpath, bool fullLoad = true)
+        public static ProjectData LoadFromFile(Path fpath, bool fullLoad = true)
         {
             try
             {
@@ -83,7 +84,7 @@ namespace DREngine
                 result._fullProjectPath = fpath;
                 if (fullLoad)
                 {
-                    result.LoadDefaults(g);
+                    result.LoadDefaults();
                 }
 
                 return result;
@@ -104,7 +105,7 @@ namespace DREngine
             serializer.Serialize(writer, data);
         }
 
-        public void LoadDefaults(GraphicsDevice g)
+        public void LoadDefaults()
         {
             //CallOnDeserializeOn(g, OverridableResources);
             // TODO:

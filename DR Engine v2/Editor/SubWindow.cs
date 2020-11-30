@@ -6,12 +6,12 @@ namespace DREngine.Editor
 {
     public class SubWindow : Gtk.Window
     {
-        public SubWindow(string title="") : base(WindowType.Toplevel)
+        public SubWindow(DREditor editor, string title="") : base(WindowType.Toplevel)
         {
             //Parent = DREditor.Instance.Window;
             if (title != "") Title = title;
             this.Decorated = true;
-            this.AttachedTo = DREditor.Instance.Window;
+            this.AttachedTo = editor.Window;
             //this.TypeHint = WindowTypeHint.Dialog;
             this.TypeHint = WindowTypeHint.Dialog;
             this.SkipTaskbarHint = true;

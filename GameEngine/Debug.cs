@@ -12,8 +12,10 @@ namespace GameEngine
         public static bool ShortenPath = true;
         public static int padding = 20;
 
-        public static Action<string> OnLog;
-        public static Action<string> OnLogError;
+        public static Action<string> OnLogPrint;
+        public static Action<string> OnLogDebug;
+        public static Action<string, string> OnLogError;
+        public static Action<string> OnLogWarning;
 
         private static string RootDirectory = "";
 
@@ -35,14 +37,18 @@ namespace GameEngine
             {
                 StackTrace strace = new StackTrace(2 + traceOffs, true);
                 StackFrame sf = strace.GetFrame(0);
-                string path = sf.GetFileName().Substring(RootDirectory.Length + 1).Replace('\\', '/');
-                if (ShortenPath)
+                if (sf != null && sf.GetFileName() != null)
                 {
-                    path = string.Join("/", GetShortenedStackPath(path.Split("/")));
-                }
+                    string path = sf.GetFileName().Substring(RootDirectory.Length + 1).Replace('\\', '/');
+                    if (ShortenPath)
+                    {
+                        path = string.Join("/", GetShortenedStackPath(path.Split("/")));
+                    }
 
-                path = $"{path}:{sf.GetFileLineNumber()}";
-                return $"{path.PadRight(padding)} {log}";
+                    path = $"{path}:{sf.GetFileLineNumber()}";
+                    return $"{path.PadRight(padding)} {log}";
+                }
+                return $"??:{log}";
             }
             return log;
         }
@@ -60,19 +66,27 @@ namespace GameEngine
         public static void LogDebug(string log)
         {
             if (PrintDebug) Console.WriteLine($"***({log})***");
+            OnLogDebug?.Invoke(log);
         }
 
         public static void Log(string log)
         {
             LogSilent(log, 1);
-            OnLog?.Invoke(log);
+            OnLogPrint?.Invoke(log);
         }
 
         public static void LogError(string log)
         {
-            Console.Error.WriteLine(GetPrint(log, 0));
-            Console.Out.WriteLine(new StackTrace(true));
-            OnLogError?.Invoke(log);
+            Console.Error.WriteLine(GetPrint(log, 1));
+            string stack = new StackTrace(1, true).ToString();
+            Console.Out.WriteLine(stack);
+            OnLogError?.Invoke(log, stack);
+        }
+
+        public static void LogWarning(string log)
+        {
+            Console.Error.WriteLine(GetPrint(log, 1));
+            OnLogWarning?.Invoke(log);
         }
 
         /// <summary>
@@ -82,5 +96,7 @@ namespace GameEngine
         {
             Console.WriteLine(GetPrint(log, offs));
         }
+
+
     }
 }

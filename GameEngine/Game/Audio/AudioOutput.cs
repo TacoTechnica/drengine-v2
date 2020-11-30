@@ -24,7 +24,11 @@ namespace GameEngine.Game.Audio
         {
             if (!Bass.Init(-1, sampleRate, DeviceInitFlags.Default))
             {
-                throw new InvalidProgramException($"ManagedBass Audio lib failed to initialize! Error: {Bass.LastError.ToString()}");
+                if (Bass.LastError != Errors.Already)
+                {
+                    throw new InvalidProgramException(
+                        $"ManagedBass Audio lib failed to initialize! Error: {Bass.LastError.ToString()}");
+                }
             }
 
             Initialized = true;
@@ -35,7 +39,7 @@ namespace GameEngine.Game.Audio
 
         ~AudioOutput()
         {
-            if (Initialized) Bass.Free();
+            Dispose();
         }
 
         public void AddMixer(AudioMixer mixer)
@@ -45,7 +49,7 @@ namespace GameEngine.Game.Audio
 
         public void Dispose()
         {
-            //outputDevice.Dispose();
+            if (Initialized) Bass.Free();
         }
     }
 }

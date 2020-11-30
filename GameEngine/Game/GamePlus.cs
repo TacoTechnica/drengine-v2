@@ -12,7 +12,6 @@ using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using GameEngine.Util;
-using Gdk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -358,6 +357,12 @@ namespace GameEngine.Game
             //Debug.Log($"OOF: {_frameTimer.ElapsedMilliseconds}");
             _frameTimer.Restart();
 
+        }
+
+        protected override void EndRun()
+        {
+            base.EndRun();
+            _debugTimer.Stop();
         }
 
         #endregion

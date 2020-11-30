@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using GameEngine.Game.Input;
-using Action = Gtk.Action;
 
 namespace GameEngine.Game.UI
 {

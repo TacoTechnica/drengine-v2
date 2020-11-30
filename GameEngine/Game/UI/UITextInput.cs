@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using GameEngine.Game.Resources;
-using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TextCopy;

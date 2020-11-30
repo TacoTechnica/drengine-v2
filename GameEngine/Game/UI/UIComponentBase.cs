@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using GameEngine.Game.Input;
 using GameEngine.Game.Tween;
-using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

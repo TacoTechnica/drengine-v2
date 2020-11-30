@@ -1,12 +1,23 @@
 ﻿using System;
 using GameEngine;
+using Gdk;
+using GLib;
 using Gtk;
 using MonoGame.Framework.Utilities.Deflate;
+using Action = System.Action;
+using MenuItem = Gtk.MenuItem;
+using WindowType = Gtk.WindowType;
 
 namespace DREngine.Editor
 {
     public class DREditorMainWindow : Gtk.Window
     {
+
+        private ResourceView _resourceView;
+        private EditorLog _log;
+
+        public Icons Icons;
+
 
         public DREditorMainWindow() : base(WindowType.Toplevel)
         {
@@ -17,6 +28,11 @@ namespace DREngine.Editor
 
         public void MakeWindow(string title, int width, int height)
         {
+
+            _log = new EditorLog();
+            Icons = new Icons();
+
+
             Title = title;
             Resize(width, height);
             this.Maximize();
@@ -30,12 +46,20 @@ namespace DREngine.Editor
             vertPane.WideHandle = true; // Separate left and right side
             vertPane.Position = 256; // How wide the left side starts
 
-            Widget resourceViewer = MakeResourceViewer();
-            Widget contentView = MakeContentView();
-            vertPane.Pack1(resourceViewer, false, false);
-            resourceViewer.Show();
-            vertPane.Pack2(contentView, true, false);
-            contentView.Show();
+            _resourceView = new ResourceView();
+            HookupLog(_log);
+            VPaned rightSide = new VPaned();
+            rightSide.WideHandle = true;
+            Widget emptyBox = new VBox();
+            rightSide.Pack1(emptyBox, false, false);
+            emptyBox.Show();
+            rightSide.Pack2(_log, true, false);
+            _log.Show();
+            //rightSide.Position = 256;
+            vertPane.Pack1(_resourceView, false, false);
+            _resourceView.Show();
+            vertPane.Pack2(rightSide, true, false);
+            rightSide.Show();
 
             mainBox.PackStart(menuBar, false, true, 4);
             menuBar.Show();
@@ -47,6 +71,38 @@ namespace DREngine.Editor
             mainBox.Show();
 
             Add(mainBox);
+
+        }
+
+        private void HookupLog(EditorLog log)
+        {
+            Debug.OnLogDebug += log.PrintDebug;
+            Debug.OnLogPrint += log.Print;
+            Debug.OnLogWarning += log.PrintWarning;
+            Debug.OnLogError += (message, trace) =>
+            {
+                log.PrintError($"{message}\n{trace}");
+            };
+            Debug.LogDebug("Editor Log Initialized");
+        }
+
+        public void EmptyProject()
+        {
+            _resourceView.Clear();
+        }
+        public void LoadProject(ProjectData data, string fullPath)
+        {
+            _resourceView.Clear();
+            _resourceView.LoadDirectory(fullPath,
+                dir =>
+                {
+                    // We don't really care about directories, do we?
+                },
+                file =>
+                {
+                    // PARSE FILE
+                }
+            );
         }
 
         /// <summary>
@@ -57,14 +113,14 @@ namespace DREngine.Editor
             bool failed = false;
             try
             {
-                Gtk.CssProvider css_provider = new Gtk.CssProvider();
-                if (!css_provider.LoadFromPath(path))
+                Gtk.CssProvider cssProvider = new Gtk.CssProvider();
+                if (!cssProvider.LoadFromPath(path))
                 {
                     failed = true;
                 }
                 else
                 {
-                    Gtk.StyleContext.AddProviderForScreen(Gdk.Screen.Default, css_provider, 800);
+                    Gtk.StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
                 }
             }
             catch (GLib.GException)
@@ -79,7 +135,7 @@ namespace DREngine.Editor
 
         public void AlertProblem(string title, string message)
         {
-            Debug.LogError($"Problem: {message}");
+            Debug.LogWarning($"Problem: {message}");
             MessageDialog popup = new MessageDialog(
                 this,
                 DialogFlags.Modal,
@@ -89,11 +145,9 @@ namespace DREngine.Editor
             );
             popup.Title = title;
             popup.WindowPosition = WindowPosition.Center;
-            popup.ButtonReleaseEvent += (o, args) =>
-            {
-                popup.Dispose();
-            };
             popup.Show();
+            int response = popup.Run();
+            popup.Dispose();
         }
 
         public void AlertProblem(string message)
@@ -128,80 +182,69 @@ namespace DREngine.Editor
 
             // Make the action buttons
             // TODO: Standardize so we don't have to manually do this.
-            Button file = new Button();
-            file.Label = "F";
-            Button open = new Button();
-            open.Label = "O";
-            Button save = new Button();
-            save.Label = "S";
-            Separator s = new HSeparator();
-            Button export = new Button();
-            export.Label = "E";
-            b.PackStart(file, false, false, 0);
-            file.Show();
+            Button newProj = NewButton("New Empty Project", Icons.New, NewProjectPressed);
+            Button open = NewButton("Open Project", Icons.Open, OpenProjectPressed);
+            Separator s1 = new HSeparator();
+            Button export = NewButton("Export Project", Icons.Export, ExportProjectPressed);
+            Separator s2 = new HSeparator();
+            Button run = new RunProjectButton();//NewButton("Run Project", Icons.Play, RunProjectPressed);
+            s2.Hexpand = true;
+            b.PackStart(newProj, false, false, 0);
+            newProj.Show();
             b.PackStart(open, false, false, 0);
             open.Show();
-            b.PackStart(save, false, false, 0);
-            save.Show();
-            b.PackStart(s, false, false, 10);
-            s.Show();
+            b.PackStart(s1, false, false, 10);
+            s1.Show();
             b.PackStart(export, false, false, 0);
             export.Show();
+            b.PackStart(s2, false, false, 10);
+            s2.Show();
+            b.PackStart(run, false, false, 0);
+            run.Show();
 
             return b;
         }
 
-        /// <summary>
-        ///    Contains the resource tree.
-        /// </summary>
-        private Widget MakeResourceViewer()
+        private void NewProjectPressed()
         {
-            Box b = new VBox();
-            TreeView tree = new TreeView
-            {
-                //EnableSearch = true,
-                //HeadersClickable = false,
-                //HeadersVisible = false
-            };
+            DREditor.Instance.EmptyProject();
+        }
 
-            // Set up generic tree stuff
-            TreeViewColumn fileName = new TreeViewColumn {Title = "filename", Visible = true};
-            CellRendererText fileNameCell = new Gtk.CellRendererText ();
-            fileName.PackStart(fileNameCell, false);
-            tree.AppendColumn(fileName);
-            fileName.AddAttribute(fileNameCell, "text", 0);
-
-            TreeStore store = new TreeStore(typeof(string));
-
-            // TODO: Standardize into functions and turn into a more defined class.
-            TreeIter iter = store.AppendValues("Rooms");
-            store.AppendValues(iter, "floor0.room");
-            store.AppendValues(iter, "my_room.room");
-            store.AppendValues(iter, "trial.room");
-
-            iter = store.AppendValues("Characters");
-            store.AppendValues(iter, "billy");
-            store.AppendValues(iter, "you");
-
-            iter = store.AppendValues("Sprites");
-            store.AppendValues(iter, "billy_sad");
-            store.AppendValues(iter, "billy_happy");
-            TreeIter nagitoSub = store.AppendValues(iter, "nagito");
-            store.AppendValues(nagitoSub, "nagito1");
-            store.AppendValues(nagitoSub, "nagito2");
-            store.AppendValues(iter, "obama");
-
-            tree.Model = store;
-
-            Label bottom = new Label() {Text = "TODO: Add search here"};
-
-            b.PackStart(tree, true, true, 4);
-            tree.Show();
-            //b.PackEnd(bottom, false, false, 4);
-            //bottom.Show();
-            return b;
+        private void OpenProjectPressed()
+        {
 
         }
+
+        private void ExportProjectPressed()
+        {
+            AlertProblem("This feature is not implemented yet. Sorry!");
+        }
+
+        private void RunProjectPressed()
+        {
+            AlertProblem("This feature is not implemented yet. Sorry!");
+        }
+
+        private Button NewButton(string name, Pixbuf icon, Action OnPress = null)
+        {
+            Button result = new Button();
+            result.TooltipText = name;
+
+            result.Pressed += (sender, args) =>
+            {
+                OnPress?.Invoke();
+            };
+            //file.Label = "F";
+            if (icon == null)
+            {
+                result.Label = name;
+            } else {
+                result.Image = new Image(icon);
+            }
+
+            return result;
+        }
+
 
         /// <summary>
         ///    Contains the content windows.

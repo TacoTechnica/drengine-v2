@@ -1,5 +1,4 @@
 ﻿using System;
-using Gtk;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI

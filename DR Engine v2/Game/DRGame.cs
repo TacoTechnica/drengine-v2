@@ -33,6 +33,8 @@ namespace DREngine.Game
 
         public SaveState SaveState;
 
+        public Action OnPostUpdate;
+
         #endregion
 
         #region Util variables
@@ -79,7 +81,7 @@ namespace DREngine.Game
             try
             {
                 Debug.LogDebug($"Loading Project at {path}");
-                GameProjectData = ProjectData.LoadFromFile(GraphicsDevice, path);
+                GameProjectData = ProjectData.LoadFromFile(path);
                 SceneManager.LoadScene(_projectMainMenuScene);
                 return true;
             }
@@ -99,7 +101,7 @@ namespace DREngine.Game
             // Init data that should be available at the start.
             base.Initialize();
 
-            GameProjectData.LoadDefaults(GraphicsDevice);
+            GameProjectData.LoadDefaults();
 
             Debug.LogDebug("DRGame Initialize()");
             if (_projectPath != null && LoadProject(_projectPath))
@@ -151,6 +153,8 @@ namespace DREngine.Game
 
             // Update
             base.Update(gameTime);
+
+            OnPostUpdate?.Invoke();
         }
 
         protected override void Draw(GameTime gameTime)

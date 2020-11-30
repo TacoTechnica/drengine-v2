@@ -29,7 +29,7 @@ namespace GameEngine.Game.Debugging
             closeAction.Pressed += OnClosePressed;
             submitAction.Pressed += OnSubmitPressed;
 
-            Debug.OnLog += OnGlobalLog;
+            Debug.OnLogPrint += OnGlobalLog;
             Debug.OnLogError += OnGlobalLogError;
 
             _ui.Active = false;
@@ -77,7 +77,7 @@ namespace GameEngine.Game.Debugging
             }
         }
 
-        public void PrintErrorToOutput(string text)
+        public void PrintErrorToOutput(string text, string trace)
         {
             PrintToOutput($"E: {text}");
         }
@@ -111,14 +111,14 @@ namespace GameEngine.Game.Debugging
                 }
                 catch (InvalidArgumentsException e)
                 {
-                    PrintErrorToOutput(e.Message);
+                    PrintErrorToOutput(e.Message, e.StackTrace);
                 }
             }
         }
 
-        private void OnGlobalLogError(string text)
+        private void OnGlobalLogError(string text, string trace)
         {
-            PrintErrorToOutput(text);
+            PrintErrorToOutput(text, trace);
         }
 
         private void OnGlobalLog(string text)

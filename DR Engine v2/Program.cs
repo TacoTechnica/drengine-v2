@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NDesk.Options;
 using System.Diagnostics;
+using DREngine.Editor;
 using DREngine.Game;
 
 
