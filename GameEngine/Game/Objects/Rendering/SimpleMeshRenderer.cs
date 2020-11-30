@@ -43,6 +43,8 @@ namespace GameEngine.Game
 
         private BasicEffect _effect = null;
 
+        private RasterizerState _cachedOgRasterizerState = null;
+
         private BasicEffect Effect
         {
             get
@@ -76,10 +78,16 @@ namespace GameEngine.Game
             Effect.View = cam.ViewMatrix;
             Effect.World = transform.Local;
 
+            _cachedOgRasterizerState = g.RasterizerState;
+
             g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
 
             return Effect;
         }
 
+        protected override void ResetGraphicsPostDraw(GraphicsDevice g)
+        {
+            g.RasterizerState = _cachedOgRasterizerState;
+        }
     }
 }

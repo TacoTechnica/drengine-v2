@@ -2,7 +2,6 @@
 using System;
 using System.Text;
 using GameEngine.Game.Resources;
-using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -45,8 +44,9 @@ namespace GameEngine.Game.UI.Debugging
             float sliderWidth = 12f;
 
             // Text input
-            float inputHeight = font.SpriteFont.LineSpacing + textPadding * 2;
-            _input = (UITextInput) new UITextInput(game, font, Color.White);
+            float inputHeight = (font.SpriteFont != null)? font.SpriteFont.LineSpacing + textPadding * 2 : 18;
+            _input = (UITextInput) new UITextInput(game, font, Color.White)
+                .WithLayout(Layout.FullscreenLayout());
 
             UIComponent textBackground = new UIMaskRect(game, Color.Black, this) // new UIColoredRect(game, Color.Black, false, this) //
                 .WithLayout(Layout.SideStretchLayout(Layout.Bottom, inputHeight, padding))

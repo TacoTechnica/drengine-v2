@@ -28,6 +28,8 @@ namespace GameEngine.Game
         // Shader abstraction
         private AlphaTestEffect _effect;
 
+        private RasterizerState _cachedOgRasterizerState = null;
+
         public SimpleMeshAlphaTestRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation) { }
 
         public override void Start()
@@ -44,9 +46,15 @@ namespace GameEngine.Game
             _effect.View = cam.ViewMatrix;
             _effect.World = transform.Local;
 
+            _cachedOgRasterizerState = g.RasterizerState;
             g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
 
             return _effect;
+        }
+
+        protected override void ResetGraphicsPostDraw(GraphicsDevice g)
+        {
+            g.RasterizerState = _cachedOgRasterizerState;
         }
     }
 }

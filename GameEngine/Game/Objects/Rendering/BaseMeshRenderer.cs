@@ -34,6 +34,9 @@ namespace GameEngine.Game
         }
 
         protected abstract Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform);
+
+        protected abstract void ResetGraphicsPostDraw(GraphicsDevice g);
+
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
             if (Vertices.Length == 0) return;
@@ -49,6 +52,8 @@ namespace GameEngine.Game
                 pass.Apply();
                 g.DrawPrimitives(PrimitiveType, 0, Vertices.Length / 3);
             }
+
+            ResetGraphicsPostDraw(g);
         }
 
     }
