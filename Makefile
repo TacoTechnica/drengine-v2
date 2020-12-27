@@ -11,13 +11,13 @@ $EXECUTABLE_TEST: *.cs
 
 run: run_editor
 
-run_editor:
+run_editor: FORCE
 	dotnet msbuild
 	./$(EXECUTABLE)
-run_game:
+run_game: FORCE
 	dotnet msbuild
 	./$(EXECUTABLE) --game
-run_test:
+run_test: FORCE
 	dotnet msbuild
 	./$(EXECUTABLE_TEST)
 
