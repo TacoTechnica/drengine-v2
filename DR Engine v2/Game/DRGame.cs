@@ -40,7 +40,7 @@ namespace DREngine.Game
         #region Util variables
 
 
-        private string _projectPath = null;
+        public string ProjectPath = "";
 
         private SplashScene SplashScene;
         private ProjectMainMenuScene _projectMainMenuScene;
@@ -56,7 +56,7 @@ namespace DREngine.Game
             // For debugging UI
             this.Window.AllowUserResizing = true;
 
-            _projectPath = projectPath;
+            ProjectPath = projectPath;
 
             // Init controls
             MenuControls = new MenuControls(this);
@@ -104,13 +104,13 @@ namespace DREngine.Game
             GameProjectData.LoadDefaults();
 
             Debug.LogDebug("DRGame Initialize()");
-            if (_projectPath != null && LoadProject(_projectPath))
+            if (ProjectPath != null && LoadProject(ProjectPath))
             {
-                Debug.LogDebug($"Loaded Project at {_projectPath}");
+                Debug.LogDebug($"Loaded Project at {ProjectPath}");
             }
             else
             {
-                Debug.LogDebug($"Project \"{_projectPath}\" either not specified or invalid. Going to Splash Screen.");
+                Debug.LogDebug($"Project \"{ProjectPath}\" either not specified or invalid. Going to Splash Screen.");
                 LoadSplash();
             }
         }
