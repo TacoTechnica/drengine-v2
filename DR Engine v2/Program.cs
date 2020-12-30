@@ -4,6 +4,7 @@ using NDesk.Options;
 using System.Diagnostics;
 using DREngine.Editor;
 using DREngine.Game;
+using Debug = GameEngine.Debug;
 
 
 namespace DREngine
@@ -23,8 +24,8 @@ namespace DREngine
 
         #region Main functions
 
-        private static void StartGame(string projectPath) {
-            using (var game = new DRGame(projectPath)) {
+        private static void StartGame(string projectPath, bool connectToDebugEditor, string editorPipeReadHandle, string editorPipeWriteHandle) {
+            using (var game = new DRGame(projectPath, connectToDebugEditor, editorPipeReadHandle, editorPipeWriteHandle)) {
                 game.Run();
             }
         }
@@ -60,19 +61,44 @@ namespace DREngine
 
             // Parse args
             bool useGame = false;
+            bool debugEditor = false;
             string projectPath = null;
+            string editorPipeReadHandle = null;
+            string editorPipeWriteHandle = null;
             var opts = new OptionSet() {
                 {
                     "g|game:", v => {
                         useGame = true;
                         projectPath = v;
                     }
+                },
+                {
+                    "readpipe:", v =>
+                    {
+                        editorPipeReadHandle = v;
+                        debugEditor = true;
+                    }
+                },
+                {
+                    "writepipe:", v =>
+                    {
+                        editorPipeWriteHandle = v;
+                        debugEditor = true;
+                    }
                 }
             };
             opts.Parse (args);
+            
+            // Minor parsing
+            if (debugEditor && (editorPipeReadHandle == null || editorPipeWriteHandle == null))
+            {
+                Console.Error.WriteLine("If you're using editor piping at all, you must specify both editor write pipe AND editor read pipe. Sorry!");
+                return;
+            }
+
             // Run
             if (useGame) {
-                StartGame(projectPath);
+                StartGame(projectPath, debugEditor, editorPipeReadHandle, editorPipeWriteHandle);
             } else {
                 StartEditor();
             }

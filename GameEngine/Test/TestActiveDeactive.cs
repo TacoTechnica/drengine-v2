@@ -84,8 +84,8 @@ namespace GameEngine.Test
 
             if (RawInput.KeyPressed(Keys.J))
             {
-                Debug.Log("KABOOM");
-                _game.SceneManager.UnloadSceneAtEndOfFrame();
+                Debug.Log("KABOOM (does nothing rn)");
+                //_game.SceneManager.UnloadSceneAtEndOfFrame();
             }
         }
 

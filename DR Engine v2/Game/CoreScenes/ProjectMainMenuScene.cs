@@ -12,6 +12,7 @@ namespace DREngine.Game.CoreScenes
 
         public ProjectMainMenuScene(DRGame game) : base(game, SCENE_NAME)
         {
+            // Load a DR Scene as a test. We will change this to be our menu scene later.
             TestScene = new DRScene(game, "TestScene", new ProjectPath(game, "TEST_SCENE.scene"), false);
         }
 

@@ -19,6 +19,8 @@ namespace GameEngine
 
         private static string RootDirectory = "";
 
+        private static object _lock = new object();
+
         public static void InitRootDirectory()
         {
             string thisFile = new StackTrace(true).GetFrame(0).GetFileName().Replace('\\', '/');
@@ -65,28 +67,41 @@ namespace GameEngine
 
         public static void LogDebug(string log)
         {
-            if (PrintDebug) Console.WriteLine($"***({log})***");
-            OnLogDebug?.Invoke(log);
+            lock (_lock)
+            {
+                if (PrintDebug) Console.WriteLine($"***({log})***");
+                OnLogDebug?.Invoke(log);
+            }
         }
 
         public static void Log(string log)
         {
             LogSilent(log, 1);
-            OnLogPrint?.Invoke(log);
+            lock (_lock)
+            {
+                OnLogPrint?.Invoke(log);
+            }
         }
 
         public static void LogError(string log)
         {
-            Console.Error.WriteLine(GetPrint(log, 1));
-            string stack = new StackTrace(1, true).ToString();
-            Console.Out.WriteLine(stack);
-            OnLogError?.Invoke(log, stack);
+            lock (_lock)
+            {
+                int offs = 1;
+                Console.Error.WriteLine(GetPrint(log, offs));
+                string stack = new StackTrace(offs, true).ToString();
+                Console.Out.WriteLine(stack);
+                OnLogError?.Invoke(log, stack);
+            }
         }
 
         public static void LogWarning(string log)
         {
-            Console.Error.WriteLine(GetPrint(log, 1));
-            OnLogWarning?.Invoke(log);
+            lock (_lock)
+            {
+                Console.Error.WriteLine(GetPrint(log, 1));
+                OnLogWarning?.Invoke(log);
+            }
         }
 
         /// <summary>
@@ -94,9 +109,11 @@ namespace GameEngine
         /// </summary>
         public static void LogSilent(string log, int offs = 0)
         {
-            Console.WriteLine(GetPrint(log, offs));
+            lock (_lock)
+            {
+                Console.WriteLine(GetPrint(log, offs));
+            }
         }
-
 
     }
 }

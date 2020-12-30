@@ -104,17 +104,20 @@ namespace GameEngine.Game
             LoadScene(_sceneLoaders[id]);
         }
 
-        // TODO: Change to a "load scene" function that picks the next scene right after it unloads the previous.
-        public void UnloadSceneAtEndOfFrame()
+        private void UnloadSceneAtEndOfFrame()
         {
             _game.UpdateBegan.AddListener(LoadSceneAtEndOfFrame);
         }
 
         public void LoadScene(ISceneLoader loader)
         {
-            // Do the loading
+            bool alreadyLoading = _toLoadNext != null;
             _toLoadNext = loader;
-            UnloadSceneAtEndOfFrame();
+            if (!alreadyLoading)
+            {
+                // Tell the game to do scene loading if we're not already.
+                UnloadSceneAtEndOfFrame();
+            }
         }
 
         private void LoadSceneAtEndOfFrame()
@@ -134,6 +137,7 @@ namespace GameEngine.Game
 
             _toLoadNext?.LoadScene();
             _toLoadNext = null;
+
         }
     }
 }

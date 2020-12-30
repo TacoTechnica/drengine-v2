@@ -173,7 +173,7 @@ namespace GameEngine.Game.UI
         private void ChangeSelectIndex(int delta)
         {
             int targetIndex = Math.Mod(_selectedIndex + delta, _items.Count);
-            Debug.Log($"OOF? {_selectedIndex} + {delta} % {_items.Count} => {targetIndex}");
+            //Debug.Log($"OOF? {_selectedIndex} + {delta} % {_items.Count} => {targetIndex}");
             DeselectItem(_selectedIndex);
             DeselectCursorItem(_selectedIndex);
             _selectedIndex = targetIndex;

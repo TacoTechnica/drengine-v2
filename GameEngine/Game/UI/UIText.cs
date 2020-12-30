@@ -450,8 +450,10 @@ namespace GameEngine.Game.UI
         public override string ToString()
         {
             const int max = 40;
-            string text = (Text.Length > max) ? Text.Substring(0, max) + "..." : Text;
-            return base.ToString() + $" \"{text}\"";
+            string text = (Text.Length > max) ? "\"" + Text.Substring(0, max) + "\"..." : "\"" + Text + "\"";
+            // Don't print newlines in our output.
+            text = text.Replace("\n", "\\n");
+            return base.ToString() + text;
         }
 
         abstract class RichTextTag

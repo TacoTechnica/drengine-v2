@@ -39,16 +39,19 @@ namespace DREngine.Game
 
         #region Util variables
 
-
         public string ProjectPath = "";
+
+        private EditorConnection _editorConnection;
 
         private SplashScene SplashScene;
         private ProjectMainMenuScene _projectMainMenuScene;
 
         #endregion
 
-        public DRGame(string projectPath = null) : base("DR Game Test Draft", "Content", true)
+        public DRGame(string projectPath = null, bool connectToDebugEditor = false, string editorPipeReadHandle = "", string editorPipeWriteHandle = "") : base("DR Game Test Draft", "Content", true)
         {
+            _editorConnection = new EditorConnection(connectToDebugEditor, editorPipeReadHandle, editorPipeWriteHandle);
+            
             this._graphics.SynchronizeWithVerticalRetrace = true;
             // Fixed timestep causes framerate issues, not sure why. Most likely will not set to true
             //this.IsFixedTimeStep = false;
@@ -103,16 +106,25 @@ namespace DREngine.Game
 
             GameProjectData.LoadDefaults();
 
-            Debug.LogDebug("DRGame Initialize()");
-            if (ProjectPath != null && LoadProject(ProjectPath))
+            // Wait for editor if we need to.
+            WaitForEditorConnection(() =>
             {
-                Debug.LogDebug($"Loaded Project at {ProjectPath}");
-            }
-            else
-            {
-                Debug.LogDebug($"Project \"{ProjectPath}\" either not specified or invalid. Going to Splash Screen.");
-                LoadSplash();
-            }
+                LoadWhenSafe(() =>
+                {
+                    Debug.LogDebug("DRGame Initialize()");
+                    if (ProjectPath != null && LoadProject(ProjectPath))
+                    {
+                        Debug.LogDebug($"Loaded Project at {ProjectPath}");
+                    }
+                    else
+                    {
+                        Debug.LogDebug(
+                            $"Project \"{ProjectPath}\" either not specified or invalid. Going to Splash Screen.");
+                        LoadSplash();
+                    }
+                });
+            });
+
         }
 
         /// <summary>
@@ -121,6 +133,25 @@ namespace DREngine.Game
         private void LoadSplash()
         {
             SceneManager.LoadScene(SplashScene);
+        }
+
+        /// <summary>
+        /// When we wait on the editor for a connection, this will run.
+        /// </summary>
+        private void WaitForEditorConnection(Action onPing)
+        {
+            // Wait for editor if we need to. Otherwise, immediately start.
+            if (_editorConnection.Active)
+            {
+                SceneManager.LoadScene(new EditorConnectionScene(this));
+                _editorConnection.BeginReceiving();
+                _editorConnection.WaitOnEditorPingAsync(onPing);
+            }
+            else
+            {
+                //SceneManager.LoadScene(new EditorConnectionScene(this));
+                onPing?.Invoke();
+            }
         }
 
         protected override void LoadContent()

@@ -3,91 +3,61 @@ using System.Threading;
 using System.Threading.Tasks;
 using DREngine.Game;
 using GameEngine;
+using Gtk;
 using Microsoft.Xna.Framework;
+using Action = System.Action;
 
 namespace DREngine.Editor
 {
     public class DRProjectRunner
     {
 
-        private DRGame CurrentGame = null;
+        private readonly GameConnection _connection = new GameConnection();
 
         public Action OnRun;
         public Action OnStop;
-        public Action<Exception> OnCrash;
+        public Action<string> OnCrash;
 
-        private Task _runner;
+        public bool Running => _connection.Running;
 
-        private bool _closeFlag = false;
+        public DRProjectRunner()
+        {
+            _connection.OnExit += OnConnectionExit;
+        }
 
-        public bool Running => (CurrentGame != null); //  && (_runner == null || _runner.IsCompleted)
+        private void OnConnectionExit()
+        {
+            OnStop.Invoke();
+        }
 
         public void RunProject(string projectPath)
         {
-            if (!Running)
+            // Run ourselves.
+            string gamePath = Environment.GetCommandLineArgs()[0];
+            // If we're running a dll, use the executable instead.
+            if (gamePath.EndsWith(".dll"))
             {
-                CurrentGame = new DRGame(projectPath);
-
-                CurrentGame.OnPostUpdate += OnPostUpdate;
-
+                gamePath = gamePath.Substring(0, gamePath.Length - ".dll".Length);// + ".exe";
+            }
+            if (_connection.StartGameProcessAndConnect(gamePath, projectPath))
+            {
                 OnRun?.Invoke();
-                try
-                {
-                    CurrentGame.Run();
-                }
-                catch (Exception e)
-                {
-                    //CurrentGame = null;
-                    OnCrash?.Invoke(e);
-                    Debug.LogError(e.ToString());
-                }
-                CurrentGame.OnPostUpdate -= OnPostUpdate;
-                CurrentGame.Dispose();
-                CurrentGame = null;
-                OnStop?.Invoke();
-
-                _closeFlag = false;
-
-                /*
-                _runner = Task.Run(() =>
-                {
-                    try
-                    {
-                        CurrentGame.Run();
-                    }
-                    catch (Exception e)
-                    {
-                        //CurrentGame = null;
-                        Debug.LogError(e.ToString());
-                    }
-                });
-                */
-                /*
-                OnRun.Invoke();
-                using (CurrentGame = new DRGame(projectPath))
-                {
-                    CurrentGame.Run();
-                }
-                CurrentGame.Dispose();
-                CurrentGame = null;
-                OnStop.Invoke();
-                */
-            }
-
-        }
-
-        private void OnPostUpdate()
-        {
-            if (!_closeFlag)
-            {
-                Gtk.Application.RunIteration(false);
             }
         }
+
 
         public void Stop()
         {
-            _closeFlag = true;
-            CurrentGame?.Exit();
+            try
+            {
+                _connection.CloseGame();
+            }
+            catch (InvalidOperationException e)
+            {
+                // Failed to close for some reason.
+                OnCrash?.Invoke(e.Message);
+            }
         }
+
     }
 }
