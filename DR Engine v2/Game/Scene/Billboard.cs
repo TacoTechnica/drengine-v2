@@ -4,10 +4,11 @@ using GameEngine.Game;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using static DREngine.Game.IDependentOnDRGame;
 
 namespace DREngine.Game.Scene
 {
-    [Serializable]
+    //[Serializable]
     //[JsonConverter(typeof(SceneObjectJsonConverter))]
     public class Billboard : GameObjectRender3D, ISceneObject, IDependentOnDRGame
     {
@@ -21,7 +22,7 @@ namespace DREngine.Game.Scene
             Game = game;
         }
         // Required empty constructor for deserialization.
-        public Billboard() : this(IDependentOnDRGame.CurrentGame, Vector3.Zero, Quaternion.Identity) {}
+        public Billboard() : this(CurrentGame, Vector3.Zero, Quaternion.Identity) {}
 
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)

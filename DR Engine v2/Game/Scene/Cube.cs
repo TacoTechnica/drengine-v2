@@ -5,6 +5,7 @@ using GameEngine.Game;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using static DREngine.Game.IDependentOnDRGame;
 
 namespace DREngine.Game.Scene
 {
@@ -129,11 +130,6 @@ namespace DREngine.Game.Scene
         }
 
         // Required Empty constructor for deserializing
-        public Cube() : this(IDependentOnDRGame.CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity) {}
-
-        public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
-        {
-            base.Draw(cam, g, transform);
-        }
+        public Cube() : this(CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity) {}
     }
 }

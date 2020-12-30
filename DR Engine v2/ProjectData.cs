@@ -15,6 +15,9 @@ using Path = GameEngine.Game.Path;
 
 namespace DREngine
 {
+    /// <summary>
+    /// Represents a project data file. (project.yaml)
+    /// </summary>
     public class ProjectData
     {
         #region Data
