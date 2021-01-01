@@ -59,11 +59,11 @@ namespace DREngine.Game.Scene
             }
             */
             //SceneObjectJsonConverter.InitConversion((DRGame)_game);
-            //IO.WriteTextFile(_scenePath, JsonConvert.SerializeObject(this, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto}));
+            //IOHelper.WriteTextFile(_scenePath, JsonConvert.SerializeObject(this, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto}));
             JsonHelper.SaveToJson(this, path);
             /* No custom conversion
             string jsonString = JsonSerializer.Serialize(this);
-            IO.WriteTextFile(_scenePath, jsonString);
+            IOHelper.WriteTextFile(_scenePath, jsonString);
             */
             Debug.LogDebug($"Saved scene to {path}");
         }

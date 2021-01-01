@@ -126,7 +126,7 @@ namespace DREngine.Game.Scene
             Blend = Color.White;
             Size = size;
             Sprite = sprite;
-            Debug.LogDebug("CUBE CREATED");
+            //Debug.LogDebug("CUBE CREATED");
         }
 
         // Required Empty constructor for deserializing

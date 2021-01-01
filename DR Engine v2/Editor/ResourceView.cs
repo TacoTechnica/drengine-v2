@@ -129,12 +129,12 @@ namespace DREngine.Editor
                     path = fpath;
                 }
 
-                string dirname = System.IO.Path.GetFileName( path );
+                string dirname = System.IOHelper.Path.GetFileName( path );
                 Debug.Log($"PATH: {dirname}");
 
                 foreach (string dir in Directory.GetDirectories(path))
                 {
-                    string name = System.IO.Path.GetFileName( dir );
+                    string name = System.IOHelper.Path.GetFileName( dir );
                     TreeIter sub;
                     if (root)
                     {
@@ -150,7 +150,7 @@ namespace DREngine.Editor
 
                 foreach (string file in Directory.GetFiles(path))
                 {
-                    string name = System.IO.Path.GetFileName(path);
+                    string name = System.IOHelper.Path.GetFileName(path);
                     if (root)
                     {
                         _store.AppendValues(name);

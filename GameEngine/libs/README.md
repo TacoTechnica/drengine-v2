@@ -12,7 +12,7 @@ Get Nuget working and install the following libraries in the project:
 - GtkSharp
 - NDesk.Options
 - SpriteFontPlus
-- YamlDotNet
+- Newtonsoft JSON
 - BassMixer
 - TextCopy
 

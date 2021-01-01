@@ -104,7 +104,7 @@ namespace DREngine.Game
             // Init data that should be available at the start.
             base.Initialize();
 
-            GameProjectData.LoadDefaults();
+            //GameProjectData.LoadDefaults();
 
             // Wait for editor if we need to.
             WaitForEditorConnection(() =>
@@ -175,10 +175,14 @@ namespace DREngine.Game
 
             if (RawInput.KeyPressed(Keys.NumPad0))
             {
-                SaveState.Save(new ProjectPath(this, "TEST.save"));
+                Debug.Log("SAVING");
+                ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameProjectData );
+                //SaveState.Save(new ProjectPath(this, "TEST.save"));
             } else if (RawInput.KeyPressed(Keys.NumPad1))
             {
-                SaveState.Load(new ProjectPath(this, "TEST.save"));
+                Debug.Log("LOADING");
+                GameProjectData = ProjectData.LoadFromFile(new ProjectPath(this,"project.json"));
+                //SaveState.Load(new ProjectPath(this, "TEST.save"));
             }
 
 

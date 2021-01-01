@@ -10,11 +10,15 @@ namespace DREngine
     {
         public static void SaveToJson<T>(T obj, string filepath)
         {
-            IO.WriteTextFile(filepath, JsonConvert.SerializeObject(obj, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented}));
+            string text = JsonConvert.SerializeObject(obj,
+                new JsonSerializerSettings
+                    {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+            //Debug.LogSilent($"JSON: {text}");
+            IOHelper.WriteTextFile(filepath, text);
         }
         public static T LoadFromJson<T>(DRGame game, string filepath)
         {
-            string text = IO.ReadTextFile(filepath);
+            string text = IOHelper.ReadTextFile(filepath);
             IDependentOnDRGame.CurrentGame = game;
             return JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
         }

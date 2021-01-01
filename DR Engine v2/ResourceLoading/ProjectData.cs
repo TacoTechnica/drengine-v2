@@ -8,18 +8,18 @@ using GameEngine.Game;
 using GameEngine.Game.Debugging;
 using GameEngine.Util;
 using Microsoft.Xna.Framework.Graphics;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+using Newtonsoft.Json;
 using Path = GameEngine.Game.Path;
 
 namespace DREngine
 {
     /// <summary>
-    /// Represents a project data file. (project.yaml)
+    /// Represents a project data file. (project.json)
     /// </summary>
     public class ProjectData
     {
+        private const string PROJECT_DATA_FILE_NAME = "project.json"; 
+        
         #region Data
 
         public string Name;
@@ -60,15 +60,11 @@ namespace DREngine
         /// <param name="fpath"></param>
         /// <param name="fullLoad"> If false, it will NOT do any extra project loading. Use this for quick surface level project parsing. </param>
         /// <returns></returns>
-        /// <exception cref="YamlException"></exception>
+        /// <exception cref="JsonException"></exception>
         public static ProjectData LoadFromFile(Path fpath, bool fullLoad = true)
         {
             try
             {
-                IDeserializer deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
                 // We might be given a relative directory, so try that first.
                 if (!File.Exists(fpath) && !Directory.Exists(fpath))
                 {
@@ -78,21 +74,14 @@ namespace DREngine
                 // We might be given the project directory, so try to find the project file within it.
                 if (Directory.Exists(fpath))
                 {
-                    fpath += "/project.yaml";
+                    fpath += "/" + PROJECT_DATA_FILE_NAME;
                 }
-                //Debug.Log($"OPENING: {fpath}");
-                string text = IO.ReadTextFile(fpath);
-                //Debug.Log($"OUTPUT: {text}");
-                ProjectData result = deserializer.Deserialize<ProjectData>(text);
+                ProjectData result = JsonHelper.LoadFromJson<ProjectData>(null, fpath);
                 result._fullProjectPath = fpath;
-                if (fullLoad)
-                {
-                    result.LoadDefaults();
-                }
 
                 return result;
             }
-            catch (YamlException e)
+            catch (JsonSerializationException e)
             {
                 throw e;
             }
@@ -100,18 +89,9 @@ namespace DREngine
 
         public static void WriteToFile(string fpath, ProjectData data)
         {
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                .Build();
-            using StreamWriter writer = File.CreateText(fpath);
-            writer.WriteLine($"\n#{CommentHeader}\n"); // Add comment to inform user that editing this is a bad idea
-            serializer.Serialize(writer, data);
-        }
-
-        public void LoadDefaults()
-        {
-            //CallOnDeserializeOn(g, OverridableResources);
-            // TODO:
+            JsonHelper.SaveToJson(data, fpath);
+            //using StreamWriter writer = File.CreateText(fpath);
+            //writer.WriteLine($"\n#{CommentHeader}\n"); // Add comment to inform user that editing this is a bad idea
         }
 
         public string GetFullProjectPath(Path path = null)

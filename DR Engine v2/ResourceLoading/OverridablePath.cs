@@ -6,10 +6,8 @@ using DREngine.Game;
 using GameEngine;
 using GameEngine.Game;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using SpriteFontPlus;
-using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
 using Path = GameEngine.Game.Path;
 
 namespace DREngine
@@ -21,6 +19,7 @@ namespace DREngine
     {
         public string DefaultResourcePath { get; }
         public string OverrideProjectPath = null;
+        [JsonIgnore]
         public bool Overrided => OverrideProjectPath != null;
 
         public OverridablePath(string defaultResourcePath)
@@ -41,7 +40,7 @@ namespace DREngine
     /// <summary>
     /// For when we want to grab a default resource. Not used publicly.
     /// </summary>
-    public class DefaultResourcePath : Path
+    class DefaultResourcePath : Path
     {
         public const string DEFAULT_RESOURCE_FOLDER = "default_resources";
 

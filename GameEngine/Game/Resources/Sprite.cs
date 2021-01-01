@@ -73,7 +73,7 @@ namespace GameEngine.Game
 
         public void Load(GamePlus game)
         {
-            Debug.Log($"LOADING SPRITE: {Path}");
+            //Debug.Log($"LOADING SPRITE: {Path}");
             _game = game;
             Texture = Texture2D.FromFile(game.GraphicsDevice, Path);
             Loaded = true;

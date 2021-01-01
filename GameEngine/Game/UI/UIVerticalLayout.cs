@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using YamlDotNet.Serialization.ObjectFactories;
-
+﻿
 namespace GameEngine.Game.UI
 {
     public class UIVerticalLayout : UIComponent

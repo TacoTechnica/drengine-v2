@@ -8,7 +8,7 @@ using GameEngine.Game;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework.Graphics;
-using YamlDotNet.Core;
+using Newtonsoft.Json;
 using Color = Microsoft.Xna.Framework.Color;
 using Layout = GameEngine.Game.UI.Layout;
 
@@ -22,7 +22,7 @@ namespace DREngine.Game.CoreScenes
     public class SplashScene : BaseSceneLoader
     {
         private const string SCENE_NAME = "__SPLASH_SCREEN__";
-        private const string PROJECT_YAML_NAME = "project.yaml";
+        private const string PROJECT_FILE_NAME = "project.json";
         private const string PROJECT_ICON_NAME = "icon.png";
 
         private UIHandler _ui;
@@ -56,10 +56,10 @@ namespace DREngine.Game.CoreScenes
             int count = 0;
 
 
-            // Go through all directories and check inside for project.yaml
+            // Go through all directories and check inside for project.json
             foreach (string dir in Directory.GetDirectories(_projectDirectories))
             {
-                Path projectPath = new Path(System.IO.Path.Combine(new [] {dir, PROJECT_YAML_NAME}));
+                Path projectPath = new Path(System.IO.Path.Combine(new [] {dir, PROJECT_FILE_NAME}));
                 Path iconPath = new Path(System.IO.Path.Combine(new [] {dir, PROJECT_ICON_NAME}));
                 Debug.Log($"TEST: {projectPath}");
                 if (File.Exists(projectPath))
@@ -85,9 +85,9 @@ namespace DREngine.Game.CoreScenes
                         });
                         ++count;
                     }
-                    catch (YamlException e)
+                    catch (JsonException e)
                     {
-                        Debug.LogDebug($"Failed to read project file at {projectPath}. YAML Output: {e.Message}");
+                        Debug.LogDebug($"Failed to read project file at {projectPath}. JSON Output: {e.Message}");
                     }
                 }
             }
@@ -145,9 +145,8 @@ namespace DREngine.Game.CoreScenes
                     .WithLayout(Layout.FullscreenLayout(128, 64 + 64 + 12, 128, 64))
                     .AddToRoot();
                 _failText = (UIText) new UIText(game, font, "", Color.White)
-                    .WithoutWordWrap()
                     .WithHAlign(UIText.TextHAlignMode.Center)
-                    .WithLayout(Layout.CenteredLayout())
+                    .WithLayout(Layout.CustomLayout(0, 0.5f, 1, 0.5f))
                     .AddToRoot();
 
                 _version = (UIText) new UIText(game, font, Program.Version, Color.White)
