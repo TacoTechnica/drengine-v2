@@ -27,7 +27,7 @@ namespace DREngine.Game
         public MenuControls MenuControls { get; private set; }
 
         public ProjectData GameProjectData = new ProjectData();
-        public ProjectResources ProjectResources;
+        public ResourceLoader ResourceLoader;
 
         public VNRunner VNRunner;
 
@@ -68,7 +68,7 @@ namespace DREngine.Game
             SplashScene = new SplashScene(this, PROJECTS_DIRECTORY);
             _projectMainMenuScene = new ProjectMainMenuScene(this);
 
-            ProjectResources = new ProjectResources(this);
+            ResourceLoader = new ResourceLoader(this);
             ProjectResourceConverter.OnInitGame(this);
 
             VNRunner = new VNRunner(this);

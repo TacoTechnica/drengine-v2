@@ -10,12 +10,12 @@ namespace DREngine
     /// <summary>
     /// The "Content Loader" that loads project resources.
     /// </summary>
-    public class ProjectResources
+    public class ResourceLoader
     {
 
         private GamePlus _game;
 
-        public ProjectResources(GamePlus game)
+        public ResourceLoader(GamePlus game)
         {
             _game = game;
         }

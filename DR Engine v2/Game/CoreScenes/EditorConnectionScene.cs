@@ -33,7 +33,7 @@ namespace DREngine.Game.CoreScenes
             
             public UIObject(DRGame game) : base(game)
             {
-                Font font = game.ProjectResources.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
+                Font font = game.ResourceLoader.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
 
                 Color background = Color.Black;
                 Color foreground = Color.White;

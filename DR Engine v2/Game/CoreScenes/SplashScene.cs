@@ -124,7 +124,7 @@ namespace DREngine.Game.CoreScenes
 
             public UIHandler(DRGame game) : base(game)
             {
-                Font font = game.ProjectResources.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
+                Font font = game.ResourceLoader.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
 
                 // Tinted Background
                 Color dark = Color.Black;

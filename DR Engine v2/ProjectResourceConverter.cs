@@ -100,7 +100,7 @@ namespace DREngine
                 return null;
             }
             //Debug.Log($"FULL PATH: {data} => {fullPath}, TYPE: {objectType}");
-            return _currentGame.ProjectResources.GetResource(fullPath, objectType);
+            return _currentGame.ResourceLoader.GetResource(fullPath, objectType);
         }
 
         public override bool CanConvert(Type objectType)
