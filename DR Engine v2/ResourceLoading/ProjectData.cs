@@ -51,7 +51,7 @@ namespace DREngine
 
         private const string CommentHeader = "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
-        private Path _fullProjectPath;
+        private string _fullProjectPath;
 
         /// <summary>
         /// Loads a project from a file.
