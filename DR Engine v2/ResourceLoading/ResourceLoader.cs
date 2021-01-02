@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 
 namespace DREngine
 {
@@ -13,11 +14,11 @@ namespace DREngine
     public class ResourceLoader
     {
 
-        private GamePlus _game;
+        private ResourceLoaderData _data;
 
-        public ResourceLoader(GamePlus game)
+        public ResourceLoader(ResourceLoaderData data)
         {
-            _game = game;
+            _data = data;
         }
 
         #region Public Access
@@ -113,7 +114,7 @@ namespace DREngine
                     IGameResource res = (IGameResource) newResource;
                     Assert.IsFalse(_resources.ContainsKey(path));
                     res.Path = path;
-                    res.Load(_game);
+                    res.Load(_data);
                     _resources.Add(path, res);
                 }
             }

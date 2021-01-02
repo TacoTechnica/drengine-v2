@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DREngine.Game.VN;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Path = GameEngine.Game.Path;
@@ -10,7 +11,7 @@ using Path = GameEngine.Game.Path;
 namespace DREngine.Game.Scene
 {
     [Serializable]
-    public class DRScene : BaseSceneLoader, IGameResource, IDependentOnDRGame
+    public class DRScene : BaseSceneLoader, IGameResource
     {
 
         [JsonIgnore]
@@ -18,11 +19,11 @@ namespace DREngine.Game.Scene
         public List<ISceneObject> Objects { get; set; } = new List<ISceneObject>();
 
         private bool _testFlag;
-        public DRGame Game { get; set; }
+        private DRGame _game;
 
         public DRScene(DRGame game, string name, Path scenePath, bool testFlag) : base(game, name)
         {
-            Game = game;
+            _game = game;
             Path = scenePath;
             _testFlag = testFlag;
         }
@@ -35,9 +36,9 @@ namespace DREngine.Game.Scene
 
         public override void LoadScene()
         {
-            new FreeCamera3D(Game, Vector3.Zero, Quaternion.Identity);
+            new FreeCamera3D(_game, Vector3.Zero, Quaternion.Identity);
             //TEST_DELETE_ME();
-            var copy = JsonHelper.LoadFromJson<DRScene>(Game, Path);
+            var copy = JsonHelper.LoadFromJson<DRScene>(_game, Path);
             if (copy != null)
             {
                 Objects.Clear();
@@ -68,13 +69,13 @@ namespace DREngine.Game.Scene
             Debug.LogDebug($"Saved scene to {path}");
         }
 
-        public void Load(GamePlus game)
+        public void Load(ResourceLoaderData data)
         {
             // Nothing really. File reading happens later.
-            Game = (DRGame)game;
+            //Game = (DRGame)game;
         }
 
-        public void Unload(GamePlus game)
+        public void Unload()
         {
             // Nothing.
             Objects.Clear();
@@ -82,7 +83,7 @@ namespace DREngine.Game.Scene
 
         public void TEST_DELETE_ME()
         {
-            VNScript script = new VNScript(Game);
+            VNScript script = new VNScript(_game);
 
             script.Commands = new List<VNCommand>(new VNCommand[]
             {
@@ -92,9 +93,9 @@ namespace DREngine.Game.Scene
                 new LabelCommand() {Label = "ENDO"}
             });
 
-            Game.VNRunner.State.CurrentScript = script;
+            _game.VNRunner.State.CurrentScript = script;
 
-            script.Save(new ProjectPath(Game, "TEST_SCRIPT.vn"));
+            script.Save(new ProjectPath(_game, "TEST_SCRIPT.vn"));
         }
     }
 }

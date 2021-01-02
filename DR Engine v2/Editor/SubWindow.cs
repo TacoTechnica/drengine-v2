@@ -4,7 +4,7 @@ using WindowType = Gtk.WindowType;
 
 namespace DREngine.Editor
 {
-    public class SubWindow : Gtk.Window
+    public abstract class SubWindow : Gtk.Window
     {
         public SubWindow(DREditor editor, string title="") : base(WindowType.Toplevel)
         {
@@ -12,23 +12,28 @@ namespace DREngine.Editor
             if (title != "") Title = title;
             this.Decorated = true;
             this.AttachedTo = editor.Window;
-            //this.TypeHint = WindowTypeHint.Dialog;
             this.TypeHint = WindowTypeHint.Dialog;
             this.SkipTaskbarHint = true;
-            //this.SkipPagerHint = true;
+
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Initialize();
+
+            ShowAll();
         }
 
-#region Garbage
+        protected abstract void Initialize();
+
+        #region Garbage
 
         public SubWindow(int nothing) : base("none")
         {
-            DREditor.Instance.Window.AlertProblem("Invalid SubWindow initialization!");
+            throw new InvalidOperationException();
         }
         public SubWindow(IntPtr raw) : base(raw)
         {
-            DREditor.Instance.Window.AlertProblem("Invalid SubWindow initialization!");
+            throw new InvalidOperationException();
         }
 
-#endregion
+        #endregion
     }
 }

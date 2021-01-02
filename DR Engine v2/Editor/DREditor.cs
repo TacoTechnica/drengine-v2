@@ -93,8 +93,7 @@ namespace DREngine.Editor
             EmptyProject();
             LoadProject(new EnginePath("projects/test_project"));
 
-            SubWindow test = new SubWindow(this, "Test window");
-            test.ShowAll();
+            //new SubWindow(this, "Test window");
         }
 
         private void OnHandleExceptionEvent(GLib.UnhandledExceptionArgs args)

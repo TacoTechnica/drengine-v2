@@ -18,9 +18,10 @@ namespace GameEngine.Game.Resources
 
         public Font(GamePlus game, Path path, int size)
         {
+            _game = game;
             Path = path;
             Size = size;
-            Load(game);
+            Load(game.ResourceLoaderData);
         }
 
         // Deserialize constructor
@@ -32,14 +33,11 @@ namespace GameEngine.Game.Resources
         ~Font()
         {
             Debug.Log("OOF");
-            Unload(_game);
+            Unload();
         }
 
-        public void Load(GamePlus game)
+        public void Load(ResourceLoaderData data)
         {
-            _game = game;
-
-            game.Disposed += GameOnDisposed;
 
             // TODO: Load extra data
             var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(Path),
@@ -55,15 +53,7 @@ namespace GameEngine.Game.Resources
                 }
             );
 
-            SpriteFont = fontBakeResult.CreateSpriteFont(game.GraphicsDevice);
-        }
-
-        private void GameOnDisposed(object? sender, EventArgs e)
-        {
-            if (SpriteFont != null)
-            {
-                Unload(_game);
-            }
+            SpriteFont = fontBakeResult.CreateSpriteFont(data.GraphicsDevice);
         }
 
         public void Save(Path path)
@@ -72,7 +62,7 @@ namespace GameEngine.Game.Resources
             // TODO: Save extra data
         }
 
-        public void Unload(GamePlus game)
+        public void Unload()
         {
             SpriteFont = null;
         }

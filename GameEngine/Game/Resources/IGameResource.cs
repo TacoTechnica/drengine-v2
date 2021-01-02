@@ -1,4 +1,6 @@
 ﻿
+using GameEngine.Game.Resources;
+
 namespace GameEngine.Game
 {
     /// <summary>
@@ -7,8 +9,8 @@ namespace GameEngine.Game
     public interface IGameResource
     {
         Path Path { get; set; }
-        void Load(GamePlus game);
+        void Load(ResourceLoaderData data);
         void Save(Path path);
-        void Unload(GamePlus game);
+        void Unload();
     }
 }

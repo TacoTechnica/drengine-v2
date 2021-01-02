@@ -1,4 +1,5 @@
 ﻿using System;
+using GameEngine.Game.Resources;
 using ManagedBass;
 
 namespace GameEngine.Game.Audio
@@ -19,7 +20,7 @@ namespace GameEngine.Game.Audio
         {
             Path = audioFile;
             Type = type;
-            Load(game);
+            Load(game.ResourceLoaderData);
         }
 
         // Deserialize Constructor
@@ -39,9 +40,9 @@ namespace GameEngine.Game.Audio
         }
 
 
-        public void Load(GamePlus game)
+        public void Load(ResourceLoaderData loader)
         {
-            AudioOutput targetOutput = game.AudioOutput;
+            AudioOutput targetOutput = loader.AudioOutput;
             switch (Type)
             {
                 case AudioClipType.Cached:
@@ -66,7 +67,7 @@ namespace GameEngine.Game.Audio
             // TODO: Save Extra Data
         }
 
-        public void Unload(GamePlus game)
+        public void Unload()
         {
             Assert.IsNotNull(_clip);
             _clip.Unload();

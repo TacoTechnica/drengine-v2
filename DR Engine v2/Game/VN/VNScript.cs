@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 
@@ -21,18 +22,16 @@ namespace DREngine.Game.VN
             _game = game;
             Path = path;
             Commands = new List<VNCommand>();
-            if (path != null) Load(game);
+            if (path != null) Load(game.ResourceLoaderData);
         }
         // Deserialize constructor
         public VNScript()
         {
             Commands = new List<VNCommand>();
         }
-        public void Load(GamePlus game)
+        public void Load(ResourceLoaderData data)
         {
-            _game = (DRGame) game;
-
-            var copy = JsonHelper.LoadFromJson<VNScript>(_game, Path);
+            var copy = JsonHelper.LoadFromJson<VNScript>(null, Path);
             if (copy != null)
             {
                 Commands.Clear();
@@ -57,7 +56,7 @@ namespace DREngine.Game.VN
             JsonHelper.SaveToJson(this, path);
         }
 
-        public void Unload(GamePlus game)
+        public void Unload()
         {
             Commands.Clear();
         }

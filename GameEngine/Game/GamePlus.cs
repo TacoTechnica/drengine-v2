@@ -65,6 +65,9 @@ namespace GameEngine.Game
         #region Public Handlers and Variables
 
         public string WindowTitle;
+        
+        /// Resource Loading Data
+        public ResourceLoaderData ResourceLoaderData { get; private set; }
 
         /// Audio
         public AudioOutput AudioOutput { get; private set; }
@@ -142,6 +145,8 @@ namespace GameEngine.Game
                 // Initialize commands
                 Commands.Init(typeof(Help));
             }
+            
+            ResourceLoaderData = new ResourceLoaderData();
         }
 
 
@@ -167,6 +172,8 @@ namespace GameEngine.Game
         {
             // Init
             base.Initialize();
+
+            ResourceLoaderData.Initialize(GraphicsDevice, AudioOutput);
 
             UiScreen.Initialize();
 
@@ -206,9 +213,9 @@ namespace GameEngine.Game
                     debugFont = new Font(this, path, 16);
                     foundValid = true;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Debug.LogDebug("(Failed)");
+                    Debug.LogDebug($"(Failed: {e.Message})");
                     continue;
                 }
 

@@ -68,7 +68,7 @@ namespace DREngine.Game
             SplashScene = new SplashScene(this, PROJECTS_DIRECTORY);
             _projectMainMenuScene = new ProjectMainMenuScene(this);
 
-            ResourceLoader = new ResourceLoader(this);
+            ResourceLoader = new ResourceLoader(ResourceLoaderData);
             ProjectResourceConverter.OnInitGame(this);
 
             VNRunner = new VNRunner(this);
@@ -173,12 +173,12 @@ namespace DREngine.Game
                 DebugDrawColliders = !DebugDrawColliders;
             }
 
-            if (RawInput.KeyPressed(Keys.NumPad0))
+            if (RawInput.KeyPressed(Keys.H))
             {
                 Debug.Log("SAVING");
                 ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameProjectData );
                 //SaveState.Save(new ProjectPath(this, "TEST.save"));
-            } else if (RawInput.KeyPressed(Keys.NumPad1))
+            } else if (RawInput.KeyPressed(Keys.J))
             {
                 Debug.Log("LOADING");
                 GameProjectData = ProjectData.LoadFromFile(new ProjectPath(this,"project.json"));

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -28,15 +30,20 @@ namespace GameEngine.Game
         }
 
         public Vector2 Pivot;
-        public readonly float Scale;
-        private GamePlus _game;
+        public float Scale;
 
+        [JsonIgnore]
         public Path Path { get; set; }
 
+        [JsonIgnore]
         public float Width => Texture.Width;
+        [JsonIgnore]
         public float Height => Texture.Height;
 
+        [JsonIgnore]
         public bool Loaded { get; private set; }
+
+        private GamePlus _game;
 
         /*
         public Sprite(GamePlus game, Texture2D texture)
@@ -57,7 +64,7 @@ namespace GameEngine.Game
             Loaded = false;
             _game.LoadWhenSafe(() =>
             {
-                Load(_game);
+                Load(_game.ResourceLoaderData);
             });
         }
 
@@ -71,22 +78,21 @@ namespace GameEngine.Game
             _texture?.Dispose();
         }
 
-        public void Load(GamePlus game)
+        public virtual void Load(ResourceLoaderData data)
         {
             //Debug.Log($"LOADING SPRITE: {Path}");
-            _game = game;
-            Texture = Texture2D.FromFile(game.GraphicsDevice, Path);
+            Texture = Texture2D.FromFile(data.GraphicsDevice, Path);
             Loaded = true;
             // TODO: Load extra data
         }
 
-        public void Save(Path path)
+        public virtual void Save(Path path)
         {
             Path = path;
             // TODO: Save extra data
         }
 
-        public void Unload(GamePlus game)
+        public virtual void Unload()
         {
             Texture.Dispose();
             Loaded = false;
