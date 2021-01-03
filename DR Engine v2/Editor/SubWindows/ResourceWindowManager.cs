@@ -47,6 +47,11 @@ namespace DREngine.Editor.SubWindows
 
         private SubWindow CreateResourceWindow(ProjectPath path, string extension)
         {
+            if (path.RelativePath == "/project.json")
+            {
+                return new ProjectSettingsWindow(_editor, path);
+            }
+
             switch (extension)
             {
                 case "png":

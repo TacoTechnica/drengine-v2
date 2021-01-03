@@ -75,6 +75,9 @@ namespace DREngine.Editor
 
             Window.OnFileOpened += (path, fullPath) =>
             {
+                // Ignore directories
+                if (Directory.Exists(fullPath)) return;
+
                 if (File.Exists(fullPath))
                 {
                     OpenProjectFile(path, fullPath);
