@@ -72,7 +72,7 @@ namespace DREngine.Editor
                     break;
                 }
             }
-            Debug.Log($"GOT {path}");
+            Debug.LogSilent($"Opened Resource: {path}");
 
             OnFileOpened?.Invoke(path, _fpath + path);
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using DREngine.Editor.SubWindows.Resources;
 
 namespace DREngine.Editor.SubWindows
 {
@@ -31,16 +32,29 @@ namespace DREngine.Editor.SubWindows
             }
 
             string extension = new FileInfo(path.ToString()).Extension;
+            if (extension.StartsWith(".")) extension = extension.Substring(1);
 
             // Open a new window
             SubWindow newWindow = CreateResourceWindow(path, extension);
             _openWindows[path] = newWindow;
             newWindow.Initialize();
+            if (newWindow is SavableWindow saveWindow)
+            {
+                saveWindow.Open(path);
+            }
             return newWindow;
         }
 
         private SubWindow CreateResourceWindow(ProjectPath path, string extension)
         {
+            switch (extension)
+            {
+                case "png":
+                    return new SpriteResourceWindow(_editor, path);
+                case "json":
+                case "txt":
+                    return new SimpleTextWindow(_editor, path);
+            }
             return new UnknownResourceWindow(_editor, path, extension);
         }
     }

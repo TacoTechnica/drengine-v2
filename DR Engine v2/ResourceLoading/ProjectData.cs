@@ -98,10 +98,11 @@ namespace DREngine
         {
             return GetFullProjectPath(_fullProjectPath, path);
         }
-        
+
         public static string GetFullProjectPath(string fullProjectPath, Path path = null)
         {
             string dir = System.IO.Path.GetDirectoryName(fullProjectPath);
+            //Debug.Log($"TEMP: {fullProjectPath} : {dir} -> {path}");
             string relativePath;
             if (path is ProjectPath pp)
             {

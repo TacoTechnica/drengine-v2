@@ -143,7 +143,8 @@ namespace DREngine.Editor
 
         private void OpenProjectFile(string projectPath, string fullPath)
         {
-            ResourceWindowManager.OpenResource(new ProjectPath(ProjectData.GetFullProjectPath(), projectPath));
+            // TODO: Clean up. RN it works fine but it's real ugly.
+            ResourceWindowManager.OpenResource(new ProjectPath(ProjectData.GetFullProjectPath() + "/project.json", projectPath));
         }
 
         private void OnHandleExceptionEvent(GLib.UnhandledExceptionArgs args)
