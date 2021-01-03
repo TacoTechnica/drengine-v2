@@ -1,6 +1,10 @@
 using System;
+using System.IO;
+using DREngine.Editor.SubWindows;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Audio;
+using GameEngine.Game.Resources;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +22,16 @@ namespace DREngine.Editor
         public ProjectData ProjectData;
         private string _projectPath;
 
+        public ResourceLoader ResourceLoader { get; private set; }
+        public ResourceLoaderData ResourceLoaderData { get; private set; }
+        
+        public ResourceWindowManager ResourceWindowManager { get; private set; }
+
+        public Icons Icons => Window.Icons;
+
+        public AudioOutput AudioOutput { get; private set; }
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
         public DRProjectRunner ProjectRunner;
 
         // Poo poo singleton
@@ -29,7 +43,11 @@ namespace DREngine.Editor
             if (Instance != null) Debug.LogError("Editor already initialized! Will see problems.");
             Instance = this;
 
-            ProjectRunner = new DRProjectRunner();
+            // Initialize our jank game. Run it one frame and grab the graphics device. Bullshit I tell you.
+            BackgroundJankGameRunner jankGame = new BackgroundJankGameRunner();
+            jankGame.RunOneFrame();
+            GraphicsDevice = jankGame.GraphicsDevice;
+            // DO NOT DISPOSE
         }
         ~DREditor() {
             Dispose(false);
@@ -42,11 +60,38 @@ namespace DREngine.Editor
             // Init app
             Application.Init();
 
+            //_jankGame.RunOneFrame(); // hmmm
+
+            ProjectRunner = new DRProjectRunner();
+            ResourceLoaderData = new ResourceLoaderData();
+            ResourceLoader = new ResourceLoader(ResourceLoaderData);
+
+
             Window = new DREditorMainWindow();
             Window.MakeWindow("DR Editor", 640, 480);
             Window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
             Window.Show();
             Window.DeleteEvent += WindowOnDeleteEvent;
+
+            Window.OnFileOpened += (path, fullPath) =>
+            {
+                if (File.Exists(fullPath))
+                {
+                    OpenProjectFile(path, fullPath);
+                }
+                else
+                {
+                    Debug.LogWarning($"No file found at {fullPath} from project path {path}. This is a bug.");
+                }
+            };
+
+            // Kinda jank but like... if it works it works right?
+            //GraphicsDevice = CreateGraphicsDevice();
+            AudioOutput = new AudioOutput();
+
+            ResourceLoaderData.Initialize(GraphicsDevice, AudioOutput);
+
+            ResourceWindowManager = new ResourceWindowManager(this);
 
 
             if (!string.IsNullOrEmpty(STARTING_THEME))
@@ -88,12 +133,17 @@ namespace DREngine.Editor
             }
         }
 
-        private void Initialize() {
-
+        private void Initialize()
+        {
             EmptyProject();
             LoadProject(new EnginePath("projects/test_project"));
 
             //new SubWindow(this, "Test window");
+        }
+
+        private void OpenProjectFile(string projectPath, string fullPath)
+        {
+            ResourceWindowManager.OpenResource(new ProjectPath(ProjectData.GetFullProjectPath(), projectPath));
         }
 
         private void OnHandleExceptionEvent(GLib.UnhandledExceptionArgs args)
@@ -104,13 +154,11 @@ namespace DREngine.Editor
             if (Window == null)
             {
                 Debug.LogError("Window not created yet, will print error to STDOUT.");
-                Debug.LogError(e.Message);
-                Debug.LogError(e.StackTrace);
+                Debug.LogError(e.ToString());
             }
             else
             {
-                Debug.LogError(e.Message);
-                Debug.LogError(e.StackTrace);
+                Debug.LogError(e.ToString());
 
                 Window d = new Window(WindowType.Toplevel);
                 d.WindowPosition = WindowPosition.Center;
@@ -137,7 +185,7 @@ namespace DREngine.Editor
                 output.Editable = false;
                 output.Monospace = true;
                 output.CursorVisible = false;
-                string message = $"Message: {e.Message}\n\nStacktrace:\n{e.StackTrace}";
+                string message = $"Message: {e.Message}\n\nException:\n{e.ToString()}";
                 TextTag errTag = new TextTag("error");
                 errTag.Foreground = "#FF3311";
                 output.Buffer.TagTable.Add(errTag);
@@ -174,6 +222,23 @@ namespace DREngine.Editor
             Dispose();
         }
 
+        #region MonoGame Fix Stuff
+
+        private static void PreparePresentationParameters(PresentationParameters presentationParameters, IntPtr windowHandle, int windowWidth, int windowHeight)
+        {
+            presentationParameters.BackBufferFormat = SurfaceFormat.Color;
+            presentationParameters.BackBufferWidth = windowWidth;
+            presentationParameters.BackBufferHeight = windowHeight;
+            presentationParameters.DepthStencilFormat = DepthFormat.Depth24;
+            presentationParameters.IsFullScreen = false;
+            presentationParameters.HardwareModeSwitch = false;
+            presentationParameters.PresentationInterval = PresentInterval.One;
+            presentationParameters.DisplayOrientation = DisplayOrientation.Default;
+            presentationParameters.DeviceWindowHandle = windowHandle;
+            presentationParameters.MultiSampleCount = 0; // 32 or some other higher number?
+        }
+        
+        #endregion
 #region Disposable
 
         public void Dispose() {

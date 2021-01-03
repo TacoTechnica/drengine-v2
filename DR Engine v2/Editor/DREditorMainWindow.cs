@@ -18,6 +18,10 @@ namespace DREngine.Editor
 
         public Icons Icons;
 
+        public Action<String, String> OnFileOpened
+        {
+            get => _resourceView.OnFileOpened; set => _resourceView.OnFileOpened = value;
+        }
 
         public DREditorMainWindow() : base(WindowType.Toplevel)
         {
@@ -100,7 +104,7 @@ namespace DREngine.Editor
                 },
                 file =>
                 {
-                    // PARSE FILE
+                    // PARSE FILE on INIT (for general loading. NOT OPENING!!)
                 }
             );
         }
