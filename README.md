@@ -1,5 +1,7 @@
 # drengine-v2
 
+A Fanganronpa creator. Let the fan chaos commence.
+
 TODO: Give the folks at home a description on what the heck this is.
 
 There are no releases (yet), so you'll have to run the project from source. See Build guide below.
