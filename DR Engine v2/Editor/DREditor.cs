@@ -70,7 +70,7 @@ namespace DREngine.Editor
 
             ResourceNameCache = new ResourceNameCache();
 
-            Window = new DREditorMainWindow();
+            Window = new DREditorMainWindow(this);
             Window.MakeWindow("DR Editor", 640, 480);
             Window.AddEvents((int) (Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask));
             Window.Show();

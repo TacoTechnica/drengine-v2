@@ -47,6 +47,29 @@ namespace DREngine.Editor.SubWindows
             return newWindow;
         }
 
+        public bool AnyWindowDirty()
+        {
+            foreach (SubWindow window in _openWindows.Values)
+            {
+                if (window.IsOpen && window is SavableWindow sWindow)
+                {
+                    if (sWindow.Dirty) return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void ForceCloseAllWindows()
+        {
+            foreach (SubWindow window in _openWindows.Values)
+            {
+                window.Close();
+                window.Dispose();
+            }
+            _openWindows.Clear();
+        }
+
         private SubWindow CreateResourceWindow(ProjectPath path, string extension)
         {
             if (path.RelativePath == "project.json")

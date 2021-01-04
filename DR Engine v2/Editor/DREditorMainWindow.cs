@@ -14,6 +14,8 @@ namespace DREngine.Editor
     public class DREditorMainWindow : Gtk.Window
     {
 
+        private DREditor _editor;
+
         private ResourceView _resourceView;
         private EditorLog _log;
 
@@ -24,8 +26,9 @@ namespace DREngine.Editor
             get => _resourceView.OnFileOpened; set => _resourceView.OnFileOpened = value;
         }
 
-        public DREditorMainWindow() : base(WindowType.Toplevel)
+        public DREditorMainWindow(DREditor editor) : base(WindowType.Toplevel)
         {
+            _editor = editor;
             // Make window is called externally.
         }
 
@@ -97,6 +100,11 @@ namespace DREngine.Editor
         }
         public void LoadProject(ProjectData data, string fullPath, Action<string> OnFileLoad = null)
         {
+            if (fullPath.EndsWith("project.json"))
+            {
+                fullPath = fullPath.Substring(0, fullPath.Length - "project.json".Length);
+            }
+            
             _resourceView.Clear();
             _resourceView.LoadDirectory(fullPath,
                 dir =>
@@ -144,15 +152,13 @@ namespace DREngine.Editor
             Debug.LogWarning($"Problem: {message}");
             MessageDialog popup = new MessageDialog(
                 this,
-                DialogFlags.Modal,
+                DialogFlags.DestroyWithParent,
                 MessageType.Error,
                 ButtonsType.Ok,
                 message
-            );
-            popup.Title = title;
-            popup.WindowPosition = WindowPosition.Center;
+            ) {Title = title, WindowPosition = WindowPosition.Center};
             popup.Show();
-            int response = popup.Run();
+            popup.Run();
             popup.Dispose();
         }
 
@@ -213,20 +219,43 @@ namespace DREngine.Editor
 
         private void NewProjectPressed()
         {
-            DREditor.Instance.EmptyProject();
+            // TODO: New Project Wizard
+            //DREditor.Instance.EmptyProject();
         }
 
         private void OpenProjectPressed()
         {
 
+            if (_editor.ResourceWindowManager.AnyWindowDirty())
+            {
+                string message = "Some open resources have unsaved changes, Load anyway and discard changes?";
+
+                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes", "Cancel");
+                //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
+                //    ButtonsType.OkCancel, false, message);
+                bool ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
+                dialogue.Dispose();
+                if (!ok)
+                {
+                    return;
+                }
+            }
+
+            using FileChooserDialog chooser = new FileChooserDialog("Open Project", this, FileChooserAction.Open,
+                "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
+            chooser.Filter = new FileFilter {Name = "DR Project File"};
+            chooser.Filter.AddPattern("project.json");
+
+            if ((ResponseType) chooser.Run() == ResponseType.Accept)
+            {
+                _editor.ResourceWindowManager.ForceCloseAllWindows();
+
+                Debug.Log($"LOADING: {chooser.Filename}");
+                _editor.LoadProject(chooser.Filename);
+            }
         }
 
         private void ExportProjectPressed()
-        {
-            AlertProblem("This feature is not implemented yet. Sorry!");
-        }
-
-        private void RunProjectPressed()
         {
             AlertProblem("This feature is not implemented yet. Sorry!");
         }
