@@ -187,7 +187,7 @@ namespace DREngine.Editor
                     $"<big>:( Program ran into an Exception!</big>"//\n\n <b>Message:</b> \n\n<tt>{e.Message}</tt>\n\n <b>Stack:</b> \n\n<tt>{e.StackTrace}</tt>\n\nTough luck buddy, Please contact dev if this is a problem!"
                 );
                 */
-                Label preText = new Label("<big>The program encountered an exception!</big>");
+                Text preText = new Text("<big>The program encountered an exception!</big>");
                 preText.UseMarkup = true;
                 preText.Show();
                 b.Add(preText);
@@ -204,8 +204,8 @@ namespace DREngine.Editor
                 output.Margin = 10;
                 output.Show();
                 b.Add(output);
-                Label postText =
-                    new Label(
+                Text postText =
+                    new Text(
                         "If this is an issue, please copy+paste the text above and send it to the developer! Try to give as much additional info on how the error happened as possible."
                     );
                 postText.Show();

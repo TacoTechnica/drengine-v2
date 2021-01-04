@@ -12,7 +12,7 @@ namespace DREngine.Editor.SubWindows.Resources
 
         private FieldBox _fields;
 
-        private Label _message;
+        private Text _message;
         public ProjectSettingsWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
@@ -20,7 +20,7 @@ namespace DREngine.Editor.SubWindows.Resources
 
         protected override void OnInitialize(Box container)
         {
-            _message = new Label();
+            _message = new Text("");
             _fields = new FieldBox(_editor, typeof(ProjectData));
             _fields.Modified += MarkDirty;
 

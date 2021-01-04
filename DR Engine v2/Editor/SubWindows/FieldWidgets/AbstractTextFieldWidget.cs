@@ -28,6 +28,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _prevBuffer = _text.Buffer.Text;
             _text.Buffer.Changed += (sender, args) =>
             {
+                //Debug.Log($"FIELD SET {field.Name} = {_text.Buffer.Text}");
                 if (_modifiedFlag)
                 {
                     _prevBuffer = _text.Buffer.Text;
@@ -48,6 +49,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 }
             };
             content.PackEnd(_text, true, true, 4);
+            _text.Show();
         }
 
         protected abstract T FromString(string value);

@@ -18,7 +18,7 @@ namespace DREngine.Editor.SubWindows
 
         protected override void OnInitialize()
         {
-            Label label = new Label(
+            Text label = new Text(
                 $"Cannot open resource at \"{_path.ToString()}\" because it has unknown extension \"{_extension}\".\n\n" +
                 "If this is truly a valid resource that should be openable, rename the file to match a valid extension.\n" +
                 "Otherwise, you must use a different editor that can open this file.\n\nSorry!");

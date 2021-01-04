@@ -40,6 +40,9 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         private object _target = null;
         private FieldInfo _field;
+
+        public bool AutoApply = false;
+
         public void Apply()
         {
             if (_target != null)
@@ -61,12 +64,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             HBox modifierContainer = new HBox();
 
             this.PackStart(label, false, false, 4);
-            this.PackEnd(modifierContainer, true, true, 4);
 
             label.Show();
-            modifierContainer.Show();
-
             Initialize(field, modifierContainer);
+            this.PackEnd(modifierContainer, true, true, 4);
+            modifierContainer.Show();
         }
 
         public object Value
@@ -82,6 +84,10 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         protected void OnModify()
         {
             Modified?.Invoke(Value);
+            if (AutoApply)
+            {
+                Apply();
+            }
         }
     }
 }

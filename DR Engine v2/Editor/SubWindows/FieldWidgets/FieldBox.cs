@@ -35,7 +35,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
                 if (widget is Widget w)
                 {
-                    PackStart(w, false, true, 4);
+                    //Debug.Log($"ADDED WIDGET: {widget} => {f.Name}");
+                    PackStart(w, true, true, 4);
                     w.Show();
                 }
                 else

@@ -1,15 +1,21 @@
 using System;
+using System.Reflection;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class FieldContainerAttribute : Attribute
+    public class FieldContainerAttribute : OverrideFieldAttribute
     {
-        public string OverrideTitle;
+        public readonly string OverrideTitle;
 
         public FieldContainerAttribute(string overrideTitle = "")
         {
             OverrideTitle = overrideTitle;
+        }
+
+        public override IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field)
+        {
+            return new FieldContainerWidget(editor);
         }
     }
 }

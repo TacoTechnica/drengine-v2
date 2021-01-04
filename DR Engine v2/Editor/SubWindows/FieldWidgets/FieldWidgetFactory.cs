@@ -19,6 +19,15 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             Type type = field.FieldType;
             
+            // Check for OVERRIDES
+            
+            // Container attribute
+            OverrideFieldAttribute fieldOverride = field.GetCustomAttribute<OverrideFieldAttribute>();
+            if (fieldOverride != null)
+            {
+                return fieldOverride.GetOverrideWidget(editor, field);
+            }
+            
             // STRING FIELD
             if (IsType(type, typeof(string)))
             {
@@ -36,9 +45,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
 
             // MISC
-            if (IsType(type, typeof(OverridablePath))) // This works?
+            if (IsType(type, typeof(OverridablePath)))
             {
-                Debug.Log("FOUND GENERIC");
                 ResourceTypeAttribute attrib = field.GetCustomAttribute<ResourceTypeAttribute>();
                 if (attrib == null)
                 {
@@ -48,12 +56,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 return new OverridablePathFieldWidget(editor, subType);
             }
 
-            // Container attribute
-            FieldContainerAttribute fieldContainerAttribute = field.GetCustomAttribute<FieldContainerAttribute>();
-            if (fieldContainerAttribute != null)
-            {
-                return new FieldContainerWidget(editor);
-            }
 
             return new UnknownFieldWidget($"Unsupported type: {type}.");
         }

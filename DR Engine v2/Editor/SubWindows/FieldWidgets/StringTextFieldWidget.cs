@@ -1,3 +1,5 @@
+using GameEngine;
+
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class StringTextFieldWidget : AbstractTextFieldWidget<string>
@@ -10,7 +12,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         protected override string DataToString(string value)
         {
             return value;
-
         }
 
         protected override bool IsValidParse(string value)

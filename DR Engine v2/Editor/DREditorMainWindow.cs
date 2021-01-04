@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using GameEngine;
+using GameEngine.Game;
 using Gdk;
 using GLib;
 using Gtk;
@@ -8,6 +9,7 @@ using MonoGame.Framework.Utilities.Deflate;
 using Action = System.Action;
 using MenuItem = Gtk.MenuItem;
 using WindowType = Gtk.WindowType;
+using Path = GameEngine.Game.Path;
 
 namespace DREngine.Editor
 {
@@ -221,30 +223,89 @@ namespace DREngine.Editor
         {
             // TODO: New Project Wizard
             //DREditor.Instance.EmptyProject();
+
+            if (!EnsureNobodyDirty()) return;
+            
+            using NewProjectDialogue dialog = new NewProjectDialogue(_editor, this, "New Project");
+            bool valid = false;
+            while (!valid)
+            {
+                valid = true;
+                if ((ResponseType) dialog.Run() == ResponseType.Accept)
+                {
+                    if (dialog.ProjectTitle == null)
+                    {
+                        AlertProblem("New Project must have title!");
+                        valid = false;
+                    }
+                    else if (dialog.Author == null)
+                    {
+                        AlertProblem("New Project must have author!");
+                        valid = false;
+                    } else 
+                    {
+                        // Directory checking
+                        Path pathToMake = dialog.GetTargetPath();
+
+                        if (Directory.Exists(pathToMake))
+                        {
+                            AlertProblem(
+                                $"Directory {dialog.GetTargetPath()} already exists. Please pick a different project name.\n" +
+                                "You may pick a temporary name that isn't taken for now and change the project name later by opening project.json. " +
+                                "Renaming the folder is OK too.");
+                            valid = false;
+                        } else if (dialog.ProjectTitle.Contains('/'))
+                        {
+                            AlertProblem($"Project title \"{dialog.ProjectTitle}\" cannot contain forward slashes. Sorry!");
+                            valid = false;
+                        } else if (!Directory.GetParent(pathToMake).Exists)
+                        {
+                            AlertProblem($"Project cannot be created because path {Directory.GetParent(pathToMake)} does not exist. This is probably a bug!");
+                            valid = false;
+                        }
+                    }
+
+                    if (valid)
+                    {
+                        // Create project. No problems found.
+                        _editor.ResourceWindowManager.ForceCloseAllWindows();
+
+                        // Create path
+                        Path folderToCreate = dialog.GetTargetPath();
+                        Directory.CreateDirectory(folderToCreate);
+
+                        Path projectPath = folderToCreate + "/project.json";
+
+                        ProjectData newProject = new ProjectData();
+                        newProject.Name = dialog.ProjectTitle;
+                        newProject.Author = dialog.Author;
+
+                        // Create json.txt
+                        ProjectData.WriteToFile(projectPath, newProject);
+
+                        // Create icon if we specified one.
+                        if (dialog.IconPath != null)
+                        {
+                            File.Copy(dialog.IconPath, folderToCreate + "/icon.png");
+                        }
+
+                        // We did it! Now Load.
+                        _editor.LoadProject(projectPath);
+                    }
+                }
+            }
         }
 
         private void OpenProjectPressed()
         {
-
-            if (_editor.ResourceWindowManager.AnyWindowDirty())
-            {
-                string message = "Some open resources have unsaved changes, Load anyway and discard changes?";
-
-                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes", "Cancel");
-                //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
-                //    ButtonsType.OkCancel, false, message);
-                bool ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
-                dialogue.Dispose();
-                if (!ok)
-                {
-                    return;
-                }
-            }
+            if (!EnsureNobodyDirty()) return;
 
             using FileChooserDialog chooser = new FileChooserDialog("Open Project", this, FileChooserAction.Open,
                 "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
             chooser.Filter = new FileFilter {Name = "DR Project File"};
             chooser.Filter.AddPattern("project.json");
+
+            chooser.SetCurrentFolder(new EnginePath("projects"));
 
             if ((ResponseType) chooser.Run() == ResponseType.Accept)
             {
@@ -291,6 +352,22 @@ namespace DREngine.Editor
             b.PackStart(button, false, false, 0);
             button.Show();
             return b;
+        }
+
+        private bool EnsureNobodyDirty()
+        {
+            if (_editor.ResourceWindowManager.AnyWindowDirty())
+            {
+                string message = "Some open resources have unsaved changes, Load anyway and discard changes?";
+
+                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes", "Cancel");
+                //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
+                //    ButtonsType.OkCancel, false, message);
+                bool ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
+                return ok;
+            }
+
+            return true;
         }
 
 #endregion

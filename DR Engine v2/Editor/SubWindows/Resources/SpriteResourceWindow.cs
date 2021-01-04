@@ -11,7 +11,7 @@ namespace DREngine.Editor.SubWindows.Resources
         private DREditor _editor;
 
         private Image _image;
-        private Label _label;
+        private Text _label;
 
         private FieldBox _fields;
 
@@ -23,7 +23,7 @@ namespace DREngine.Editor.SubWindows.Resources
         protected override void OnInitialize(Box container)
         {
             _image = new Image();
-            _label = new Label("Nothing loaded");
+            _label = new Text("Nothing loaded");
             _fields = new ExtraDataFieldBox(_editor, typeof(Sprite), true);
             container.PackStart(_image, true, true, 4);
             container.PackEnd(_label, false, false, 4);
