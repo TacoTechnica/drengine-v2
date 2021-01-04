@@ -1,6 +1,7 @@
 ﻿using System;
 using GameEngine;
 using Gdk;
+using Gtk;
 using Math = GameEngine.Math;
 using WindowType = Gtk.WindowType;
 
@@ -23,7 +24,7 @@ namespace DREngine.Editor.SubWindows
 
             _editor = editor;
 
-            IsOpen = true;
+            IsOpen = false;
         }
 
         public void Initialize()
@@ -31,16 +32,33 @@ namespace DREngine.Editor.SubWindows
             OnInitialize();
             ShowAll();
             
+            this.DeleteEvent += OnDeleteEvent;
             
             RequestMinSize(128, 128);
             //RequestMaxSize(_editor.Window.Display.PrimaryMonitor.Workarea.Width, _editor.Window.Display.PrimaryMonitor.Workarea.Height);
         }
-        protected abstract void OnInitialize();
+
+        private void OnDeleteEvent(object o, DeleteEventArgs args)
+        {
+            IsOpen = false;
+        }
 
         protected override void OnDestroyed()
         {
             IsOpen = false;
             base.OnDestroyed();
+        }
+
+        protected override void OnShown()
+        {
+            IsOpen = true;
+            base.OnShown();
+        }
+
+        protected override bool OnDestroyEvent(Event evnt)
+        {
+            IsOpen = false;
+            return base.OnDestroyEvent(evnt);
         }
 
         protected virtual void RequestMinSize(int minWidth, int minHeight)
@@ -56,6 +74,10 @@ namespace DREngine.Editor.SubWindows
             this.GetSize(out width, out height);
             this.SetSizeRequest(Math.Min(width, maxWidth), Math.Min(height, maxHeight));
         }
+
+        
+        protected abstract void OnInitialize();
+
 
         #region Garbage
 

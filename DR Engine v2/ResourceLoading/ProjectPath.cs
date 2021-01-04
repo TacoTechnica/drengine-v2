@@ -1,4 +1,6 @@
-﻿using DREngine.Game;
+﻿using DREngine.Editor;
+using DREngine.Game;
+using GameEngine;
 using GameEngine.Game;
 
 namespace DREngine
@@ -6,22 +8,29 @@ namespace DREngine
     public class ProjectPath : Path
     {
         private DRGame _game;
+        private DREditor _editor;
 
-        private string _fullProjectPath;
-        public ProjectPath(DRGame game, string path) : base(path)
+        public ProjectPath(DRGame game, string path) : base(ParseRelativePath(path))
         {
             _game = game;
-            _fullProjectPath = null;
+            _editor = null;
         }
 
-        public ProjectPath(string fullProjectPath, string path) : base(path)
+        public ProjectPath(DREditor editor, string path) : base(ParseRelativePath(path))
         {
             _game = null;
-            _fullProjectPath = fullProjectPath;
+            _editor = editor;
         }
+
+        private static string ParseRelativePath(string path)
+        {
+            if (path.StartsWith("/")) path = path.Substring(1);
+            return path;
+        }
+
         public override string ToString()
         {
-            return _game != null? _game.GameProjectData.GetFullProjectPath(RelativePath) : ProjectData.GetFullProjectPath(_fullProjectPath, RelativePath);
+            return _game != null? _game.GameProjectData.GetFullProjectPath(RelativePath) : _editor.ProjectData.GetFullProjectPath(RelativePath);
         }
     }
 }

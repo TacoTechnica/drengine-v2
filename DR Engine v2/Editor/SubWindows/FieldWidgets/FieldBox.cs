@@ -16,16 +16,16 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public Action Modified;
 
-        public FieldBox(Type type)
+        public FieldBox(DREditor editor, Type type)
         {
             foreach (FieldInfo f in type.GetFields().Where(f => f.IsPublic && !f.IsStatic))
             {
-                IFieldWidget widget = FieldWidgetFactory.CreateField(f); 
+                IFieldWidget widget = FieldWidgetFactory.CreateField(editor, f); 
                 _fields.Add(widget);
 
                 widget.Modified += o =>
                 {
-                    Modified.Invoke();
+                    Modified?.Invoke();
                 };
 
                 if (widget is Widget w)
@@ -42,6 +42,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public void LoadTarget(object target)
         {
+            Target = target;
             foreach (IFieldWidget field in _fields)
             {
                 field.Load(target);

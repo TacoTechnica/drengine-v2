@@ -17,18 +17,20 @@ namespace DREngine.Editor.SubWindows
 
         public bool Dirty { get; private set; }
 
+        public string RootTitle { get; private set; }
+
+
         private Box _container;
         private HBox _topMenu;
 
-        public string RootTitle { get; private set; }
+        private bool _includeTopBar;
 
-        public SavableWindow(DREditor editor, ProjectPath resPath) : base(editor, $"{resPath.RelativePath}")
+        
+        public SavableWindow(DREditor editor, ProjectPath resPath, bool includeTopBar = true) : base(editor, $"{resPath?.RelativePath}")
         {
             RootTitle = Title;
             _editor = editor;
-            this.DeleteEvent += OnDeleteEvent;
-            
-            this.KeyPressEvent += OnKeyPressEvent;
+            _includeTopBar = includeTopBar;
         }
 
         private void OnKeyPressEvent(object o, KeyPressEventArgs args)
@@ -90,16 +92,16 @@ namespace DREngine.Editor.SubWindows
             // Init layout
 
             VBox mainBox = new VBox();
-            
-            _topMenu = new HBox();
-            _topMenu.HeightRequest = 16;
-            
-            mainBox.PackStart(_topMenu, false, true, 4);
 
-            AddMenuBarItem("Save", _editor.Icons.Save, () =>
+            if (_includeTopBar)
             {
-                Save();
-            });
+                _topMenu = new HBox();
+                _topMenu.HeightRequest = 16;
+
+                mainBox.PackStart(_topMenu, false, true, 4);
+
+                AddMenuBarItem("Save", _editor.Icons.Save, () => { Save(); });
+            }
 
             _container = new VBox();
 
@@ -108,6 +110,11 @@ namespace DREngine.Editor.SubWindows
             mainBox.PackStart(_container, true, true, 4);
 
             Add(mainBox);
+
+            this.DeleteEvent += OnDeleteEvent;
+
+            this.KeyPressEvent += OnKeyPressEvent;
+
         }
 
         protected virtual void OnKey(Key key, bool control)
@@ -125,7 +132,6 @@ namespace DREngine.Editor.SubWindows
             {
                 Close();
             }
-            
         }
         
         #region Abstract Functions
@@ -141,7 +147,7 @@ namespace DREngine.Editor.SubWindows
         protected void MarkDirty()
         {
             Dirty = true;
-            Title = RootTitle + " * ";
+            Title = "*" + RootTitle + " * ";
         }
 
         protected Button AddMenuBarItem(string name, Pixbuf icon = null, Action onPress = null)

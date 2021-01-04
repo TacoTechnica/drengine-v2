@@ -1,26 +1,31 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using GameEngine;
+using GameEngine.Game;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public static class FieldWidgetFactory
     {
-        public static IFieldWidget CreateField(FieldInfo field)
+        public static IFieldWidget CreateField(DREditor editor, FieldInfo field)
         {
-            IFieldWidget widget = GetNewField(field);
+            IFieldWidget widget = GetNewField(editor, field);
             widget.InitializeField(field);
             return widget;
         }
         
-        private static IFieldWidget GetNewField(FieldInfo field)
+        private static IFieldWidget GetNewField(DREditor editor, FieldInfo field)
         {
             Type type = field.FieldType;
+            
+            // STRING FIELD
             if (IsType(type, typeof(string)))
             {
                 return new StringTextFieldWidget();
             }
 
+            // DEFAULT NUMBERS
             if (IsType(type, typeof(int)))
             {
                 return new IntegerTextFieldWidget();
@@ -30,6 +35,26 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 return new FloatTextFieldWidget();
             }
 
+            // MISC
+            if (IsType(type, typeof(OverridablePath))) // This works?
+            {
+                Debug.Log("FOUND GENERIC");
+                ResourceTypeAttribute attrib = field.GetCustomAttribute<ResourceTypeAttribute>();
+                if (attrib == null)
+                {
+                    throw new InvalidOperationException($"You forgot to add an attribute for {type.Name}.");
+                }
+                Type subType = attrib.Type;
+                return new OverridablePathFieldWidget(editor, subType);
+            }
+
+            // Container attribute
+            FieldContainerAttribute fieldContainerAttribute = field.GetCustomAttribute<FieldContainerAttribute>();
+            if (fieldContainerAttribute != null)
+            {
+                return new FieldContainerWidget(editor);
+            }
+
             return new UnknownFieldWidget($"Unsupported type: {type}.");
         }
 
@@ -37,6 +62,20 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             // type is the parent here
             return type.IsAssignableFrom(typeToCheck);
+        }
+
+        private static bool IsTypeGeneric(Type typeToCheck, Type generic)
+        {
+            try
+            {
+                return IsType(typeToCheck.GetGenericTypeDefinition(), generic);
+            }
+            catch (Exception)
+            {
+                // If this is not a generic it will throw an exception.
+                // If that happens, we're OK since we know one thing!
+                return false;
+            }
         }
     }
 }

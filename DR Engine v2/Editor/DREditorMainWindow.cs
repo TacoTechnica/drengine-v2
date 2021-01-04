@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using GameEngine;
 using Gdk;
 using GLib;
@@ -94,7 +95,7 @@ namespace DREngine.Editor
         {
             _resourceView.Clear();
         }
-        public void LoadProject(ProjectData data, string fullPath)
+        public void LoadProject(ProjectData data, string fullPath, Action<string> OnFileLoad = null)
         {
             _resourceView.Clear();
             _resourceView.LoadDirectory(fullPath,
@@ -104,7 +105,8 @@ namespace DREngine.Editor
                 },
                 file =>
                 {
-                    // PARSE FILE on INIT (for general loading. NOT OPENING!!)
+                    string relative = System.IO.Path.GetRelativePath(fullPath, file);
+                    OnFileLoad?.Invoke(relative);
                 }
             );
         }

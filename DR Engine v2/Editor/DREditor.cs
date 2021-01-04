@@ -34,6 +34,8 @@ namespace DREngine.Editor
 
         public DRProjectRunner ProjectRunner;
 
+        public ResourceNameCache ResourceNameCache { get; private set; }
+
         // Poo poo singleton
         public static DREditor Instance = null;
 
@@ -66,6 +68,7 @@ namespace DREngine.Editor
             ResourceLoaderData = new ResourceLoaderData();
             ResourceLoader = new ResourceLoader(ResourceLoaderData);
 
+            ResourceNameCache = new ResourceNameCache();
 
             Window = new DREditorMainWindow();
             Window.MakeWindow("DR Editor", 640, 480);
@@ -130,8 +133,12 @@ namespace DREngine.Editor
             ProjectData = ProjectData.LoadFromFile(fullPath);
             if (ProjectData != null)
             {
+                ResourceNameCache.Clear();
                 _projectPath = fullPath;
-                Window.LoadProject(ProjectData, fullPath);
+                Window.LoadProject(ProjectData, fullPath, (file) =>
+                {
+                    ResourceNameCache.AddToCache(file);
+                });
                 Window.Title = $"DREditor {Program.Version}: {ProjectData.Name}";
             }
         }
@@ -146,8 +153,7 @@ namespace DREngine.Editor
 
         private void OpenProjectFile(string projectPath, string fullPath)
         {
-            // TODO: Clean up. RN it works fine but it's real ugly.
-            ResourceWindowManager.OpenResource(new ProjectPath(ProjectData.GetFullProjectPath() + "/project.json", projectPath));
+            ResourceWindowManager.OpenResource(new ProjectPath(this, projectPath));
         }
 
         private void OnHandleExceptionEvent(GLib.UnhandledExceptionArgs args)

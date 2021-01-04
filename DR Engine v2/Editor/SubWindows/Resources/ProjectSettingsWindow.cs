@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine;
 using Gtk;
@@ -15,7 +12,6 @@ namespace DREngine.Editor.SubWindows.Resources
         private FieldBox _fields;
 
         private Label _message;
-
         public ProjectSettingsWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
@@ -24,12 +20,9 @@ namespace DREngine.Editor.SubWindows.Resources
         protected override void OnInitialize(Box container)
         {
             _message = new Label();
-            _fields = new FieldBox(typeof(ProjectData));
-            _fields.Modified += () =>
-            {
-                MarkDirty();
-            };
-            
+            _fields = new FieldBox(_editor, typeof(ProjectData));
+            _fields.Modified += MarkDirty;
+
             container.PackStart(_message, false, false, 4);
             container.PackStart(_fields, true, true, 4);
             
@@ -47,7 +40,7 @@ namespace DREngine.Editor.SubWindows.Resources
                 throw new InvalidOperationException("No project data currently loaded by the editor.");
             }
 
-             _fields.LoadTarget(data);
+            _fields.LoadTarget(data);
         }
 
         protected override void OnSave(string path)
@@ -65,7 +58,8 @@ namespace DREngine.Editor.SubWindows.Resources
 
         protected override void OnClose()
         {
-            // Nothing
+            // Reload project if we modified/failed to modify so it reflects the file state.
+            _editor.ProjectData = ProjectData.LoadFromFile(CurrentPath);
         }
     }
 }

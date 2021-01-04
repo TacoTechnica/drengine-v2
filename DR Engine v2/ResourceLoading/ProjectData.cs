@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Debugging;
+using GameEngine.Game.Resources;
 using GameEngine.Util;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -29,10 +31,12 @@ namespace DREngine
 
         public class OverrideableResourceList
         {
-            public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-            public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-            public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+            [ResourceType(typeof(Font))] public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+            [ResourceType(typeof(Font))] public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+            [ResourceType(typeof(Font))] public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
         }
+
+        [FieldContainer]
         public OverrideableResourceList OverridableResources = new OverrideableResourceList();
 
         /// <summary>
@@ -173,5 +177,17 @@ namespace DREngine
             }
         }
         */
+    }
+
+    
+    [AttributeUsage(AttributeTargets.Field)]
+    class ResourceTypeAttribute : Attribute
+    {
+        public Type Type;
+
+        public ResourceTypeAttribute(Type type)
+        {
+            Type = type;
+        }
     }
 }
