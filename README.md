@@ -6,6 +6,10 @@ TODO: Give the folks at home a description on what the heck this is.
 
 There are no releases (yet), so you'll have to run the project from source. See Build guide below.
 
+## Notion/TODO Board
+
+[Link to Board](https://www.notion.so/a75c5a9872bc4f0c8f227c7b7ea91cac?v=1284754e15634900a7c42a6e2e539ad7)
+
 ## How to Build the Project
 
 1. Download the folder and open the sln with Jetbrains Rider (preferred) or Visual Studio (untested but should work).
