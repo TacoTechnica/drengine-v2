@@ -32,5 +32,16 @@ namespace DREngine
         {
             return _game != null? _game.GameProjectData.GetFullProjectPath(RelativePath) : _editor.ProjectData.GetFullProjectPath(RelativePath);
         }
+
+        public override string GetShortName()
+        {
+            return ProjectResourceConverter.RESOURCE_PATH_PREFIX + RelativePath;
+        }
+        protected override Path CreateNew(string relativePath)
+        {
+            if (_game != null)
+                return new ProjectPath(_game, relativePath);
+            return new ProjectPath(_editor, relativePath);
+        }
     }
 }

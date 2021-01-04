@@ -10,6 +10,8 @@ namespace GameEngine.Game.Audio
     public class AudioClip : IGameResource
     {
         public AudioClipType Type { get; set; }
+
+        [ExtraData]
         public bool UsesSample { get; private set; } = true;
         public Path Path { get; set; }
 
@@ -64,7 +66,8 @@ namespace GameEngine.Game.Audio
 
         public void Save(Path path)
         {
-            // TODO: Save Extra Data
+            Path = path;
+            ExtraResourceHelper.SaveExtraData(this, path);
         }
 
         public void Unload()

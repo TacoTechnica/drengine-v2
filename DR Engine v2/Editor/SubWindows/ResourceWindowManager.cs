@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DREngine.Editor.SubWindows.Resources;
+using GameEngine;
 
 namespace DREngine.Editor.SubWindows
 {
@@ -25,6 +26,7 @@ namespace DREngine.Editor.SubWindows
                 SubWindow window = _openWindows[path];
                 if (window != null && window.IsOpen)
                 {
+                    Debug.Log($"OPENING SAME WINDOW FOR PATH {path}");
                     // Make window appear first
                     window.Present();
                     return _openWindows[path];

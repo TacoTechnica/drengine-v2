@@ -1,6 +1,7 @@
 using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine;
+using GameEngine.Game;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.Resources
@@ -30,7 +31,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _fields.Show();
         }
 
-        protected override void OnOpen(string path, Box container)
+        protected override void OnOpen(Path path, Box container)
         {
             _message.Text = "PROJECT SETTINGS";
 
@@ -43,7 +44,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _fields.LoadTarget(data);
         }
 
-        protected override void OnSave(string path)
+        protected override void OnSave(Path path)
         {
             _fields.SaveFields();
             // Also save to disk

@@ -9,6 +9,8 @@ namespace GameEngine.Game.Resources
     public class Font : IGameResource
     {
         public Path Path { get; set; }
+        
+        [ExtraData]
         public int Size;
 
         [JsonIgnore]
@@ -59,7 +61,7 @@ namespace GameEngine.Game.Resources
         public void Save(Path path)
         {
             Path = path;
-            // TODO: Save extra data
+            ExtraResourceHelper.SaveExtraData(this, path);
         }
 
         public void Unload()

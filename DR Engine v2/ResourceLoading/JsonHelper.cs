@@ -8,17 +8,17 @@ namespace DREngine
 {
     public class JsonHelper
     {
-        public static void SaveToJson<T>(T obj, string filepath)
+        public static void SaveToJson<T>(T obj, Path path)
         {
             string text = JsonConvert.SerializeObject(obj,
                 new JsonSerializerSettings
                     {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
             //Debug.LogSilent($"JSON: {text}");
-            IOHelper.WriteTextFile(filepath, text);
+            IOHelper.WriteTextFile(path, text);
         }
-        public static T LoadFromJson<T>(DRGame game, string filepath)
+        public static T LoadFromJson<T>(DRGame game, Path path)
         {
-            string text = IOHelper.ReadTextFile(filepath);
+            string text = IOHelper.ReadTextFile(path);
             IDependentOnDRGame.CurrentGame = game;
             return JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
         }

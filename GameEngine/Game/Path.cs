@@ -37,6 +37,19 @@ namespace GameEngine.Game
         {
             return RelativePath;
         }
+
+        public virtual string GetShortName()
+        {
+            return ToString();
+        }
+
+        protected virtual Path CreateNew(string relativePath)
+        {
+            return new Path(relativePath);
+        }
+
+        public static Path operator +(Path a, string b)
+            => a.CreateNew(a.RelativePath + b);
     }
 
     public class EnginePath : Path {
@@ -47,5 +60,16 @@ namespace GameEngine.Game
         {
             return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{RelativePath}";
         }
+
+        public override string GetShortName()
+        {
+            return "ENGINEPATH://" + RelativePath;
+        }
+        
+        protected override Path CreateNew(string relativePath)
+        {
+            return new EnginePath(relativePath);
+        }
+        
     }
 }

@@ -49,5 +49,14 @@ namespace DREngine
         {
             return $"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location)}/{DEFAULT_RESOURCE_FOLDER}/{RelativePath}";
         }
+
+        public override string GetShortName()
+        {
+            return ProjectResourceConverter.DEFAULT_RESOURCE_PATH_PREFIX + RelativePath;
+        }
+        protected override Path CreateNew(string relativePath)
+        {
+            return new DefaultResourcePath(relativePath);
+        }
     }
 }

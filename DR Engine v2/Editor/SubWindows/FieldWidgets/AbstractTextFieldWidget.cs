@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using GameEngine;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets

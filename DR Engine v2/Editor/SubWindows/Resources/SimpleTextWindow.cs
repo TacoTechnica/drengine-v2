@@ -1,5 +1,6 @@
 using System;
 using GameEngine;
+using GameEngine.Game;
 using GameEngine.Util;
 using Gtk;
 
@@ -38,7 +39,7 @@ namespace DREngine.Editor.SubWindows.Resources
             MarkDirty();
         }
 
-        protected override void OnOpen(string path, Box container)
+        protected override void OnOpen(Path path, Box container)
         {
             _error = false;
             _text.Editable = true;
@@ -46,10 +47,9 @@ namespace DREngine.Editor.SubWindows.Resources
             _text.Buffer.Text = IOHelper.ReadTextFile(path);
         }
 
-        protected override void OnSave(string path)
+        protected override void OnSave(Path path)
         {
             if (_error) return;
-            Debug.LogSilent($"File Saved at {path}");
             IOHelper.WriteTextFile(path, _text.Buffer.Text);
         }
 

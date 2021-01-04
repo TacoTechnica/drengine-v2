@@ -58,7 +58,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
             _button.Pressed += (sender, args) =>
             {
-                Debug.Log($"CLICKED: {_chooser.IsOpen}");
                 if (_chooser.IsOpen)
                 {
                     _chooser.Present();
@@ -138,12 +137,12 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
 
 
-            protected override void OnOpen(string path, Box container)
+            protected override void OnOpen(Path path, Box container)
             {
                 throw new InvalidOperationException("Shouldn't open.");
             }
 
-            protected override void OnSave(string path)
+            protected override void OnSave(Path path)
             {
                 throw new InvalidOperationException("Shouldn't save.");
             }

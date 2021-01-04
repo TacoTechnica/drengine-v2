@@ -22,7 +22,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         protected override void OnPathSelected(string path)
         {
             if (path == DEFAULT_NAME) path = null;
-            Debug.Log($"SELECTED: {path}");
             ResourceData.OverrideProjectPath = path;
             
             // Trigger modification

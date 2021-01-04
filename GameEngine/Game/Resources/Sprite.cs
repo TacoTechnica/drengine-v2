@@ -29,18 +29,16 @@ namespace GameEngine.Game
             private set => _texture = value;
         }
 
+        [ExtraData]
         public Vector2 Pivot;
+        [ExtraData]
         public float Scale;
 
-        [JsonIgnore]
         public Path Path { get; set; }
 
-        [JsonIgnore]
         public float Width => Texture.Width;
-        [JsonIgnore]
         public float Height => Texture.Height;
 
-        [JsonIgnore]
         public bool Loaded { get; private set; }
 
         private GamePlus _game;
@@ -80,16 +78,16 @@ namespace GameEngine.Game
 
         public virtual void Load(ResourceLoaderData data)
         {
-            //Debug.Log($"LOADING SPRITE: {Path}");
+            //Debug.Log($"LOADING SPRITE: {Path.GetShortName()}");
             Texture = Texture2D.FromFile(data.GraphicsDevice, Path);
+            ExtraResourceHelper.LoadExtraData(this, Path);
             Loaded = true;
-            // TODO: Load extra data
         }
 
         public virtual void Save(Path path)
         {
             Path = path;
-            // TODO: Save extra data
+            ExtraResourceHelper.SaveExtraData(this, Path);
         }
 
         public virtual void Unload()

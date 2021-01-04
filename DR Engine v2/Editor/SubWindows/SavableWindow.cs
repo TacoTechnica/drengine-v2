@@ -6,6 +6,7 @@ using Gdk;
 using Gtk;
 using Action = System.Action;
 using Key = Gdk.Key;
+using Path = GameEngine.Game.Path;
 
 namespace DREngine.Editor.SubWindows
 {
@@ -13,7 +14,7 @@ namespace DREngine.Editor.SubWindows
     {
         private DREditor _editor;
 
-        public string CurrentPath { get; private set; }
+        public Path CurrentPath { get; private set; }
 
         public bool Dirty { get; private set; }
 
@@ -67,13 +68,17 @@ namespace DREngine.Editor.SubWindows
             }
         }
 
-        public void Open(string path)
+        public void Open(Path path)
         {
             if (File.Exists(path))
             {
                 CurrentPath = path;
                 OnOpen(path, _container);
                 Dirty = false;
+            }
+            else
+            {
+                Debug.LogWarning($"[SavableWindow] File does not exist on path {path}");
             }
         }
 
@@ -136,8 +141,8 @@ namespace DREngine.Editor.SubWindows
         
         #region Abstract Functions
         protected abstract void OnInitialize(Box container);
-        protected abstract void OnOpen(string path, Box container);
-        protected abstract void OnSave(string path);
+        protected abstract void OnOpen(Path path, Box container);
+        protected abstract void OnSave(Path path);
         protected abstract void OnLoadError(bool fileExists, Exception exception);
         protected abstract void OnClose();
         #endregion

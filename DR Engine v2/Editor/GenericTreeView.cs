@@ -60,17 +60,21 @@ namespace DREngine.Editor
             _store.GetIter(out selected, args.Path);
             string path = (string)_store.GetValue(selected, 0);
 
+
             // Construct path
             while (true)
             {
                 bool success = _store.IterParent(out selected, selected);
 
-                path = (string) _store.GetValue(selected, 0) + "/" + path;
                 if (!success)
                 {
                     break;
                 }
+
+                path = (string) _store.GetValue(selected, 0) + "/" + path;
             }
+
+            path = "/" + path;
 
             OnFileOpened?.Invoke(path, _fpath + path);
         }
@@ -96,9 +100,10 @@ namespace DREngine.Editor
             while (fqueue.Count != 0)
             {
                 string path = fqueue.Dequeue();
-                bool root = (path == fpath);
 
-                string dirname = System.IO.Path.GetFileName( path );
+                if (Ignore(path)) continue;
+
+                bool root = (path == fpath);
 
                 TreeIter iter = default(TreeIter);
                 if (root)
@@ -118,6 +123,8 @@ namespace DREngine.Editor
                 // Add directories
                 foreach (string dir in Directory.GetDirectories(path))
                 {
+                    if (Ignore(dir)) continue;
+    
                     fqueue.Enqueue(dir);
                     string name = System.IO.Path.GetFileName( dir );
                     
@@ -136,6 +143,8 @@ namespace DREngine.Editor
                 // Add files
                 foreach (string file in Directory.GetFiles(path))
                 {
+                    if (Ignore(file)) continue;
+
                     string name = System.IO.Path.GetFileName(file);
 
                     if (root)
@@ -157,6 +166,9 @@ namespace DREngine.Editor
         /// </summary>
         public void AddFile(string path, bool autoAddParentDirs = false)
         {
+
+            if (Ignore(path)) return;
+            
             TreeIter iter;
             // This is stupid, why can't I set this to root or null
             // The value here is considered invalid now.
@@ -352,6 +364,11 @@ namespace DREngine.Editor
             }
 
             return true;
+        }
+
+        protected virtual bool Ignore(string path)
+        {
+            return path.EndsWith(".extra");
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using GameEngine;
+using GameEngine.Game.Resources;
 using Gtk;
 using Action = System.Action;
 
@@ -16,15 +17,19 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public Action Modified;
 
-        public FieldBox(DREditor editor, Type type)
+        public FieldBox(DREditor editor, Type type, bool autoApply = false)
         {
-            foreach (FieldInfo f in type.GetFields().Where(f => f.IsPublic && !f.IsStatic))
+            foreach (FieldInfo f in type.GetFields().Where(f => f.IsPublic && !f.IsStatic && ShouldSerialize(f)))
             {
                 IFieldWidget widget = FieldWidgetFactory.CreateField(editor, f); 
                 _fields.Add(widget);
 
                 widget.Modified += o =>
                 {
+                    if (autoApply)
+                    {
+                        SaveFields();
+                    }
                     Modified?.Invoke();
                 };
 
@@ -55,6 +60,20 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             {
                 field.Apply();
             }            
+        }
+
+        protected virtual bool ShouldSerialize(FieldInfo f)
+        {
+            return true;
+        }
+    }
+
+    public class ExtraDataFieldBox : FieldBox
+    {
+        public ExtraDataFieldBox(DREditor editor, Type type, bool autoApply = false) : base(editor, type, autoApply) { }
+        protected override bool ShouldSerialize(FieldInfo f)
+        {
+            return f.GetCustomAttribute<ExtraDataAttribute>() != null;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using GameEngine;
 using GameEngine.Game;
 using Gtk;
+using Path = GameEngine.Game.Path;
 
 namespace DREngine.Editor.SubWindows
 {
@@ -16,7 +17,7 @@ namespace DREngine.Editor.SubWindows
             _editor = editor;
         }
 
-        protected override void OnOpen(string path, Box container)
+        protected override void OnOpen(Path path, Box container)
         {
             try
             {
@@ -38,7 +39,7 @@ namespace DREngine.Editor.SubWindows
             OnOpen(CurrentResource, container);
         }
 
-        protected override void OnSave(string path)
+        protected override void OnSave(Path path)
         {
             CurrentResource?.Save(path);
         }
