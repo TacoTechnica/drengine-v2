@@ -5,9 +5,9 @@ namespace DREngine.Editor
 {
     public class Text : Label
     {
-        public const int NORMAL = 0,
-            WARNING = 1,
-            ERROR = 2;
+        public const int Normal = 0,
+            Warning = 1,
+            Error = 2;
 
         private string _text;
 
@@ -21,13 +21,13 @@ namespace DREngine.Editor
         {
             switch (mode)
             {
-                case NORMAL:
+                case Normal:
                     ResetColor();
                     break;
-                case WARNING:
-                    SetStyle("#FFDD11", "italic");
+                case Warning:
+                    SetStyle("#FFDD11");
                     break;
-                case ERROR:
+                case Error:
                     SetStyle("#FF2210", "bold", "ultrabold");
                     break;
                 default:

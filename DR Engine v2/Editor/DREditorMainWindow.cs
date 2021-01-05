@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DREngine.Editor.Components;
 using GameEngine;
 using GameEngine.Game;
 using Gdk;
@@ -58,6 +59,7 @@ namespace DREngine.Editor
 
             _resourceView = new ResourceView();
             HookupLog(_log);
+            HookupResourceView(_resourceView);
             VPaned rightSide = new VPaned();
             rightSide.WideHandle = true;
             Widget emptyBox = new VBox();
@@ -95,6 +97,22 @@ namespace DREngine.Editor
             };
             Debug.LogDebug("Editor Log Initialized");
         }
+
+        private void HookupResourceView(ResourceView resourceView)
+        {
+            resourceView.OnNewFolder += projectDir =>
+            {
+                using NewFolderDialog dialog = new NewFolderDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                if (dialog.RunUntilAccept())
+                {
+                    ProjectPath toAdd = dialog.GetTargetDirectory();
+                    Directory.CreateDirectory(toAdd);
+                    Debug.LogSilent($"New Folder: {toAdd}");
+                    resourceView.AddFolder(toAdd.RelativePath, true);
+                }
+            };
+        }
+
 
         public void EmptyProject()
         {
@@ -195,7 +213,6 @@ namespace DREngine.Editor
             b.HeightRequest = 16;
 
             // Make the action buttons
-            // TODO: Standardize so we don't have to manually do this.
             Button newProj = NewButton("New Empty Project", Icons.New, NewProjectPressed);
             Button open = NewButton("Open Project", Icons.Open, OpenProjectPressed);
             Separator s1 = new HSeparator();
@@ -221,79 +238,40 @@ namespace DREngine.Editor
 
         private void NewProjectPressed()
         {
-            // TODO: New Project Wizard
-            //DREditor.Instance.EmptyProject();
 
             if (!EnsureNobodyDirty()) return;
-            
-            using NewProjectDialogue dialog = new NewProjectDialogue(_editor, this, "New Project");
-            bool valid = false;
-            while (!valid)
+
+            using NewProjectDialog dialog = new NewProjectDialog(_editor, this, "New Project");
+
+            if (dialog.RunUntilAccept())
             {
-                valid = true;
-                if ((ResponseType) dialog.Run() == ResponseType.Accept)
+                // Create project. No problems found.
+                _editor.ResourceWindowManager.ForceCloseAllWindows();
+
+                // Create path
+                Path folderToCreate = dialog.GetTargetPath();
+                Directory.CreateDirectory(folderToCreate);
+
+                Path projectPath = folderToCreate + "/project.json";
+
+                ProjectData newProject = new ProjectData();
+                newProject.Name = dialog.ProjectTitle;
+                newProject.Author = dialog.Author;
+
+                // Create json.txt
+                ProjectData.WriteToFile(projectPath, newProject);
+
+                // Create icon if we specified one.
+                if (dialog.IconPath != null)
                 {
-                    if (dialog.ProjectTitle == null)
-                    {
-                        AlertProblem("New Project must have title!");
-                        valid = false;
-                    }
-                    else if (dialog.Author == null)
-                    {
-                        AlertProblem("New Project must have author!");
-                        valid = false;
-                    } else 
-                    {
-                        // Directory checking
-                        Path pathToMake = dialog.GetTargetPath();
-
-                        if (Directory.Exists(pathToMake))
-                        {
-                            AlertProblem(
-                                $"Directory {dialog.GetTargetPath()} already exists. Please pick a different project name.\n" +
-                                "You may pick a temporary name that isn't taken for now and change the project name later by opening project.json. " +
-                                "Renaming the folder is OK too.");
-                            valid = false;
-                        } else if (dialog.ProjectTitle.Contains('/'))
-                        {
-                            AlertProblem($"Project title \"{dialog.ProjectTitle}\" cannot contain forward slashes. Sorry!");
-                            valid = false;
-                        } else if (!Directory.GetParent(pathToMake).Exists)
-                        {
-                            AlertProblem($"Project cannot be created because path {Directory.GetParent(pathToMake)} does not exist. This is probably a bug!");
-                            valid = false;
-                        }
-                    }
-
-                    if (valid)
-                    {
-                        // Create project. No problems found.
-                        _editor.ResourceWindowManager.ForceCloseAllWindows();
-
-                        // Create path
-                        Path folderToCreate = dialog.GetTargetPath();
-                        Directory.CreateDirectory(folderToCreate);
-
-                        Path projectPath = folderToCreate + "/project.json";
-
-                        ProjectData newProject = new ProjectData();
-                        newProject.Name = dialog.ProjectTitle;
-                        newProject.Author = dialog.Author;
-
-                        // Create json.txt
-                        ProjectData.WriteToFile(projectPath, newProject);
-
-                        // Create icon if we specified one.
-                        if (dialog.IconPath != null)
-                        {
-                            File.Copy(dialog.IconPath, folderToCreate + "/icon.png");
-                        }
-
-                        // We did it! Now Load.
-                        _editor.LoadProject(projectPath);
-                    }
+                    File.Copy(dialog.IconPath, folderToCreate + "/icon.png");
                 }
+
+                // We did it! Now Load.
+                _editor.LoadProject(projectPath);
+
             }
+
         }
 
         private void OpenProjectPressed()

@@ -7,6 +7,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public abstract class AbstractTextFieldWidget<T> : FieldWidget<T>
     {
+        public bool AllowNewlines = false;
+
         protected override T Data
         {
             get => FromString(_text.Buffer.Text);
@@ -37,7 +39,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 }
 
                 // If we have invalid string, revert.
-                if (!IsValidParse(_text.Buffer.Text))
+                if (!IsValidParseInternal(_text.Buffer.Text))
                 {
                     _modifiedFlag = true;
                     _text.Buffer.Text = _prevBuffer;
@@ -52,6 +54,15 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _text.Show();
         }
 
+        private bool IsValidParseInternal(string value)
+        {
+            if (!AllowNewlines)
+            {
+                if (value.Contains('\n')) return false;
+            }
+            return IsValidParse(value);
+        }
+        
         protected abstract T FromString(string value);
         protected abstract string DataToString(T value);
         protected abstract bool IsValidParse(string value);

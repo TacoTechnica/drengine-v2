@@ -21,6 +21,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             foreach (FieldInfo f in type.GetFields().Where(f => f.IsPublic && !f.IsStatic && ShouldSerialize(f)))
             {
+                if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
+
                 IFieldWidget widget = FieldWidgetFactory.CreateField(editor, f); 
                 _fields.Add(widget);
 

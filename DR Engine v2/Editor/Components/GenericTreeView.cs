@@ -21,6 +21,8 @@ namespace DREngine.Editor
 
         public Action<string, string> OnFileOpened;
 
+        public Action<string, string> OnFileRightClicked;
+
         public GenericTreeView()
         {
             _tree = new TreeView
@@ -52,30 +54,29 @@ namespace DREngine.Editor
             _tree.ActivateOnSingleClick = false;
 
             _tree.RowActivated += TreeOnRowActivated;
+
+            _tree.ButtonReleaseEvent += TreeOnButtonReleaseEvent;
+
+        }
+
+        private void TreeOnButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
+        {
+            var evt = args.Event;
+            if (evt.Type == EventType.ButtonRelease && evt.Button == 3)
+            {
+                TreeIter selected;
+                _tree.Selection.GetSelected(out selected);
+                string path = GetPathFromIter(ref selected, _store);
+                OnFileRightClicked?.Invoke(path, _fpath + path);
+            }
         }
 
         private void TreeOnRowActivated(object o, RowActivatedArgs args)
         {
             TreeIter selected;
             _store.GetIter(out selected, args.Path);
-            string path = (string)_store.GetValue(selected, 0);
 
-
-            // Construct path
-            while (true)
-            {
-                bool success = _store.IterParent(out selected, selected);
-
-                if (!success)
-                {
-                    break;
-                }
-
-                path = (string) _store.GetValue(selected, 0) + "/" + path;
-            }
-
-            path = "/" + path;
-
+            string path = GetPathFromIter(ref selected, _store);
             OnFileOpened?.Invoke(path, _fpath + path);
         }
 
@@ -166,7 +167,16 @@ namespace DREngine.Editor
         /// </summary>
         public void AddFile(string path, bool autoAddParentDirs = false)
         {
+            AddItem(path, true, autoAddParentDirs);
+        }
 
+        public void AddFolder(string path, bool autoAddParentDirs = false)
+        {
+            AddItem(path, false, autoAddParentDirs);
+        }
+        
+        private void AddItem(string path, bool isFile, bool autoAddParentDirs)
+        {
             if (Ignore(path)) return;
             
             TreeIter iter;
@@ -186,11 +196,14 @@ namespace DREngine.Editor
                         // Add this parent
                         if (root)
                         {
-                            iter = _store.AppendValues(sub, Icons.Folder);
+                            //iter = _store.AppendValues(sub, Icons.Folder);
+                            iter = _store.InsertWithValues(0, sub, Icons.Folder);
                         }
                         else
                         {
-                            iter = _store.AppendValues(iter, sub, Icons.Folder);
+                            //iter = _store.AppendValues(iter, sub, Icons.Folder);
+                            iter = _store.InsertWithValues(iter, 0, sub, Icons.Folder);
+
                         }
                     }
                     else
@@ -200,7 +213,8 @@ namespace DREngine.Editor
                 }
                 root = false;
             }
-            _store.SetValue(iter, 1, Icons.File);
+
+            _store.SetValue(iter, 1, isFile? Icons.File : Icons.Folder);
         }
 
         /// <summary>
@@ -316,6 +330,28 @@ namespace DREngine.Editor
             return true;
         }
 
+        private static string GetPathFromIter(ref TreeIter iter, TreeStore store)
+        {
+            string path = (string)store.GetValue(iter, 0);
+
+            // Construct path
+            while (true)
+            {
+                bool success = store.IterParent(out iter, iter);
+
+                if (!success)
+                {
+                    break;
+                }
+
+                path = (string) store.GetValue(iter, 0) + "/" + path;
+            }
+
+            path = "/" + path;
+
+            return path;
+        }
+        
         /// <summary>
         /// Given a treeiter, get the next treeiter that has a subpath. 
         /// </summary>
