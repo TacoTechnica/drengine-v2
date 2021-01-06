@@ -18,7 +18,7 @@ namespace DREngine.Editor.SubWindows
         {
             _editor = editor;
         }
-        
+
         public SubWindow OpenResource(ProjectPath path)
         {
             if (_openWindows.ContainsKey(path))
@@ -26,7 +26,6 @@ namespace DREngine.Editor.SubWindows
                 SubWindow window = _openWindows[path];
                 if (window != null && window.IsOpen)
                 {
-                    Debug.Log($"OPENING SAME WINDOW FOR PATH {path}");
                     // Make window appear first
                     window.Present();
                     return _openWindows[path];

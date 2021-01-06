@@ -29,6 +29,10 @@ namespace GameEngine.Game.Audio
                     throw new InvalidProgramException(
                         $"ManagedBass Audio lib failed to initialize! Error: {Bass.LastError.ToString()}");
                 }
+                else
+                {
+                    Debug.LogSilent("(ManagedBass already initialized, ignoring)");
+                }
             }
 
             Initialized = true;

@@ -54,7 +54,6 @@ namespace GameEngine.Game.Audio
 
         public AudioMixer(AudioOutput output)
         {
-            Debug.Log("b4");
             if (IgnoreBassMixLibrary)
             {
                 _linuxFix = new AudioMixerLinux(output.SampleRate, output.ChannelCount);
@@ -65,7 +64,6 @@ namespace GameEngine.Game.Audio
                 _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerMatrix);
             }
 
-            Debug.Log("After");
             Volume = 1f;
             output.AddMixer(this);
         }
@@ -91,7 +89,6 @@ namespace GameEngine.Game.Audio
 
         internal void StopChannel(int channel)
         {
-            Debug.Log("Channel stopped");
             Bass.ChannelStop(channel);
             if (IgnoreBassMixLibrary)
             {

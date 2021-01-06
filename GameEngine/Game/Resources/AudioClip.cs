@@ -9,16 +9,16 @@ namespace GameEngine.Game.Audio
     /// </summary>
     public class AudioClip : IGameResource
     {
-        public AudioClipType Type { get; set; }
-
         [ExtraData]
-        public bool UsesSample { get; private set; } = true;
+        public AudioClipType Type { get; set; }
+        [ExtraData]
+        public bool UsesSample { get; private set; }
         public Path Path { get; set; }
 
         private AudioStorageBase _clip = null;
 
         // TODO: Add default volume and pitch scale
-        public AudioClip(GamePlus game, Path audioFile, AudioClipType type = AudioClipType.Cached)
+        public AudioClip(GamePlus game, Path audioFile, AudioClipType type = AudioClipType.Streamed)
         {
             Path = audioFile;
             Type = type;
@@ -34,7 +34,14 @@ namespace GameEngine.Game.Audio
             if (UsesSample)
             {
                 toFree = -1; // We do not free our sampled audio until it is freed as a resource.
-                return Bass.SampleGetChannel(toFree, true);
+                int sample = _clip.GetSample(); 
+                int result = Bass.SampleGetChannel(sample, true);
+                if (result == 0)
+                {
+                    Debug.LogError($"Failed to create sample source: {Bass.LastError}");
+                }
+
+                return result;
             }
 
             toFree = _clip.GetStream();

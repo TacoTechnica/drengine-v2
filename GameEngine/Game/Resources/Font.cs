@@ -34,7 +34,6 @@ namespace GameEngine.Game.Resources
 
         ~Font()
         {
-            Debug.Log("OOF");
             Unload();
         }
 

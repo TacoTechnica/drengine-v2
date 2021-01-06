@@ -14,6 +14,15 @@ namespace GameEngine.Game.Audio
 
         private AudioClip _currentClip;
 
+
+        public bool Playing
+        {
+            get
+            {
+                return Bass.ChannelIsActive(_channel) == PlaybackState.Playing;
+            }
+        }
+
         public AudioSource(AudioMixer mixer)
         {
             _mixer = mixer;
@@ -23,7 +32,6 @@ namespace GameEngine.Game.Audio
 
         public void Play(AudioClip clip)
         {
-
             // If we're playing the same clip, use the old channel.
             if (_currentClip != clip)
             {
