@@ -1,29 +1,22 @@
 using System;
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using Gdk;
-using GLib;
+using GameEngine.Game.Resources;
 using Gtk;
-using Microsoft.Win32.SafeHandles;
-using Microsoft.Xna.Framework.Graphics;
-using Pango;
-using Font = GameEngine.Game.Resources.Font;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace DREngine.Editor.SubWindows.Resources
 {
     public class FontResourceWindow : ResourceWindow<Font>
     {
-
         private const string DefaultTestString = "The Quick Brown Fox Jumped over the Lazy Dog";
 
-        private DREditor _editor;
+        private readonly DREditor _editor;
         private FieldBox _fields;
 
         //private TextView _textEdit;
 
         private Image _imageView;
-        
+
         public FontResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
@@ -31,12 +24,12 @@ namespace DREngine.Editor.SubWindows.Resources
 
         protected override void OnInitialize(Box container)
         {
-            this.RequestMinSize(300, 300);
-            ScrolledWindow scroll = new ScrolledWindow();
+            RequestMinSize(300, 300);
+            var scroll = new ScrolledWindow();
             scroll.MaxContentHeight = 1000;
             scroll.MaxContentWidth = 1000;
             _imageView = new Image();
-            
+
             scroll.Add(_imageView);
             //_textEdit = new TextView();
             //_textEdit.Buffer.Text = DefaultTestString;
@@ -61,8 +54,8 @@ namespace DREngine.Editor.SubWindows.Resources
         protected override void OnOpen(Font resource, Box container)
         {
             _fields.LoadTarget(resource);
-            string temp = System.IO.Path.GetTempFileName();
-            Texture2D tex = resource.SpriteFont.Texture;
+            var temp = System.IO.Path.GetTempFileName();
+            var tex = resource.SpriteFont.Texture;
             tex.SaveAsPng(new FileStream(temp, FileMode.Create), tex.Width, tex.Height);
             _imageView.File = temp;
         }
@@ -76,6 +69,5 @@ namespace DREngine.Editor.SubWindows.Resources
         {
             // Nothing.
         }
-
     }
 }

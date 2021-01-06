@@ -1,5 +1,4 @@
-﻿using GameEngine;
-using Gdk;
+﻿using Gdk;
 using Gtk;
 
 namespace DREngine.Editor
@@ -33,25 +32,20 @@ namespace DREngine.Editor
                 _editor.Window.AlertProblem("Project not loaded.");
                 return;
             }
+
             if (_editor.ProjectRunner.Running)
-            {
                 _editor.ProjectRunner.Stop();
-            }
             else
-            {
                 _editor.RunCurrentProject();
-            }
         }
 
         private void SetIcon(string name, Pixbuf icon)
         {
             TooltipText = name;
             if (icon == null)
-            {
                 Label = name;
-            } else {
+            else
                 Image = new Image(icon);
-            }
         }
     }
 }

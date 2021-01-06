@@ -1,5 +1,4 @@
 using System;
-using GameEngine;
 using GameEngine.Game;
 using GameEngine.Util;
 using Gtk;
@@ -8,12 +7,11 @@ namespace DREngine.Editor.SubWindows.Resources
 {
     public class SimpleTextWindow : SavableWindow
     {
+        private bool _error;
+
+        private bool _loadFlag;
         private TextView _text;
 
-        private bool _error = false;
-
-        private bool _loadFlag = false;
-        
         public SimpleTextWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
         }
@@ -24,7 +22,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _text.Monospace = true;
             container.PackStart(_text, true, true, 4);
             _text.Show();
-            
+
             _text.Buffer.Changed += BufferOnChanged;
         }
 
@@ -36,6 +34,7 @@ namespace DREngine.Editor.SubWindows.Resources
                 _loadFlag = false;
                 return;
             }
+
             MarkDirty();
         }
 

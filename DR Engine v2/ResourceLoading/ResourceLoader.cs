@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Resources;
@@ -9,12 +8,11 @@ using GameEngine.Game.Resources;
 namespace DREngine
 {
     /// <summary>
-    /// The "Content Loader" that loads project resources.
+    ///     The "Content Loader" that loads project resources.
     /// </summary>
     public class ResourceLoader
     {
-
-        private ResourceLoaderData _data;
+        private readonly ResourceLoaderData _data;
 
         public ResourceLoader(ResourceLoaderData data)
         {
@@ -25,10 +23,7 @@ namespace DREngine
 
         public T GetResource<T>(Path path) where T : IGameResource
         {
-            if (!ResourceLoaded(path))
-            {
-                LoadNewResource<T>(path);
-            }
+            if (!ResourceLoaded(path)) LoadNewResource<T>(path);
 
             AddResourceDependent(path);
 
@@ -39,12 +34,9 @@ namespace DREngine
         public object GetResource(Path path, Type t)
         {
             Assert.IsTrue(typeof(IGameResource).IsAssignableFrom(t), $"Not an IGameResource. Type Passed: {t}");
-            if (!ResourceLoaded(path))
-            {
-                LoadNewResource(path, t);
-            }
+            if (!ResourceLoaded(path)) LoadNewResource(path, t);
             AddResourceDependent(path);
-            object resource = GetCachedResource(path);
+            var resource = GetCachedResource(path);
             Assert.IsInstanceOf(resource, t);
             return resource;
         }
@@ -58,7 +50,7 @@ namespace DREngine
 
         #region Internal Control
 
-        private Dictionary<string, IGameResource> _resources = new Dictionary<string, IGameResource>();
+        private readonly Dictionary<string, IGameResource> _resources = new Dictionary<string, IGameResource>();
 
         private bool ResourceLoaded(Path path)
         {
@@ -67,7 +59,7 @@ namespace DREngine
 
         private T GetCachedResource<T>(Path path) where T : IGameResource
         {
-            object resource = GetCachedResource(path);
+            var resource = GetCachedResource(path);
             if (resource != null)
             {
                 Assert.IsInstanceOf<T>(resource);
@@ -81,20 +73,22 @@ namespace DREngine
         {
             if (_resources.ContainsKey(path.ToString()))
             {
-                IGameResource resource = _resources[path.ToString()];
+                var resource = _resources[path.ToString()];
                 return _resources[path.ToString()];
             }
+
             return null;
         }
+
         private void LoadNewResource<T>(Path path) where T : IGameResource
         {
             LoadNewResource(path, typeof(T));
         }
+
         private void LoadNewResource(Path path, Type t)
         {
             if (Assert.IsNotNull(t.GetConstructors().FirstOrDefault(), $"No constructors found for type: {t}"))
             {
-
                 object newResource;
                 var parameters = new object[0];
                 try
@@ -103,7 +97,8 @@ namespace DREngine
                 }
                 catch (MissingMethodException e)
                 {
-                    throw new MissingMethodException($"{t} NEEDS TO HAVE AN EMPTY CONSTRUCTOR SO IT CAN BE DESERIALIZED!");
+                    throw new MissingMethodException(
+                        $"{t} NEEDS TO HAVE AN EMPTY CONSTRUCTOR SO IT CAN BE DESERIALIZED!");
                 }
 
                 Assert.IsNotNull(newResource);
@@ -111,7 +106,7 @@ namespace DREngine
 
                 if (Assert.IsInstanceOf<IGameResource>(newResource) && newResource != null)
                 {
-                    IGameResource res = (IGameResource) newResource;
+                    var res = (IGameResource) newResource;
                     Assert.IsFalse(_resources.ContainsKey(path));
                     res.Path = path;
                     res.Load(_data);
@@ -133,6 +128,5 @@ namespace DREngine
         }
 
         #endregion
-
     }
 }

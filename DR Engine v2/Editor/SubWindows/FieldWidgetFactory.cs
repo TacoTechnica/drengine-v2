@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
 using System.Reflection;
-using GameEngine;
-using GameEngine.Game;
 using Microsoft.Xna.Framework;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -11,66 +8,43 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     {
         public static IFieldWidget CreateField(DREditor editor, FieldInfo field)
         {
-            IFieldWidget widget = GetNewField(editor, field);
+            var widget = GetNewField(editor, field);
             widget.InitializeField(field);
             return widget;
         }
-        
+
         private static IFieldWidget GetNewField(DREditor editor, FieldInfo field)
         {
-            Type type = field.FieldType;
-            
+            var type = field.FieldType;
+
             // Check for OVERRIDES
-            
+
             // Container attribute
-            OverrideFieldAttribute fieldOverride = field.GetCustomAttribute<OverrideFieldAttribute>();
-            if (fieldOverride != null)
-            {
-                return fieldOverride.GetOverrideWidget(editor, field);
-            }
-            
+            var fieldOverride = field.GetCustomAttribute<OverrideFieldAttribute>();
+            if (fieldOverride != null) return fieldOverride.GetOverrideWidget(editor, field);
+
             // STRING FIELD
-            if (IsType(type, typeof(string)))
-            {
-                return new StringTextFieldWidget();
-            }
+            if (IsType(type, typeof(string))) return new StringTextFieldWidget();
             // BOOL
-            if (IsType(type, typeof(bool)))
-            {
-                return new BoolField();
-            }
+            if (IsType(type, typeof(bool))) return new BoolField();
 
             // DEFAULT NUMBERS
-            if (IsType(type, typeof(int)))
-            {
-                return new IntegerTextFieldWidget();
-            }
-            if (IsType(type, typeof(float)))
-            {
-                return new FloatTextFieldWidget();
-            }
-            
+            if (IsType(type, typeof(int))) return new IntegerTextFieldWidget();
+            if (IsType(type, typeof(float))) return new FloatTextFieldWidget();
+
             // Enum
-            if (IsType(type, typeof(Enum)))
-            {
-                return new GenericEnumWidget();
-            }
+            if (IsType(type, typeof(Enum))) return new GenericEnumWidget();
 
             // Vector2
-            if (IsType(type, typeof(Vector2)))
-            {
-                return new Vector2Widget();
-            }
-            
+            if (IsType(type, typeof(Vector2))) return new Vector2Widget();
+
             // MISC
             if (IsType(type, typeof(OverridablePath)))
             {
-                ResourceTypeAttribute attrib = field.GetCustomAttribute<ResourceTypeAttribute>();
+                var attrib = field.GetCustomAttribute<ResourceTypeAttribute>();
                 if (attrib == null)
-                {
                     throw new InvalidOperationException($"You forgot to add an attribute for {type.Name}.");
-                }
-                Type subType = attrib.Type;
+                var subType = attrib.Type;
                 return new OverridablePathFieldWidget(editor, subType);
             }
 

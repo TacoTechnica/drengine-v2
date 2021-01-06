@@ -5,7 +5,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class BoolField : FieldWidget<bool>
     {
-
         private CheckMenuItem _check;
 
         protected override bool Data
@@ -20,10 +19,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             content.PackStart(_check, true, true, 16);
             _check.Show();
 
-            _check.Toggled += (sender, args) =>
-            {
-                OnModify();
-            };
+            _check.Toggled += (sender, args) => { OnModify(); };
         }
     }
 }

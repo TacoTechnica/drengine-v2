@@ -1,6 +1,4 @@
-using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
 using Gdk;
 using Gtk;
 using Key = Gdk.Key;
@@ -10,19 +8,23 @@ namespace DREngine.Editor.Components
 {
     public abstract class EasyDialog : Dialog
     {
-        
-        [FieldIgnore] public bool UseSubmitShortcut = true;
-        
+        private string _failureString;
 
-        private FieldBox _fields;
+
+        private readonly FieldBox _fields;
 
         protected Text _post;
 
-        private string _failureString = null;
+        [FieldIgnore] public bool UseSubmitShortcut = true;
 
         // Default buttons
-        public EasyDialog(DREditor editor, Window parent, string title="New Project") : this(editor, parent, title, "Create", ResponseType.Accept, "Cancel", ResponseType.Cancel) {}
-        public EasyDialog(DREditor editor, Window parent, string title="New Project", params object[] buttondata) : base(title, parent, DialogFlags.DestroyWithParent, buttondata)
+        public EasyDialog(DREditor editor, Window parent, string title = "New Project") : this(editor, parent, title,
+            "Create", ResponseType.Accept, "Cancel", ResponseType.Cancel)
+        {
+        }
+
+        public EasyDialog(DREditor editor, Window parent, string title = "New Project", params object[] buttondata) :
+            base(title, parent, DialogFlags.DestroyWithParent, buttondata)
         {
             _fields = new FieldBox(editor, GetType(), true);
             _post = new Text("");
@@ -37,19 +39,19 @@ namespace DREngine.Editor.Components
             _post.Show();
             _fields.LoadTarget(this);
 
-            this.KeyReleaseEvent += (o, args) =>
+            KeyReleaseEvent += (o, args) =>
             {
                 if (UseSubmitShortcut)
                 {
-                    Key key = args.Event.Key;
-                    bool ctrl = (args.Event.State & ModifierType.ControlMask) != 0;
+                    var key = args.Event.Key;
+                    var ctrl = (args.Event.State & ModifierType.ControlMask) != 0;
 
                     if (ctrl && key == Key.Return)
                     {
                         // ? Is this working, I think not.
                         _fields.UnsetFocusChain();
                         // Attempt to submit if we press ctrl+enter.
-                        this.Respond(ResponseType.Accept);
+                        Respond(ResponseType.Accept);
                     }
                 }
             };
@@ -63,24 +65,18 @@ namespace DREngine.Editor.Components
         public bool RunUntilAccept()
         {
             while (true)
-            {
                 if (Run() == ResponseType.Accept)
                 {
-                    bool failuresStillPresent = !CheckForFailuresPreSubmit() || Failed(); 
+                    var failuresStillPresent = !CheckForFailuresPreSubmit() || Failed();
                     if (failuresStillPresent)
-                    {
                         SetFailure(_failureString);
-                    }
                     else
-                    {
                         return true;
-                    }
                 }
                 else
                 {
                     return false;
                 }
-            }
         }
 
         public string GetFailureString()

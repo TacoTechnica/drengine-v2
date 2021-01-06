@@ -9,17 +9,18 @@ namespace DREngine.Game.Scene
 {
     public class FreeCamera3D : Camera3D
     {
-        private Vector3 _velocity;
+        private readonly CamControls _controls;
+
+        private bool _focused;
         private Quaternion _targetLook;
-        private CamControls _controls;
+        private Vector3 _velocity;
 
         public float LookStrength = 16f;
         public float MoveAcceleration = 30f;
         public float MoveDamping = 10f;
 
-        private bool _focused = false;
-
-        public FreeCamera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation, fov)
+        public FreeCamera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation,
+            fov)
         {
             _controls = new CamControls(game);
 
@@ -41,12 +42,10 @@ namespace DREngine.Game.Scene
             RawInput.SetMouseLock(false);
             _controls.Enabled = false;
         }
+
         private void OnDebugClosed()
         {
-            if (_focused)
-            {
-                RawInput.SetMouseLock(true);
-            }
+            if (_focused) RawInput.SetMouseLock(true);
             _controls.Enabled = true;
         }
 
@@ -69,15 +68,15 @@ namespace DREngine.Game.Scene
             base.Update(dt);
         }
 
-        void HandleLook(float dt)
+        private void HandleLook(float dt)
         {
             // Only move if we're locked with the mouse. Otherwise we might be doing other things.
             if (_focused && _controls.Enabled)
             {
-                Vector2 input = _controls.MouseLook.Value;
-                Vector3 targetEuler = Math.ToEuler(_targetLook);
-                Vector3 impulse = (LookStrength * dt) * new Vector3(-input.Y, -input.X, 0);
-                targetEuler.X += impulse.X;// TODO: Math.AddAngleAndClamp(targetEuler.X, impulse.X, -89, 89);
+                var input = _controls.MouseLook.Value;
+                var targetEuler = Math.ToEuler(_targetLook);
+                var impulse = LookStrength * dt * new Vector3(-input.Y, -input.X, 0);
+                targetEuler.X += impulse.X; // TODO: Math.AddAngleAndClamp(targetEuler.X, impulse.X, -89, 89);
                 targetEuler.Y += impulse.Y;
                 //Debug.Log($"{targetEuler.X}");
                 _targetLook = Math.FromEuler(targetEuler);
@@ -88,14 +87,13 @@ namespace DREngine.Game.Scene
             }
         }
 
-        void HandleMove(float dt)
+        private void HandleMove(float dt)
         {
             if (_focused && _controls.Enabled)
             {
-
-                Vector3 input = Vector3.Forward * _controls.ForwardBack.Value
-                                + Vector3.Right * _controls.RightLeft.Value
-                                + Vector3.Up * _controls.UpDown.Value;
+                var input = Vector3.Forward * _controls.ForwardBack.Value
+                            + Vector3.Right * _controls.RightLeft.Value
+                            + Vector3.Up * _controls.UpDown.Value;
                 input = Math.RotateVector(input, Rotation);
                 _velocity += input * (MoveAcceleration * dt);
             }
@@ -104,15 +102,15 @@ namespace DREngine.Game.Scene
             Position += _velocity * dt;
         }
 
-        class CamControls : GameEngine.Game.Input.Controls
+        private class CamControls : GameEngine.Game.Input.Controls
         {
-            public InputActionAxis1D ForwardBack;
-            public InputActionAxis1D RightLeft;
-            public InputActionAxis1D UpDown;
-            public InputActionAxis2D MouseLook;
+            public readonly InputActionButton Focus;
+            public readonly InputActionAxis1D ForwardBack;
+            public readonly InputActionAxis2D MouseLook;
+            public readonly InputActionAxis1D RightLeft;
 
-            public InputActionButton UnFocus;
-            public InputActionButton Focus;
+            public readonly InputActionButton UnFocus;
+            public readonly InputActionAxis1D UpDown;
 
             public CamControls(GamePlus game) : base(game)
             {

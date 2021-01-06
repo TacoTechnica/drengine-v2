@@ -1,8 +1,4 @@
-using System.IO;
-using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
 using Gtk;
-using Path = GameEngine.Game.Path;
 
 namespace DREngine.Editor.Components
 {

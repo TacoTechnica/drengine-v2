@@ -1,5 +1,4 @@
 ﻿using DREngine.Game;
-using GameEngine;
 using GameEngine.Game;
 using GameEngine.Util;
 using Newtonsoft.Json;
@@ -10,17 +9,20 @@ namespace DREngine
     {
         public static void SaveToJson<T>(T obj, Path path)
         {
-            string text = JsonConvert.SerializeObject(obj,
+            var text = JsonConvert.SerializeObject(obj,
                 new JsonSerializerSettings
                     {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
             //Debug.LogSilent($"JSON: {text}");
             IOHelper.WriteTextFile(path, text);
         }
+
         public static T LoadFromJson<T>(DRGame game, Path path)
         {
-            string text = IOHelper.ReadTextFile(path);
+            var text = IOHelper.ReadTextFile(path);
             IDependentOnDRGame.CurrentGame = game;
-            return JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings(){TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+            return JsonConvert.DeserializeObject<T>(text,
+                new JsonSerializerSettings
+                    {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
         }
 
         /*
@@ -34,6 +36,5 @@ namespace DREngine
             return LoadFromJson<T>(game, game.GameProjectData.GetFullProjectPath(filepath));
         }
         */
-
     }
 }

@@ -1,17 +1,10 @@
-﻿
-namespace DREngine
+﻿namespace DREngine
 {
     /// <summary>
-    /// cause I'm extra.
+    ///     cause I'm extra.
     /// </summary>
     public class Version
     {
-        public int Major { get; private set; }
-        public int Minor { get; private set; }
-        public int UpdateNumber { get; private set; }
-
-        public string Era { get; private set; }
-
         public Version(string era, int major, int minor, int updateNumber)
         {
             Era = era;
@@ -19,6 +12,12 @@ namespace DREngine
             Minor = minor;
             UpdateNumber = updateNumber;
         }
+
+        public int Major { get; }
+        public int Minor { get; }
+        public int UpdateNumber { get; }
+
+        public string Era { get; }
 
         public static implicit operator string(Version v)
         {

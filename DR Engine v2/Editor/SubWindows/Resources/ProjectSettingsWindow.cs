@@ -1,6 +1,5 @@
 using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
 using GameEngine.Game;
 using Gtk;
 
@@ -8,11 +7,12 @@ namespace DREngine.Editor.SubWindows.Resources
 {
     public class ProjectSettingsWindow : SavableWindow
     {
-        private DREditor _editor;
+        private readonly DREditor _editor;
 
         private FieldBox _fields;
 
         private Text _message;
+
         public ProjectSettingsWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
@@ -26,7 +26,7 @@ namespace DREngine.Editor.SubWindows.Resources
 
             container.PackStart(_message, false, false, 4);
             container.PackStart(_fields, true, true, 4);
-            
+
             _message.Show();
             _fields.Show();
         }
@@ -35,11 +35,8 @@ namespace DREngine.Editor.SubWindows.Resources
         {
             _message.Text = "PROJECT SETTINGS";
 
-            ProjectData data = _editor.ProjectData;
-            if (data == null)
-            {
-                throw new InvalidOperationException("No project data currently loaded by the editor.");
-            }
+            var data = _editor.ProjectData;
+            if (data == null) throw new InvalidOperationException("No project data currently loaded by the editor.");
 
             _fields.LoadTarget(data);
         }
@@ -48,7 +45,7 @@ namespace DREngine.Editor.SubWindows.Resources
         {
             _fields.SaveFields();
             // Also save to disk
-            ProjectData data = (ProjectData) _fields.Target;
+            var data = (ProjectData) _fields.Target;
             ProjectData.WriteToFile(path, data);
         }
 

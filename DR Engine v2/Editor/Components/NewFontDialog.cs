@@ -11,8 +11,9 @@ namespace DREngine.Editor.Components
         public string FontToCopy = null;
 
         //private Button _systemFontButton;
-        
-        public NewFontDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Folder") : base(editor, parent, parentDirectory, title)
+
+        public NewFontDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Folder") :
+            base(editor, parent, parentDirectory, title)
         {
             /*
             _systemFontButton = new Button("Load System Font");
@@ -33,20 +34,18 @@ namespace DREngine.Editor.Components
             */
         }
 
+        protected override string ItemName => "Font";
+
         protected override void OnModified()
         {
             base.OnModified();
             if (!File.Exists(FontToCopy))
-            {
                 SetFailure($"Font file does not exist at path {FontToCopy}");
-            } else if (!FontToCopy.EndsWith(".ttf"))
-            {
+            else if (!FontToCopy.EndsWith(".ttf"))
                 SetFailure("Only TTF Fonts are supported right now. Sorry!");
-            } else if (!Failed())
-            {
+            else if (!Failed())
                 SetPostText($"Will copy font from\n\n{FontToCopy}\n\nto\n\n{GetTargetDirectory().GetShortName()}\n\n" +
                             "NOTE: You may also copy your font(s) into the project directly and reload the project (File->Reload Project)!");
-            }
         }
 
         protected override bool CheckForFailuresPreSubmit()
@@ -56,19 +55,15 @@ namespace DREngine.Editor.Components
                 SetFailure("Font not set!");
                 return false;
             }
+
             return base.CheckForFailuresPreSubmit();
         }
 
         public override ProjectPath GetTargetDirectory()
         {
-            ProjectPath result = base.GetTargetDirectory();
-            if (!result.ToString().EndsWith(".ttf"))
-            {
-                return (ProjectPath)(result + ".ttf");
-            }
+            var result = base.GetTargetDirectory();
+            if (!result.ToString().EndsWith(".ttf")) return (ProjectPath) (result + ".ttf");
             return result;
         }
-
-        protected override string ItemName => "Font";
     }
 }

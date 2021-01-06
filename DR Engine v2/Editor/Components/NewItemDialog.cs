@@ -1,28 +1,28 @@
-
-using System;
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
 using Gtk;
-
 
 namespace DREngine.Editor.Components
 {
     public abstract class NewItemDialog : EasyDialog
     {
-        // ReSharper disable once UnassignedField.Global
-        public new string Name;
-
-        private ProjectPath _parentDirectory;
         private StringTextFieldWidget _input;
         private Text _label;
 
+        private readonly ProjectPath _parentDirectory;
+
+        // ReSharper disable once UnassignedField.Global
+        public new string Name;
+
         //public Path NewFolderPath => FailureString == null? (_folderParent + _input.Value) : null;
 
-        public NewItemDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title="New Folder") : base(editor, parent, title)
+        public NewItemDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Folder") :
+            base(editor, parent, title)
         {
             _parentDirectory = parentDirectory;
         }
+
+        protected abstract string ItemName { get; }
 
         protected override void OnModified()
         {
@@ -31,25 +31,19 @@ namespace DREngine.Editor.Components
                 SetFailure("No import file set.");
                 return;
             }
-            string displayPath = GetTargetDirectory().GetShortName();
-            if (Directory.Exists(GetTargetDirectory()) || File.Exists(GetTargetDirectory()) )
-            {
+
+            var displayPath = GetTargetDirectory().GetShortName();
+            if (Directory.Exists(GetTargetDirectory()) || File.Exists(GetTargetDirectory()))
                 SetFailure($"File already exists here: {displayPath}");
-            }
             else if (Name == null || Name.Trim() == "")
-            {
                 SetFailure($"{ItemName} Name can't be empty!");
-            } 
             else
-            {
                 SetPostText($"New {ItemName}: {displayPath}");
-            }
         }
 
         protected override bool CheckForFailuresPreSubmit()
         {
-
-            ProjectPath path = GetTargetDirectory();
+            var path = GetTargetDirectory();
             if (!Directory.GetParent(path).Exists)
             {
                 SetFailure($"Parent Directory doesn't exist at {Directory.GetParent(path).FullName}!");
@@ -68,9 +62,7 @@ namespace DREngine.Editor.Components
         public virtual ProjectPath GetTargetDirectory()
         {
             if (Name == null) return null;
-            return (ProjectPath)(_parentDirectory + "/" + Name);
+            return (ProjectPath) (_parentDirectory + "/" + Name);
         }
-
-        protected abstract string ItemName { get; }
     }
 }

@@ -1,21 +1,18 @@
 using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
-using GameEngine.Game;
 using GameEngine.Game.Resources;
-using Gdk;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.Resources
 {
     public class SpriteResourceWindow : ResourceWindow<Sprite>
     {
-        private DREditor _editor;
+        private readonly DREditor _editor;
+
+        private FieldBox _fields;
 
         private Image _image;
         private Text _label;
-
-        private FieldBox _fields;
 
         public SpriteResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
@@ -24,14 +21,14 @@ namespace DREngine.Editor.SubWindows.Resources
 
         protected override void OnInitialize(Box container)
         {
-            ScrolledWindow scroll = new ScrolledWindow();
+            var scroll = new ScrolledWindow();
             scroll.MinContentWidth = 300;
             scroll.MinContentHeight = 300;
             _image = new Image();
             scroll.Add(_image);
             _label = new Text("Nothing loaded");
             _fields = new ExtraDataFieldBox(_editor, typeof(Sprite), true);
-            
+
             container.PackStart(scroll, true, true, 16);
             //container.PackStart(_image, true, true, 4);
             container.PackEnd(_label, false, false, 16);
@@ -50,7 +47,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _image.File = resource.Path;
 
             // Scale
-            Pixbuf old = _image.Pixbuf;
+            var old = _image.Pixbuf;
             _image.Pixbuf = _editor.Icons.ScaleToRegularSize(_image.Pixbuf, 300);
             old.Dispose();
 
@@ -62,15 +59,12 @@ namespace DREngine.Editor.SubWindows.Resources
         {
             // display error
             _image.Clear();
-            _label.Text = $"ERROR: {exception.ToString()}";
+            _label.Text = $"ERROR: {exception}";
         }
 
         protected override void OnClose()
         {
-            if (Dirty)
-            {
-                CurrentResource?.Load(_editor.ResourceLoaderData);
-            }
+            if (Dirty) CurrentResource?.Load(_editor.ResourceLoaderData);
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using GameEngine;
-using GameEngine.Game;
 using GameEngine.Game.Resources;
 using Gtk;
 using Path = GameEngine.Game.Path;
@@ -11,12 +10,13 @@ namespace DREngine.Editor.SubWindows
     public abstract class ResourceWindow<T> : SavableWindow where T : IGameResource
     {
         private readonly DREditor _editor;
-        public T CurrentResource { get; private set; }
-        
+
         protected ResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
         }
+
+        public T CurrentResource { get; private set; }
 
         protected override void OnOpen(Path path, Box container)
         {
@@ -26,12 +26,9 @@ namespace DREngine.Editor.SubWindows
             }
             catch (Exception e)
             {
-                CurrentResource = default(T);
-                bool fileExists = File.Exists(path); 
-                if (fileExists)
-                {
-                    Debug.LogSilent($"Caught Load Error: {e.Message}");
-                }
+                CurrentResource = default;
+                var fileExists = File.Exists(path);
+                if (fileExists) Debug.LogSilent($"Caught Load Error: {e.Message}");
 
                 OnLoadError(fileExists, e);
                 return;
@@ -47,9 +44,9 @@ namespace DREngine.Editor.SubWindows
 
 
         #region Abstract Functions
+
         protected abstract void OnOpen(T resource, Box container);
+
         #endregion
-
-
     }
 }

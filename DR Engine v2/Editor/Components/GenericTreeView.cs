@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using GameEngine;
-using GameEngine.Util;
 using Gdk;
 using Gtk;
 
@@ -12,13 +9,12 @@ namespace DREngine.Editor
 {
     public class GenericTreeView : VBox
     {
-
         // Only used for directory stuff
         private string _fpath = "";
+        private readonly TreeStore _store;
 
-        private TreeView _tree;
-        private TreeStore _store;
-        private Icons Icons;
+        private readonly TreeView _tree;
+        private readonly Icons Icons;
 
         public Action<string, string> OnFileOpened;
 
@@ -36,9 +32,9 @@ namespace DREngine.Editor
             };
 
             // Set up generic tree stuff
-            TreeViewColumn fileName = new TreeViewColumn {Title = "filename", Visible = true};
-            CellRendererText fileNameCell = new CellRendererText ();
-            CellRendererPixbuf iconCell = new CellRendererPixbuf();
+            var fileName = new TreeViewColumn {Title = "filename", Visible = true};
+            var fileNameCell = new CellRendererText();
+            var iconCell = new CellRendererPixbuf();
             fileName.PackStart(iconCell, false);
             fileName.PackStart(fileNameCell, true); // false
             _tree.AppendColumn(fileName);
@@ -59,7 +55,6 @@ namespace DREngine.Editor
             _tree.RowActivated += TreeOnRowActivated;
 
             _tree.ButtonReleaseEvent += TreeOnButtonReleaseEvent;
-
         }
 
         private void TreeOnButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -69,7 +64,7 @@ namespace DREngine.Editor
             {
                 TreeIter selected;
                 _tree.Selection.GetSelected(out selected);
-                string path = GetPathFromIter(ref selected, _store);
+                var path = GetPathFromIter(ref selected, _store);
                 OnFileRightClicked?.Invoke(path, _fpath + path);
             }
         }
@@ -79,7 +74,7 @@ namespace DREngine.Editor
             TreeIter selected;
             _store.GetIter(out selected, args.Path);
 
-            string path = GetPathFromIter(ref selected, _store);
+            var path = GetPathFromIter(ref selected, _store);
             OnFileOpened?.Invoke(path, _fpath + path);
         }
 
@@ -97,19 +92,19 @@ namespace DREngine.Editor
         {
             _fpath = fpath;
 
-            Queue<string> fqueue = new Queue<string>();
+            var fqueue = new Queue<string>();
 
             fqueue.Enqueue(fpath);
 
             while (fqueue.Count != 0)
             {
-                string path = fqueue.Dequeue();
+                var path = fqueue.Dequeue();
 
                 if (Ignore(path)) continue;
 
-                bool root = (path == fpath);
+                var root = path == fpath;
 
-                TreeIter iter = default(TreeIter);
+                TreeIter iter = default;
                 if (root)
                 {
                     // No root node
@@ -119,47 +114,39 @@ namespace DREngine.Editor
                 else
                 {
                     // Find where we are based on our path. Kinda annoying with this framework but whatever.
-                    string subPath = System.IO.Path.GetRelativePath(fpath, path);
+                    var subPath = System.IO.Path.GetRelativePath(fpath, path);
                     //Debug.Log($"SUBPATH: {subPath}");
                     GetIterFromPath(out iter, _store, subPath);
                 }
 
                 // Add directories
-                foreach (string dir in Directory.GetDirectories(path))
+                foreach (var dir in Directory.GetDirectories(path))
                 {
                     if (Ignore(dir)) continue;
-    
+
                     fqueue.Enqueue(dir);
-                    string name = System.IO.Path.GetFileName( dir );
-                    
+                    var name = System.IO.Path.GetFileName(dir);
+
                     if (root)
-                    {
                         _store.AppendValues(name, Icons.Folder);
-                    }
                     else
-                    {
                         _store.AppendValues(iter, name, Icons.Folder);
-                    }
-                    
+
                     OnDirectroyLoad?.Invoke(dir);
                 }
 
                 // Add files
-                foreach (string file in Directory.GetFiles(path))
+                foreach (var file in Directory.GetFiles(path))
                 {
                     if (Ignore(file)) continue;
-                    string relativePath = System.IO.Path.GetRelativePath(fpath, file);
+                    var relativePath = System.IO.Path.GetRelativePath(fpath, file);
 
-                    string name = System.IO.Path.GetFileName(file);
+                    var name = System.IO.Path.GetFileName(file);
 
                     if (root)
-                    {
                         _store.AppendValues(name, GetFileIcon(relativePath, file));
-                    }
                     else
-                    {
                         _store.AppendValues(iter, name, GetFileIcon(relativePath, file));
-                    }
 
                     OnFileLoad?.Invoke(file);
                 }
@@ -167,7 +154,7 @@ namespace DREngine.Editor
         }
 
         /// <summary>
-        /// Add a file at a path and optionally add its parent directories.
+        ///     Add a file at a path and optionally add its parent directories.
         /// </summary>
         public void AddFile(string path, bool autoAddParentDirs = false)
         {
@@ -178,11 +165,11 @@ namespace DREngine.Editor
         {
             AddItem(path, false, autoAddParentDirs);
         }
-        
+
         private void AddItem(string path, bool isFile, bool autoAddParentDirs)
         {
             if (Ignore(path)) return;
-            
+
             TreeIter iter;
             // This is stupid, why can't I set this to root or null
             // The value here is considered invalid now.
@@ -190,15 +177,15 @@ namespace DREngine.Editor
 
             if (path.Length == 0) throw new InvalidOperationException("Can't add an empty path!");
 
-            string[] splitted = path.Split("/");
-            bool root = true;
-            int counter = 0;
-            foreach (string sub in splitted)
+            var splitted = path.Split("/");
+            var root = true;
+            var counter = 0;
+            foreach (var sub in splitted)
             {
-                bool last = (counter++ == splitted.Length);
+                var last = counter++ == splitted.Length;
 
-                bool addLast = (last && isFile);
-                
+                var addLast = last && isFile;
+
                 if (!GetTreeIterChild(ref iter, iter, _store, sub, root))
                 {
                     if (autoAddParentDirs)
@@ -207,58 +194,49 @@ namespace DREngine.Editor
                         if (root)
                         {
                             if (addLast)
-                            {
                                 iter = _store.AppendValues(sub, Icons.Folder);
-                            }
                             else
-                            {
                                 iter = _store.InsertWithValues(0, sub, Icons.Folder);
-                            }
                         }
                         else
                         {
                             if (addLast)
-                            {
                                 iter = _store.AppendValues(iter, sub, Icons.Folder);
-                            }
                             else
-                            {
                                 iter = _store.InsertWithValues(iter, 0, sub, Icons.Folder);
-                            }
                         }
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Failed to add File to our tree view. Directory \"{sub}\" does not exist for path \"{path}\"");
+                        throw new InvalidOperationException(
+                            $"Failed to add File to our tree view. Directory \"{sub}\" does not exist for path \"{path}\"");
                     }
                 }
+
                 root = false;
             }
 
-            _store.SetValue(iter, 1, isFile? GetFileIcon(path,splitted.Last()) : Icons.Folder);
+            _store.SetValue(iter, 1, isFile ? GetFileIcon(path, splitted.Last()) : Icons.Folder);
         }
 
         /// <summary>
-        /// Remove a file at a path and optionally delete all parent directories that became empty.
+        ///     Remove a file at a path and optionally delete all parent directories that became empty.
         /// </summary>
         public void RemoveFile(string path, bool deleteParentsIfEmpty = false)
         {
             TreeIter iter;
             if (!GetIterFromPath(out iter, _store, path))
-            {
                 throw new InvalidOperationException($"Tried to remove nonexistent file at {path}");
-            }
 
             TreeIter parent;
-            bool hasParent = _store.IterParent(out parent, iter);
+            var hasParent = _store.IterParent(out parent, iter);
 
             _store.Remove(ref iter);
 
             if (deleteParentsIfEmpty)
-            {
                 while (hasParent)
                 {
-                    bool shouldDelete = !_store.IterHasChild(parent);
+                    var shouldDelete = !_store.IterHasChild(parent);
 
                     // If we shouldn't delete this, we definitely won't delete its parents.
                     if (!shouldDelete) break;
@@ -271,99 +249,77 @@ namespace DREngine.Editor
 
                     parent = nextInLine;
                 }
-            }
         }
 
         public IEnumerable<string> GetAllPaths(bool onlyFiles)
         {
-            TreeIter garbage = TreeIter.Zero;
-            foreach (string s in GetAllPaths(garbage, _store, onlyFiles, true))
-            {
-                yield return s;
-            }
+            var garbage = TreeIter.Zero;
+            foreach (var s in GetAllPaths(garbage, _store, onlyFiles, true)) yield return s;
         }
 
         // Basically a recursive helper.
         private static IEnumerable<string> GetAllPaths(TreeIter iter, TreeStore store, bool onlyFiles, bool root)
         {
             TreeIter child;
-            int counter = 0;
+            var counter = 0;
             while (true)
             {
                 bool valid;
                 if (root)
-                {
                     valid = store.IterNthChild(out child, counter);
-                }
                 else
-                {
                     valid = store.IterNthChild(out child, iter, counter);
-                }
 
                 if (!valid)
-                {
                     // We're out of range.
                     //store.GetIterFirst(out iter);
                     yield break;
-                }
 
                 // Check if our value is ok
-                string path = (string)store.GetValue(child, 0);
+                var path = (string) store.GetValue(child, 0);
 
-                bool isDirectory = store.IterHasChild(child);
+                var isDirectory = store.IterHasChild(child);
 
-                if (!isDirectory || !onlyFiles)
-                {
-                    yield return path;
-                }
+                if (!isDirectory || !onlyFiles) yield return path;
 
                 // If path has children, iterate through all of its children.
                 if (isDirectory)
-                {
-                    foreach (string s in GetAllPaths(child, store, onlyFiles, false))
-                    {
+                    foreach (var s in GetAllPaths(child, store, onlyFiles, false))
                         yield return path + "/" + s;
-                    }
-                }
-                
+
                 ++counter;
             }
         }
 
         /// <summary>
-        /// I kinda hate how we can't grab a "root" iter and we can't set one iter to another. This is needlessly stupid.
+        ///     I kinda hate how we can't grab a "root" iter and we can't set one iter to another. This is needlessly stupid.
         /// </summary>
         private static bool GetIterFromPath(out TreeIter iter, TreeStore store, string path)
         {
             // This is stupid, why can't I set this to root or null
             // The value here is considered invalid now.
             iter = TreeIter.Zero;
-            bool root = true;
-            foreach (string sub in path.Split("/"))
+            var root = true;
+            foreach (var sub in path.Split("/"))
             {
-                if (!GetTreeIterChild(ref iter, iter, store, sub, root))
-                {
-                    return false;
-                }
+                if (!GetTreeIterChild(ref iter, iter, store, sub, root)) return false;
 
                 root = false;
             }
+
             return true;
         }
 
         private static string GetPathFromIter(ref TreeIter iter, TreeStore store)
         {
-            string path = (string)store.GetValue(iter, 0);
+            var path = (string) store.GetValue(iter, 0);
 
             // Construct path
             while (true)
             {
-                bool success = store.IterParent(out iter, iter);
+                var success = store.IterParent(out iter, iter);
 
-                if (!success)
-                {
-                    break;
-                }
+                if (!success) break;
 
                 path = (string) store.GetValue(iter, 0) + "/" + path;
             }
@@ -372,53 +328,41 @@ namespace DREngine.Editor
 
             return path;
         }
-        
+
         /// <summary>
-        /// Given a treeiter, get the next treeiter that has a subpath. 
+        ///     Given a treeiter, get the next treeiter that has a subpath.
         /// </summary>
         /// <returns></returns>
-        private static bool GetTreeIterChild(ref TreeIter iter, TreeIter parent, TreeStore store, string subPath, bool root = false)
+        private static bool GetTreeIterChild(ref TreeIter iter, TreeIter parent, TreeStore store, string subPath,
+            bool root = false)
         {
             TreeIter child;
-            int counter = 0;
+            var counter = 0;
             while (true)
             {
                 bool valid;
                 if (root)
-                {
                     valid = store.IterNthChild(out child, counter);
-                }
                 else
-                {
                     valid = store.IterNthChild(out child, parent, counter);
-                }
 
                 if (!valid)
-                {
                     // We're out of range.
                     //store.GetIterFirst(out iter);
                     return false;
-                }
 
                 // Check if our value is ok
-                string name = (string)store.GetValue(child, 0);
+                var name = (string) store.GetValue(child, 0);
 
-                if (name == subPath)
-                {
-                    break;
-                }
-                    
+                if (name == subPath) break;
+
                 ++counter;
             }
 
             if (root)
-            {
                 store.IterNthChild(out iter, counter);
-            }
             else
-            {
                 store.IterNthChild(out iter, parent, counter);
-            }
 
             return true;
         }
@@ -430,20 +374,17 @@ namespace DREngine.Editor
 
         private Pixbuf GetFileIcon(string relativePath, string fullPath)
         {
-            if (relativePath == "project.json")
-            {
-                return Icons.ProjectFile;
-            }
+            if (relativePath == "project.json") return Icons.ProjectFile;
 
             if (relativePath == "icon.png")
             {
-                Pixbuf buf = new Pixbuf(fullPath);
-                Pixbuf result = Icons.ScaleToRegularSize(buf);
+                var buf = new Pixbuf(fullPath);
+                var result = Icons.ScaleToRegularSize(buf);
                 buf.Dispose();
                 return result;
             }
 
-            string extension = System.IO.Path.GetExtension(fullPath);
+            var extension = System.IO.Path.GetExtension(fullPath);
             if (extension.StartsWith(".")) extension = extension.Substring(1);
 
             switch (extension)
@@ -461,6 +402,5 @@ namespace DREngine.Editor
 
             return Icons.UnknownFile;
         }
-
     }
 }

@@ -5,6 +5,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public abstract class AbstractTextFieldWidget<T> : FieldWidget<T>
     {
+        private bool _modifiedFlag;
+
+        private string _prevBuffer;
+
+        private TextView _text;
         public bool AllowNewlines = false;
 
         protected override T Data
@@ -16,11 +21,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 _text.Buffer.Text = DataToString(value);
             }
         }
-
-        private TextView _text;
-        private bool _modifiedFlag = false;
-
-        private string _prevBuffer;
 
         protected override void Initialize(FieldInfo field, HBox content)
         {
@@ -55,12 +55,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         private bool IsValidParseInternal(string value)
         {
             if (!AllowNewlines)
-            {
-                if (value.Contains('\n')) return false;
-            }
+                if (value.Contains('\n'))
+                    return false;
             return IsValidParse(value);
         }
-        
+
         protected abstract T FromString(string value);
         protected abstract string DataToString(T value);
         protected abstract bool IsValidParse(string value);

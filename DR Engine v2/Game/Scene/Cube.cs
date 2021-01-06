@@ -1,7 +1,5 @@
 ﻿//using System;
 
-using GameEngine;
-using GameEngine.Game;
 using GameEngine.Game.Objects.Rendering;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
@@ -14,11 +12,27 @@ namespace DREngine.Game.Scene
     //[Serializable]
     public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnDRGame
     {
-        public string Type { get; set; } = "Cube";
-
         private Vector3 _size = Vector3.One;
 
-        private Color Blend;
+        private Sprite _sprite;
+
+        private readonly Color Blend;
+
+        public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game,
+            position, rotation)
+        {
+            Game = game;
+            PrimitiveType = PrimitiveType.TriangleList;
+            Blend = Color.White;
+            Size = size;
+            Sprite = sprite;
+            //Debug.LogDebug("CUBE CREATED");
+        }
+
+        // Required Empty constructor for deserializing
+        public Cube() : this(CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity)
+        {
+        }
 
         public Vector3 Size
         {
@@ -30,9 +44,10 @@ namespace DREngine.Game.Scene
                 Vertices = new[]
                 {
                     #region V e r t
+
                     // Top face
-                    P(0,1,1, 0,0 ),
-                    P(0,1,0, 0,1 ),
+                    P(0, 1, 1, 0, 0),
+                    P(0, 1, 0, 0, 1),
                     P(1, 1, 0, 1, 1),
 
                     P(0, 1, 1, 0, 0),
@@ -41,8 +56,8 @@ namespace DREngine.Game.Scene
 
 
                     // Front face
-                    P(0,1,0, 0,0 ),
-                    P(0,0,0, 0,1 ),
+                    P(0, 1, 0, 0, 0),
+                    P(0, 0, 0, 0, 1),
                     P(1, 0, 0, 1, 1),
 
                     P(0, 1, 0, 0, 0),
@@ -50,8 +65,8 @@ namespace DREngine.Game.Scene
                     P(1, 1, 0, 1, 0),
 
                     // Right face
-                    P(1,1,0, 0,0 ),
-                    P(1,0,0, 0,1 ),
+                    P(1, 1, 0, 0, 0),
+                    P(1, 0, 0, 0, 1),
                     P(1, 0, 1, 1, 1),
 
                     P(1, 1, 0, 0, 0),
@@ -59,8 +74,8 @@ namespace DREngine.Game.Scene
                     P(1, 1, 1, 1, 0),
 
                     // Back face
-                    P(1,1,1, 0,0 ),
-                    P(1,0,1, 0,1 ),
+                    P(1, 1, 1, 0, 0),
+                    P(1, 0, 1, 0, 1),
                     P(0, 0, 1, 1, 1),
 
                     P(1, 1, 1, 0, 0),
@@ -68,8 +83,8 @@ namespace DREngine.Game.Scene
                     P(0, 1, 1, 1, 0),
 
                     // Left face
-                    P(0,1,1, 0,0 ),
-                    P(0,0,1, 0,1 ),
+                    P(0, 1, 1, 0, 0),
+                    P(0, 0, 1, 0, 1),
                     P(0, 0, 0, 1, 1),
 
                     P(0, 1, 1, 0, 0),
@@ -77,26 +92,19 @@ namespace DREngine.Game.Scene
                     P(0, 1, 0, 1, 0),
 
                     // Bottom face
-                    P(0,0,0, 0,0 ),
-                    P(0,0,1, 0,1 ),
+                    P(0, 0, 0, 0, 0),
+                    P(0, 0, 1, 0, 1),
                     P(1, 0, 1, 1, 1),
 
                     P(0, 0, 0, 0, 0),
                     P(1, 0, 1, 1, 1),
                     P(1, 0, 0, 1, 0),
+
                     #endregion V e r t
                 };
             }
         }
 
-        private VertexPositionColorTexture P(float px, float py, float pz, float ux,
-            float uy)
-        {
-            pz *= -1;
-            return new VertexPositionColorTexture(new Vector3(px, py, pz) * Size, Blend, new Vector2(ux, uy) );
-        }
-
-        private Sprite _sprite = null;
         [JsonConverter(typeof(ProjectResourceConverter))]
         public Sprite Sprite
         {
@@ -106,10 +114,7 @@ namespace DREngine.Game.Scene
                 _sprite = value;
                 if (_sprite != null && !_sprite.Loaded)
                 {
-                    _game.LoadWhenSafe(() =>
-                    {
-                        Texture = _sprite.Texture;
-                    });
+                    _game.LoadWhenSafe(() => { Texture = _sprite.Texture; });
                 }
                 else
                 {
@@ -118,20 +123,15 @@ namespace DREngine.Game.Scene
             }
         }
 
-        [JsonIgnore]
-        public DRGame Game { get; set; }
+        [JsonIgnore] public DRGame Game { get; set; }
 
-        public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game, position, rotation)
+        public string Type { get; set; } = "Cube";
+
+        private VertexPositionColorTexture P(float px, float py, float pz, float ux,
+            float uy)
         {
-            Game = game;
-            PrimitiveType = PrimitiveType.TriangleList;
-            Blend = Color.White;
-            Size = size;
-            Sprite = sprite;
-            //Debug.LogDebug("CUBE CREATED");
+            pz *= -1;
+            return new VertexPositionColorTexture(new Vector3(px, py, pz) * Size, Blend, new Vector2(ux, uy));
         }
-
-        // Required Empty constructor for deserializing
-        public Cube() : this(CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity) {}
     }
 }

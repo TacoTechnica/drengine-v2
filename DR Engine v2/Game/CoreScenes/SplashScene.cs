@@ -2,34 +2,30 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
-using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Color = Microsoft.Xna.Framework.Color;
-using Layout = GameEngine.Game.UI.Layout;
-
-using Path = GameEngine.Game.Path;
+using Path = System.IO.Path;
 
 namespace DREngine.Game.CoreScenes
 {
     /// <summary>
-    /// The
+    ///     The
     /// </summary>
     public class SplashScene : BaseSceneLoader
     {
         private const string SCENE_NAME = "__SPLASH_SCREEN__";
         private const string PROJECT_FILE_NAME = "project.json";
         private const string PROJECT_ICON_NAME = "icon.png";
+        private readonly DRGame _game;
+
+        private readonly string _projectDirectories;
 
         private UIHandler _ui;
-        private DRGame _game;
-
-        private string _projectDirectories;
 
         public SplashScene(DRGame game, string projectDirectories) : base(game, SCENE_NAME)
         {
@@ -43,7 +39,8 @@ namespace DREngine.Game.CoreScenes
             if (!UpdateProjectList())
             {
                 _ui.ClearProjectOptions();
-                _ui.SetFailText($"Failed to find a directory for projects at {_projectDirectories}. Please make sure one exists!");
+                _ui.SetFailText(
+                    $"Failed to find a directory for projects at {_projectDirectories}. Please make sure one exists!");
             }
         }
 
@@ -54,57 +51,47 @@ namespace DREngine.Game.CoreScenes
 
             if (!Directory.Exists(_projectDirectories)) return false;
 
-            int count = 0;
+            var count = 0;
 
 
             // Go through all directories and check inside for project.json
-            foreach (string dir in Directory.GetDirectories(_projectDirectories))
+            foreach (var dir in Directory.GetDirectories(_projectDirectories))
             {
-                Path projectPath = new Path(System.IO.Path.Combine(new [] {dir, PROJECT_FILE_NAME}));
-                Path iconPath = new Path(System.IO.Path.Combine(new [] {dir, PROJECT_ICON_NAME}));
+                var projectPath = new GameEngine.Game.Path(Path.Combine(new[] {dir, PROJECT_FILE_NAME}));
+                var iconPath = new GameEngine.Game.Path(Path.Combine(new[] {dir, PROJECT_ICON_NAME}));
                 Debug.Log($"TEST: {projectPath}");
                 if (File.Exists(projectPath))
-                {
                     // We have a project
                     try
                     {
-                        ProjectData dat = ProjectData.LoadFromFile(projectPath, false);
+                        var dat = ProjectData.LoadFromFile(projectPath, false);
 
-                        string projectName = dat.Name;
-                        string projectAuthor = dat.Author;
+                        var projectName = dat.Name;
+                        var projectAuthor = dat.Author;
 
                         Sprite icon = null;
                         if (File.Exists(iconPath))
-                        {
                             // We have an icon
                             icon = new Sprite(_game, iconPath);
-                        }
 
-                        _ui.AddProjectOption(projectName, projectAuthor, icon, () =>
-                        {
-                            LoadProjectFromPath(projectPath);
-                        });
+                        _ui.AddProjectOption(projectName, projectAuthor, icon,
+                            () => { LoadProjectFromPath(projectPath); });
                         ++count;
                     }
                     catch (JsonException e)
                     {
                         Debug.LogDebug($"Failed to read project file at {projectPath}. JSON Output: {e.Message}");
                     }
-                }
-            }
-            // FOR TESTING ONLY
-            if (count != 0)
-            {
-                for (int i = 0; i < 10; ++i)
-                {
-                    _ui.AddProjectOption($"EMPTY PROJ {i}", "mee", null, () => { });
-                }
             }
 
+            // FOR TESTING ONLY
+            if (count != 0)
+                for (var i = 0; i < 10; ++i)
+                    _ui.AddProjectOption($"EMPTY PROJ {i}", "mee", null, () => { });
+
             if (count == 0)
-            {
-                _ui.SetFailText($"No projects found in {_projectDirectories}. Make sure all project folders are stored here, one folder per project within this path.");
-            }
+                _ui.SetFailText(
+                    $"No projects found in {_projectDirectories}. Make sure all project folders are stored here, one folder per project within this path.");
             return true;
         }
 
@@ -115,22 +102,23 @@ namespace DREngine.Game.CoreScenes
 
         #region UI Handling
 
-        class UIHandler : GameObject
+        private class UIHandler : GameObject
         {
-            private UIProjectList _projectList;
-            private UIText _failText;
-            private UIColoredRect _background;
-            private UIText _header;
-            private UIText _version;
+            private readonly UIColoredRect _background;
+            private readonly UIText _failText;
+            private readonly UIText _header;
+            private readonly UIProjectList _projectList;
+            private readonly UIText _version;
 
             public UIHandler(DRGame game) : base(game)
             {
-                Font font = game.ResourceLoader.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont.GetFullPath(game));
+                var font = game.ResourceLoader.GetResource<Font>(game.GameProjectData.OverridableResources.MenuFont
+                    .GetFullPath(game));
 
                 // Tinted Background
-                Color dark = Color.Black;
-                Color background = Color.Lerp(Color.DarkOliveGreen, dark, 0.6f);
-                Color tinted = Color.Lerp(background, dark, 0.9f);
+                var dark = Color.Black;
+                var background = Color.Lerp(Color.DarkOliveGreen, dark, 0.6f);
+                var tinted = Color.Lerp(background, dark, 0.9f);
                 _background = (UIColoredRect) new UIColoredRect(game, background, tinted, tinted, background)
                     .AddToRoot();
 
@@ -154,17 +142,14 @@ namespace DREngine.Game.CoreScenes
                     .WithHAlign(UIText.TextHAlignMode.Right)
                     .WithVAlign(UIText.TextVAlignMode.Bottom)
                     .WithoutWordWrap()
-                    .WithLayout(Layout.CornerLayout(Layout.BottomRight, 0, 0).OffsetBy(-4, -4))
+                    .WithLayout(Layout.CornerLayout(Layout.BottomRight).OffsetBy(-4, -4))
                     .AddToRoot();
-
-
-
             }
 
             public void SetFailText(string text)
             {
                 _failText.Text = text;
-                _failText.Active = (text != "");
+                _failText.Active = text != "";
 
                 _projectList.Active = !_failText.Active;
             }
@@ -193,27 +178,28 @@ namespace DREngine.Game.CoreScenes
         /// <summary>
         ///     Picks a project from a list of options, displaying some info.
         /// </summary>
-        class UIProjectList : UIComponent
+        private class UIProjectList : UIComponent
         {
+            private readonly Font _font;
+
+            private readonly UIVerticalLayout _layout;
+
+            private readonly MenuList _menu;
+
+            private readonly UIScrollView _scrollView;
             public Action<string> OnProjectPick = null;
-
-            private MenuList _menu;
-            private Font _font;
-
-            private UIVerticalLayout _layout;
-
-            private UIScrollView _scrollView;
 
             public UIProjectList(DRGame game, Font font, float childHeight, float spacing) : base(game)
             {
                 _font = font;
 
-                _menu = new MenuList(game, game.MenuControls.Select, game.MenuControls.MouseSelect, game.MenuControls.MoveDown, game.MenuControls.MoveUp);
+                _menu = new MenuList(game, game.MenuControls.Select, game.MenuControls.MouseSelect,
+                    game.MenuControls.MoveDown, game.MenuControls.MoveUp);
 
                 UIComponent background = new UIColoredRect(game, Color.Black, false, this);
                 new UIColoredRect(game, Color.YellowGreen, true, this).CopyLayoutFrom(background);
 
-                _layout = (UIVerticalLayout) new UIVerticalLayout(game, childHeight, spacing)
+                _layout = new UIVerticalLayout(game, childHeight, spacing)
                     .PadLeft(6f)
                     .PadRight(6f)
                     .PadTop(6f)
@@ -222,10 +208,11 @@ namespace DREngine.Game.CoreScenes
                 float sliderWidth = 12;
                 float sliderPad = 4;
 
-                UISlider verticalSlider = (UISlider) new UISlider(game)
+                var verticalSlider = (UISlider) new UISlider(game)
                     .WithLayout(Layout.SideStretchLayout(Layout.Right, sliderWidth, sliderPad, sliderPad));
                 _scrollView = (UIScrollView) new UIScrollViewMasked(game, _layout, verticalSlider)
-                    .WithContentLayout(Layout.SideStretchLayout(Layout.Top).WithMargin(new Margin(0, 0, sliderWidth + sliderPad*2, 0)))
+                    .WithContentLayout(Layout.SideStretchLayout(Layout.Top)
+                        .WithMargin(new Margin(0, 0, sliderWidth + sliderPad * 2, 0)))
                     .WithLayout(Layout.FullscreenLayout());
                 AddChild(_scrollView);
                 AddChild(verticalSlider);
@@ -247,50 +234,48 @@ namespace DREngine.Game.CoreScenes
 
             private void OnMenuSelected(IMenuItem item)
             {
-                if (item is UIComponent itemui)
-                {
-                    _scrollView.FitRectInView(itemui.LayoutRect, _layout.Padding);
-                }
+                if (item is UIComponent itemui) _scrollView.FitRectInView(itemui.LayoutRect, _layout.Padding);
             }
 
             public void ClearProjectOptions()
             {
-                List<IMenuItem> toDestroy = new List<IMenuItem>(_menu.Children);
-                foreach (IMenuItem item in toDestroy)
+                var toDestroy = new List<IMenuItem>(_menu.Children);
+                foreach (var item in toDestroy)
                 {
-                    if (item is UIComponent itemUI)
-                    {
-                        itemUI.DestroyImmediate();
-                    }
+                    if (item is UIComponent itemUI) itemUI.DestroyImmediate();
                     _menu.RemoveChild(item);
                 }
             }
 
             public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action OnPress)
             {
-                var button = new UIProjectOptionButton(_game, _font, projectName, projectAuthor, icon, _layout.ChildCount);
+                var button =
+                    new UIProjectOptionButton(_game, _font, projectName, projectAuthor, icon, _layout.ChildCount);
                 _layout.AddChild(button);
                 _menu.AddChild(button);
 
                 button.Pressed += OnPress;
             }
 
-            protected override void Draw(UIScreen screen, Rect targetRect) { }
-
-            class UIProjectOptionButton : UIMenuButtonBase
+            protected override void Draw(UIScreen screen, Rect targetRect)
             {
-                private Color _deselectTextColor = Color.White;
-                private Color _deselectBackgroundColor = Color.DarkSlateBlue;
-                private Color _selectTextColor = Color.Black;
-                private Color _selectBackgroundColor = Color.Lerp(Color.DarkSlateBlue, Color.Cornsilk, 0.5f);
-                private Color _pressTextColor = Color.LightGoldenrodYellow;
-                private Color _pressBackgroundColor = Color.LightSlateGray;
+            }
 
-                private UIText _nameText;
-                private UIText _authorText;
-                private UIColoredRect _background;
+            private class UIProjectOptionButton : UIMenuButtonBase
+            {
+                private readonly UIText _authorText;
+                private readonly UIColoredRect _background;
+                private readonly Color _deselectBackgroundColor = Color.DarkSlateBlue;
+                private readonly Color _deselectTextColor = Color.White;
 
-                public UIProjectOptionButton(GamePlus game, Font font, string name, string author, Sprite icon, int index, UIComponent parent = null) : base(game, parent)
+                private readonly UIText _nameText;
+                private readonly Color _pressBackgroundColor = Color.LightSlateGray;
+                private readonly Color _pressTextColor = Color.LightGoldenrodYellow;
+                private readonly Color _selectBackgroundColor = Color.Lerp(Color.DarkSlateBlue, Color.Cornsilk, 0.5f);
+                private readonly Color _selectTextColor = Color.Black;
+
+                public UIProjectOptionButton(GamePlus game, Font font, string name, string author, Sprite icon,
+                    int index, UIComponent parent = null) : base(game, parent)
                 {
                     _background = (UIColoredRect) new UIColoredRect(game, _deselectBackgroundColor, false, this)
                         .WithLayout(Layout.FullscreenLayout());
@@ -351,7 +336,7 @@ namespace DREngine.Game.CoreScenes
                 private void SetVisualState(Color textColor, Color backgroundColor)
                 {
                     // Shade the bottom part for fun.
-                    Color tinted = Color.Lerp(backgroundColor, Color.Black, 0.2f);
+                    var tinted = Color.Lerp(backgroundColor, Color.Black, 0.2f);
                     _background.Tweener.CancelAll();
                     _background.Tweener.TweenBackgroundColor(backgroundColor, backgroundColor, tinted, tinted, 0.3f)
                         .SetEaseExpoOut();

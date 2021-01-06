@@ -1,19 +1,17 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using GameEngine;
 using Gtk;
 using Microsoft.Xna.Framework;
-using Action=System.Action;
+using Action = System.Action;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class Vector2Widget : FieldWidget<Vector2>
     {
+        private bool _modifiedX, _modifiedY = false;
         private FloatView _x;
         private FloatView _y;
-
-        private bool _modifiedX, _modifiedY = false;
 
         protected override Vector2 Data
         {
@@ -38,9 +36,9 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _y.Modified += OnModify;
         }
 
-        class FloatView : TextView
+        private class FloatView : TextView
         {
-            private float _prevValue = 0;
+            private float _prevValue;
 
 #pragma warning disable 649
             public Action Modified;
@@ -48,10 +46,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
             public FloatView()
             {
-                this.Buffer.Changed += (sender, args) =>
-                {
-                    Modified.Invoke();
-                };
+                Buffer.Changed += (sender, args) => { Modified.Invoke(); };
             }
 
             public float Value
@@ -60,7 +55,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 {
                     try
                     {
-                        return float.Parse(this.Buffer.Text);
+                        return float.Parse(Buffer.Text);
                     }
                     catch (Exception e)
                     {
@@ -70,11 +65,10 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 set
                 {
                     _prevValue = value;
-                    this.Buffer.Text = value.ToString(CultureInfo.InvariantCulture);
+                    Buffer.Text = value.ToString(CultureInfo.InvariantCulture);
                     Modified?.Invoke();
                 }
             }
-
         }
     }
 }

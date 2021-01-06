@@ -1,22 +1,20 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
-using Gdk;
-using Gtk;
 using Microsoft.Xna.Framework.Input;
 
 namespace DREngine.Game.Controls
 {
     public class MenuControls : GameEngine.Game.Input.Controls
     {
-        public InputActionButton MoveUp;
-        public InputActionButton MoveDown;
-        public InputActionButton MoveLeft;
-        public InputActionButton MoveRight;
-
-        public InputActionButton Select;
         public InputActionButton Cancel;
 
         public InputActionButton MouseSelect;
+        public InputActionButton MoveDown;
+        public InputActionButton MoveLeft;
+        public InputActionButton MoveRight;
+        public InputActionButton MoveUp;
+
+        public InputActionButton Select;
 
         public MenuControls(GamePlus _game) : base(_game)
         {

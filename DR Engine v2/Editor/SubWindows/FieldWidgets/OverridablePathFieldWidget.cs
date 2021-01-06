@@ -7,15 +7,16 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     public class OverridablePathFieldWidget : AbstractFieldGameResource<OverridablePath>
     {
         private const string DEFAULT_NAME = "(default)";
-        protected override OverridablePath ResourceData { get; set; }
-        
+
         public OverridablePathFieldWidget(DREditor editor, Type type) : base(editor, type)
         {
         }
 
+        protected override OverridablePath ResourceData { get; set; }
+
         protected override string ResourceToString(OverridablePath resource)
         {
-            return resource.Overrided? resource.OverrideProjectPath : DEFAULT_NAME;
+            return resource.Overrided ? resource.OverrideProjectPath : DEFAULT_NAME;
         }
 
         protected override void OnPathSelected(string path)
@@ -35,7 +36,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected override bool AcceptPath(ProjectPath path)
         {
-            return File.Exists(path.ToString()) || (path.RelativePath == DEFAULT_NAME);
+            return File.Exists(path.ToString()) || path.RelativePath == DEFAULT_NAME;
         }
     }
 }

@@ -3,34 +3,27 @@ using System.IO;
 using DREngine.Editor.Components;
 using GameEngine;
 using GameEngine.Game;
-using GameEngine.Game.Audio;
 using GameEngine.Game.Resources;
 using Gdk;
 using GLib;
 using Gtk;
-using MonoGame.Framework.Utilities.Deflate;
 using Action = System.Action;
 using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
-using WindowType = Gtk.WindowType;
 using Path = GameEngine.Game.Path;
+using Window = Gtk.Window;
+using WindowType = Gtk.WindowType;
 
 namespace DREngine.Editor
 {
-    public class DREditorMainWindow : Gtk.Window
+    public class DREditorMainWindow : Window
     {
-
-        private DREditor _editor;
-
-        private ResourceView _resourceView;
+        private readonly DREditor _editor;
         private EditorLog _log;
 
-        public Icons Icons;
+        private ResourceView _resourceView;
 
-        public Action<String, String> OnFileOpened
-        {
-            get => _resourceView.OnFileOpened; set => _resourceView.OnFileOpened = value;
-        }
+        public Icons Icons;
 
         public DREditorMainWindow(DREditor editor) : base(WindowType.Toplevel)
         {
@@ -38,32 +31,37 @@ namespace DREngine.Editor
             // Make window is called externally.
         }
 
-#region Public Control
+        public Action<string, string> OnFileOpened
+        {
+            get => _resourceView.OnFileOpened;
+            set => _resourceView.OnFileOpened = value;
+        }
+
+        #region Public Control
 
         public void MakeWindow(string title, int width, int height)
         {
-
             _log = new EditorLog();
             Icons = new Icons();
 
 
             Title = title;
             Resize(width, height);
-            this.Maximize();
-            this.Resizable = true;
+            Maximize();
+            Resizable = true;
 
-            VBox mainBox = new VBox();
-            Widget menuBar = MakeMenuBar();
-            Widget projectButtons = MakeProjectActionButtonBar();
+            var mainBox = new VBox();
+            var menuBar = MakeMenuBar();
+            var projectButtons = MakeProjectActionButtonBar();
 
-            HPaned vertPane = new HPaned();
+            var vertPane = new HPaned();
             vertPane.WideHandle = true; // Separate left and right side
             vertPane.Position = 256; // How wide the left side starts
 
             _resourceView = new ResourceView(Icons);
             HookupLog(_log);
             HookupResourceView(_resourceView);
-            VPaned rightSide = new VPaned();
+            var rightSide = new VPaned();
             rightSide.WideHandle = true;
             Widget emptyBox = new VBox();
             rightSide.Pack1(emptyBox, false, false);
@@ -86,7 +84,6 @@ namespace DREngine.Editor
             mainBox.Show();
 
             Add(mainBox);
-
         }
 
         private void HookupLog(EditorLog log)
@@ -94,10 +91,7 @@ namespace DREngine.Editor
             Debug.OnLogDebug += log.PrintDebug;
             Debug.OnLogPrint += log.Print;
             Debug.OnLogWarning += log.PrintWarning;
-            Debug.OnLogError += (message, trace) =>
-            {
-                log.PrintError($"{message}\n{trace}");
-            };
+            Debug.OnLogError += (message, trace) => { log.PrintError($"{message}\n{trace}"); };
             Debug.LogDebug("Editor Log Initialized");
         }
 
@@ -107,10 +101,10 @@ namespace DREngine.Editor
             {
                 if (!AssertProjectLoaded()) return;
 
-                using NewFolderDialog dialog = new NewFolderDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                using var dialog = new NewFolderDialog(_editor, this, new ProjectPath(_editor, projectDir));
                 if (dialog.RunUntilAccept())
                 {
-                    ProjectPath toAdd = dialog.GetTargetDirectory();
+                    var toAdd = dialog.GetTargetDirectory();
                     Directory.CreateDirectory(toAdd);
                     Debug.LogSilent($"New Folder: {toAdd.RelativePath}");
                     resourceView.AddFolder(toAdd.RelativePath, true);
@@ -123,43 +117,45 @@ namespace DREngine.Editor
 
                 if (type == typeof(Sprite))
                 {
-                    using NewSpriteDialog dialog = new NewSpriteDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    using var dialog = new NewSpriteDialog(_editor, this, new ProjectPath(_editor, projectDir));
                     if (dialog.RunUntilAccept())
                     {
-                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        var toAdd = dialog.GetTargetDirectory();
                         Path toCopy = dialog.ImageToCopy;
                         File.Copy(toCopy, toAdd);
                         Debug.LogSilent($"New Sprite: {toAdd.RelativePath}");
                         resourceView.AddFile(toAdd.RelativePath, true);
                     }
-                } else if (type == typeof(Font))
+                }
+                else if (type == typeof(Font))
                 {
-                    using NewFontDialog dialog = new NewFontDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    using var dialog = new NewFontDialog(_editor, this, new ProjectPath(_editor, projectDir));
                     if (dialog.RunUntilAccept())
                     {
-                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        var toAdd = dialog.GetTargetDirectory();
                         Path toCopy = dialog.FontToCopy;
                         File.Copy(toCopy, toAdd);
                         Debug.LogSilent($"New Font: {toAdd.RelativePath}");
                         resourceView.AddFile(toAdd.RelativePath, true);
                     }
-                } else if (type == typeof(AudioClip))
+                }
+                else if (type == typeof(AudioClip))
                 {
-                    using NewAudioClipDialog dialog = new NewAudioClipDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    using var dialog = new NewAudioClipDialog(_editor, this, new ProjectPath(_editor, projectDir));
                     if (dialog.RunUntilAccept())
                     {
-                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        var toAdd = dialog.GetTargetDirectory();
                         Path toCopy = dialog.AudioToCopy;
                         File.Copy(toCopy, toAdd);
                         Debug.LogSilent($"New Audio Clip: {toAdd.RelativePath}");
-                        
+
                         // Load and save extra file...
-                        AudioClip clip = new AudioClip();
+                        var clip = new AudioClip();
                         clip.Type = dialog.ImportType;
                         clip.Save(toAdd);
 
                         resourceView.AddFile(toAdd.RelativePath, true);
-                    }                    
+                    }
                 }
                 else
                 {
@@ -184,13 +180,12 @@ namespace DREngine.Editor
         {
             _resourceView.Clear();
         }
+
         public void LoadProject(ProjectData data, string fullPath, Action<string> OnFileLoad = null)
         {
             if (fullPath.EndsWith("project.json"))
-            {
                 fullPath = fullPath.Substring(0, fullPath.Length - "project.json".Length);
-            }
-            
+
             _resourceView.Clear();
             _resourceView.LoadDirectory(fullPath,
                 dir =>
@@ -199,44 +194,40 @@ namespace DREngine.Editor
                 },
                 file =>
                 {
-                    string relative = System.IO.Path.GetRelativePath(fullPath, file);
+                    var relative = System.IO.Path.GetRelativePath(fullPath, file);
                     OnFileLoad?.Invoke(relative);
                 }
             );
         }
 
         /// <summary>
-        /// Set the theme of the window. Must be a valid gtk.css file.
+        ///     Set the theme of the window. Must be a valid gtk.css file.
         /// </summary>
         public void SetTheme(string path)
         {
-            bool failed = false;
+            var failed = false;
             try
             {
-                Gtk.CssProvider cssProvider = new Gtk.CssProvider();
+                var cssProvider = new CssProvider();
                 if (!cssProvider.LoadFromPath(path))
-                {
                     failed = true;
-                }
                 else
-                {
-                    Gtk.StyleContext.AddProviderForScreen(Gdk.Screen.Default, cssProvider, 800);
-                }
+                    StyleContext.AddProviderForScreen(Screen.Default, cssProvider, 800);
             }
-            catch (GLib.GException)
+            catch (GException)
             {
                 failed = true;
             }
 
-            if (failed) {
-                AlertProblem("Failed to load theme",$"Invalid theme path: \"{path}\"\n\nMake sure the target is a valid gtk.css file!");
-            }
+            if (failed)
+                AlertProblem("Failed to load theme",
+                    $"Invalid theme path: \"{path}\"\n\nMake sure the target is a valid gtk.css file!");
         }
 
         public void AlertProblem(string title, string message)
         {
             Debug.LogWarning($"Problem: {message}");
-            MessageDialog popup = new MessageDialog(
+            var popup = new MessageDialog(
                 this,
                 DialogFlags.DestroyWithParent,
                 MessageType.Error,
@@ -253,30 +244,30 @@ namespace DREngine.Editor
             AlertProblem("Problem!", message);
         }
 
-#endregion
+        #endregion
 
-#region Widget/UI Construction
+        #region Widget/UI Construction
 
         /// <summary>
-        /// File, Edit, View, Build, Help, etc...
+        ///     File, Edit, View, Build, Help, etc...
         /// </summary>
         private Widget MakeMenuBar()
         {
-            MenuBar menuBar = new MenuBar();
+            var menuBar = new MenuBar();
 
-            Menu fileMenu = new Menu();
+            var fileMenu = new Menu();
 
-            MenuItem file = new MenuItem("File");
+            var file = new MenuItem("File");
             file.Submenu = fileMenu;
-            
-            MenuItem newProject = new MenuItem("New Project");
-            newProject.Activated += (sender, args) => NewProjectPressed(); 
+
+            var newProject = new MenuItem("New Project");
+            newProject.Activated += (sender, args) => NewProjectPressed();
             fileMenu.Append(newProject);
-            MenuItem openProject = new MenuItem("Open Project");
-            openProject.Activated += (sender, args) => OpenProjectPressed(); 
+            var openProject = new MenuItem("Open Project");
+            openProject.Activated += (sender, args) => OpenProjectPressed();
             fileMenu.Append(openProject);
-            MenuItem reloadProject = new MenuItem("Reload Project");
-            reloadProject.Activated += (sender, args) => _editor.ReloadCurrentProject(); 
+            var reloadProject = new MenuItem("Reload Project");
+            reloadProject.Activated += (sender, args) => _editor.ReloadCurrentProject();
             fileMenu.Append(reloadProject);
 
             menuBar.Append(file);
@@ -286,7 +277,7 @@ namespace DREngine.Editor
         }
 
         /// <summary>
-        ///    Contains the run button and other useful buttons for the project.
+        ///     Contains the run button and other useful buttons for the project.
         /// </summary>
         private Widget MakeProjectActionButtonBar()
         {
@@ -294,12 +285,12 @@ namespace DREngine.Editor
             b.HeightRequest = 16;
 
             // Make the action buttons
-            Button newProj = NewButton("New Empty Project", Icons.New, NewProjectPressed);
-            Button open = NewButton("Open Project", Icons.Open, OpenProjectPressed);
+            var newProj = NewButton("New Empty Project", Icons.New, NewProjectPressed);
+            var open = NewButton("Open Project", Icons.Open, OpenProjectPressed);
             Separator s1 = new HSeparator();
-            Button export = NewButton("Export Project", Icons.Export, ExportProjectPressed);
+            var export = NewButton("Export Project", Icons.Export, ExportProjectPressed);
             Separator s2 = new HSeparator();
-            Button run = new RunProjectButton(_editor);//NewButton("Run Project", Icons.Play, RunProjectPressed);
+            Button run = new RunProjectButton(_editor); //NewButton("Run Project", Icons.Play, RunProjectPressed);
             s2.Hexpand = true;
             b.PackStart(newProj, false, false, 0);
             newProj.Show();
@@ -319,10 +310,9 @@ namespace DREngine.Editor
 
         private void NewProjectPressed()
         {
-
             if (!EnsureNobodyDirty()) return;
 
-            using NewProjectDialog dialog = new NewProjectDialog(_editor, this, "New Project");
+            using var dialog = new NewProjectDialog(_editor, this);
 
             if (dialog.RunUntilAccept())
             {
@@ -330,12 +320,12 @@ namespace DREngine.Editor
                 _editor.ResourceWindowManager.ForceCloseAllWindows();
 
                 // Create path
-                Path folderToCreate = dialog.GetTargetPath();
+                var folderToCreate = dialog.GetTargetPath();
                 Directory.CreateDirectory(folderToCreate);
 
-                Path projectPath = folderToCreate + "/project.json";
+                var projectPath = folderToCreate + "/project.json";
 
-                ProjectData newProject = new ProjectData();
+                var newProject = new ProjectData();
                 newProject.Name = dialog.ProjectTitle;
                 newProject.Author = dialog.Author;
 
@@ -343,23 +333,18 @@ namespace DREngine.Editor
                 ProjectData.WriteToFile(projectPath, newProject);
 
                 // Create icon if we specified one.
-                if (dialog.IconPath != null)
-                {
-                    File.Copy(dialog.IconPath, folderToCreate + "/icon.png");
-                }
+                if (dialog.IconPath != null) File.Copy(dialog.IconPath, folderToCreate + "/icon.png");
 
                 // We did it! Now Load.
                 _editor.LoadProject(projectPath);
-
             }
-
         }
 
         private void OpenProjectPressed()
         {
             if (!EnsureNobodyDirty()) return;
 
-            using FileChooserDialog chooser = new FileChooserDialog("Open Project", this, FileChooserAction.Open,
+            using var chooser = new FileChooserDialog("Open Project", this, FileChooserAction.Open,
                 "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
             chooser.Filter = new FileFilter {Name = "DR Project File"};
             chooser.Filter.AddPattern("project.json");
@@ -381,32 +366,27 @@ namespace DREngine.Editor
 
         private Button NewButton(string name, Pixbuf icon, Action OnPress = null)
         {
-            Button result = new Button();
+            var result = new Button();
             result.TooltipText = name;
 
-            result.Pressed += (sender, args) =>
-            {
-                OnPress?.Invoke();
-            };
+            result.Pressed += (sender, args) => { OnPress?.Invoke(); };
             //file.Label = "F";
             if (icon == null)
-            {
                 result.Label = name;
-            } else {
+            else
                 result.Image = new Image(icon);
-            }
 
             return result;
         }
 
 
         /// <summary>
-        ///    Contains the content windows.
+        ///     Contains the content windows.
         /// </summary>
         private Widget MakeContentView()
         {
             Box b = new HBox();
-            Button button = new Button {Label = "Right side"};
+            var button = new Button {Label = "Right side"};
             b.PackStart(button, false, false, 0);
             button.Show();
             return b;
@@ -416,21 +396,21 @@ namespace DREngine.Editor
         {
             if (_editor.ResourceWindowManager.AnyWindowDirty())
             {
-                string message = "Some open resources have unsaved changes, Load anyway and discard changes?";
+                var message = "Some open resources have unsaved changes, Load anyway and discard changes?";
 
-                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes", "Cancel");
+                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes");
                 //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
                 //    ButtonsType.OkCancel, false, message);
-                bool ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
+                var ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
                 return ok;
             }
 
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Garbage stuff
+        #region Garbage stuff
 
         public DREditorMainWindow(IntPtr raw) : base(raw)
         {
@@ -442,6 +422,6 @@ namespace DREngine.Editor
             Debug.LogError("Invalid constructor.");
         }
 
-#endregion
+        #endregion
     }
 }

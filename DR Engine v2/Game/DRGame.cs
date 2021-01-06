@@ -2,62 +2,33 @@
 using DREngine.Game.Controls;
 using DREngine.Game.CoreScenes;
 using DREngine.Game.VN;
+using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Input;
-using GameEngine.Test;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Newtonsoft.Json;
-using Debug = GameEngine.Debug;
 
 namespace DREngine.Game
 {
     public class DRGame : GamePlus
     {
-
         #region Constants
 
         private const string PROJECTS_DIRECTORY = "projects";
 
         #endregion
 
-        #region Public Handlers
-
-        public MenuControls MenuControls { get; private set; }
-
-        public ProjectData GameProjectData = new ProjectData();
-        public ResourceLoader ResourceLoader;
-
-        public VNRunner VNRunner;
-
-        public SaveState SaveState;
-
-        public Action OnPostUpdate;
-
-        #endregion
-
-        #region Util variables
-
-        public string ProjectPath = "";
-
-        private EditorConnection _editorConnection;
-
-        private SplashScene SplashScene;
-        private ProjectMainMenuScene _projectMainMenuScene;
-
-        #endregion
-
-        public DRGame(string projectPath = null, bool connectToDebugEditor = false, string editorPipeReadHandle = "", string editorPipeWriteHandle = "") : base("DR Game Test Draft", "Content", true)
+        public DRGame(string projectPath = null, bool connectToDebugEditor = false, string editorPipeReadHandle = "",
+            string editorPipeWriteHandle = "") : base("DR Game Test Draft")
         {
             _editorConnection = new EditorConnection(connectToDebugEditor, editorPipeReadHandle, editorPipeWriteHandle);
-            
-            this._graphics.SynchronizeWithVerticalRetrace = true;
+
+            _graphics.SynchronizeWithVerticalRetrace = true;
             // Fixed timestep causes framerate issues, not sure why. Most likely will not set to true
             //this.IsFixedTimeStep = false;
 
             // For debugging UI
-            this.Window.AllowUserResizing = true;
+            Window.AllowUserResizing = true;
 
             ProjectPath = projectPath;
 
@@ -74,7 +45,6 @@ namespace DREngine.Game
             VNRunner = new VNRunner(this);
 
             SaveState = new SaveState(this);
-
         }
 
         #region Public Access
@@ -94,6 +64,32 @@ namespace DREngine.Game
                 return false;
             }
         }
+
+        #endregion
+
+        #region Public Handlers
+
+        public MenuControls MenuControls { get; }
+
+        public ProjectData GameProjectData = new ProjectData();
+        public ResourceLoader ResourceLoader;
+
+        public VNRunner VNRunner;
+
+        public SaveState SaveState;
+
+        public Action OnPostUpdate;
+
+        #endregion
+
+        #region Util variables
+
+        public string ProjectPath = "";
+
+        private readonly EditorConnection _editorConnection;
+
+        private readonly SplashScene SplashScene;
+        private readonly ProjectMainMenuScene _projectMainMenuScene;
 
         #endregion
 
@@ -124,11 +120,10 @@ namespace DREngine.Game
                     }
                 });
             });
-
         }
 
         /// <summary>
-        /// When there is no project this will run.
+        ///     When there is no project this will run.
         /// </summary>
         private void LoadSplash()
         {
@@ -136,7 +131,7 @@ namespace DREngine.Game
         }
 
         /// <summary>
-        /// When we wait on the editor for a connection, this will run.
+        ///     When we wait on the editor for a connection, this will run.
         /// </summary>
         private void WaitForEditorConnection(Action onPing)
         {
@@ -176,12 +171,13 @@ namespace DREngine.Game
             if (RawInput.KeyPressed(Keys.H))
             {
                 Debug.Log("SAVING");
-                ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameProjectData );
+                ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameProjectData);
                 //SaveState.Save(new ProjectPath(this, "TEST.save"));
-            } else if (RawInput.KeyPressed(Keys.J))
+            }
+            else if (RawInput.KeyPressed(Keys.J))
             {
                 Debug.Log("LOADING");
-                GameProjectData = ProjectData.LoadFromFile(new ProjectPath(this,"project.json"));
+                GameProjectData = ProjectData.LoadFromFile(new ProjectPath(this, "project.json"));
                 //SaveState.Load(new ProjectPath(this, "TEST.save"));
             }
 
@@ -201,6 +197,5 @@ namespace DREngine.Game
         }
 
         #endregion
-
     }
 }

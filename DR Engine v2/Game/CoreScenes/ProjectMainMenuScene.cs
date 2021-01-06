@@ -1,6 +1,4 @@
-﻿using System;
-using DREngine.Game.Scene;
-using GameEngine.Game;
+﻿using DREngine.Game.Scene;
 using GameEngine.Game.Objects;
 
 namespace DREngine.Game.CoreScenes
@@ -9,7 +7,7 @@ namespace DREngine.Game.CoreScenes
     {
         private const string SCENE_NAME = "__PROJECT_MAIN_MENU__";
 
-        private DRScene TestScene;
+        private readonly DRScene TestScene;
 
         public ProjectMainMenuScene(DRGame game) : base(game, SCENE_NAME)
         {

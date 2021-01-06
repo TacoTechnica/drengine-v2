@@ -1,5 +1,3 @@
-using GameEngine;
-
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class StringTextFieldWidget : AbstractTextFieldWidget<string>

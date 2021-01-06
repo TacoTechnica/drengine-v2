@@ -2,42 +2,43 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using DREngine.Game;
-using GameEngine;
 using Debug = GameEngine.Debug;
 
 namespace DREngine.Editor
 {
     /// <summary>
-    /// Editor side connection to the game
+    ///     Editor side connection to the game
     /// </summary>
     public class GameConnection : DRConnection
     {
         private Process _gameProcess;
+
+        public Action OnExit;
+
+        public GameConnection() : base(
+            new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable),
+            new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.Inheritable))
+        {
+            OnMessage += OnGameMessage;
+        }
 
         private AnonymousPipeServerStream InputPipe => (AnonymousPipeServerStream) _inputPipe;
         private AnonymousPipeServerStream OutputPipe => (AnonymousPipeServerStream) _outputPipe;
 
         public bool Running => _gameProcess != null;
 
-        public Action OnExit;
-
-        public GameConnection() : base(new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable), new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.Inheritable) )
-        {
-            OnMessage += OnGameMessage;
-        }
-
         public bool StartGameProcessAndConnect(string gameExecPath, string project)
         {
             if (Running) return false;
             Debug.LogDebug($"Running game at {gameExecPath}");
 
-            ProcessStartInfo pinfo = new ProcessStartInfo();
+            var pinfo = new ProcessStartInfo();
             pinfo.UseShellExecute = false;
             pinfo.CreateNoWindow = false;
             pinfo.WindowStyle = ProcessWindowStyle.Normal;
             pinfo.FileName = gameExecPath;
-            pinfo.Arguments = $"--game=\"{project}\" --readpipe=\"{OutputPipe.GetClientHandleAsString()}\" --writepipe=\"{InputPipe.GetClientHandleAsString()}\"";
+            pinfo.Arguments =
+                $"--game=\"{project}\" --readpipe=\"{OutputPipe.GetClientHandleAsString()}\" --writepipe=\"{InputPipe.GetClientHandleAsString()}\"";
 
             _gameProcess = Process.Start(pinfo);
             // ReSharper disable once PossibleNullReferenceException
@@ -91,15 +92,11 @@ namespace DREngine.Editor
 
         private void OnGameMessage(string message)
         {
-            int firstSpace = message.IndexOf(' ');
+            var firstSpace = message.IndexOf(' ');
             if (firstSpace == -1)
-            {
                 ParseCommand(message, "");
-            }
             else
-            {
                 ParseCommand(message.Substring(0, firstSpace), message.Substring(firstSpace + 1));
-            }
         }
 
         private void ParseCommand(string command, string data)
@@ -128,6 +125,5 @@ namespace DREngine.Editor
         {
             return $"[DRGame] {data}";
         }
-
     }
 }

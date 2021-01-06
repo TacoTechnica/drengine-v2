@@ -13,15 +13,16 @@ namespace DREngine.Editor.Components
 
         private DREditor _editor;
 
-        public string ProjectTitle = "Example Project";
+        private FieldBox _fields;
         public string Author = "Me";
 
         [EngineFileField("projects", "Choose Icon", "*.png", "Image")]
         public string IconPath = null;
 
-        private FieldBox _fields;
+        public string ProjectTitle = "Example Project";
 
-        public NewProjectDialog(DREditor editor, Window parent, string title="New Project") : base(editor, parent, title)
+        public NewProjectDialog(DREditor editor, Window parent, string title = "New Project") : base(editor, parent,
+            title)
         {
             _editor = editor;
 
@@ -31,10 +32,7 @@ namespace DREngine.Editor.Components
 
         public Path GetTargetPath()
         {
-            if (ProjectTitle != null)
-            {
-                return new EnginePath("projects/" + ProjectTitle);
-            }
+            if (ProjectTitle != null) return new EnginePath("projects/" + ProjectTitle);
 
             return null;
         }
@@ -45,13 +43,11 @@ namespace DREngine.Editor.Components
             {
                 string targetDir = GetTargetPath();
                 if (Directory.Exists(targetDir))
-                {
-                    SetFailure($"Directory\n\n\"{targetDir}\"\n\nis occupied! Please pick a different project name.\nYou can always change the project name later.");
-                }
+                    SetFailure(
+                        $"Directory\n\n\"{targetDir}\"\n\nis occupied! Please pick a different project name.\nYou can always change the project name later.");
                 else
-                {
-                    SetPostText($"Will create a new folder with directory\n\n\"{targetDir}\"\n\nYou can always change the project name later.\nIcon is optional.");
-                }
+                    SetPostText(
+                        $"Will create a new folder with directory\n\n\"{targetDir}\"\n\nYou can always change the project name later.\nIcon is optional.");
             }
         }
 
@@ -62,6 +58,7 @@ namespace DREngine.Editor.Components
                 SetFailure("Project title must not be empty!");
                 return false;
             }
+
             if (Author == null)
             {
                 SetFailure("Author title must not be empty!");
@@ -69,7 +66,7 @@ namespace DREngine.Editor.Components
             }
 
             // Directory checking
-            Path pathToMake = GetTargetPath();
+            var pathToMake = GetTargetPath();
 
             if (Directory.Exists(pathToMake))
             {
@@ -79,14 +76,17 @@ namespace DREngine.Editor.Components
                     "Renaming the folder is OK too.");
                 return false;
             }
+
             if (ProjectTitle.Contains('/'))
             {
                 SetFailure($"Project title \"{ProjectTitle}\" cannot contain forward slashes. Sorry!");
                 return false;
             }
+
             if (!Directory.GetParent(pathToMake).Exists)
             {
-                SetFailure($"Project cannot be created because path {Directory.GetParent(pathToMake)} does not exist. This is probably a bug!");
+                SetFailure(
+                    $"Project cannot be created because path {Directory.GetParent(pathToMake)} does not exist. This is probably a bug!");
                 return false;
             }
 

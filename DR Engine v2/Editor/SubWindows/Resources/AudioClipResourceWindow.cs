@@ -1,7 +1,5 @@
 using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
-using GameEngine.Game.Audio;
 using GameEngine.Game.Resources;
 using Gtk;
 
@@ -9,13 +7,13 @@ namespace DREngine.Editor.SubWindows.Resources
 {
     public class AudioClipResourceWindow : ResourceWindow<AudioClip>
     {
-        private DREditor _editor;
-
-        private Button _playButton;
+        private readonly DREditor _editor;
         private FieldBox _fields;
 
-        private Image _playImage;
-        private Image _stopImage;
+        private Button _playButton;
+
+        private readonly Image _playImage;
+        private readonly Image _stopImage;
 
         public AudioClipResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
@@ -31,16 +29,16 @@ namespace DREngine.Editor.SubWindows.Resources
 
             _fields = new ExtraDataFieldBox(_editor, typeof(AudioClip), true);
 
-            container.PackStart(_playButton, false, false,16);
+            container.PackStart(_playButton, false, false, 16);
             container.PackStart(_fields, false, true, 16);
-            
+
             _playButton.Show();
             _fields.Show();
 
             _playButton.Pressed += (sender, args) =>
             {
                 // Toggle
-                bool playing = _editor.GlobalAudioSource.Playing;
+                var playing = _editor.GlobalAudioSource.Playing;
                 if (playing)
                 {
                     _editor.GlobalAudioSource.Stop();
@@ -48,10 +46,7 @@ namespace DREngine.Editor.SubWindows.Resources
                 }
                 else
                 {
-                    _editor.GlobalAudioSource.Play(CurrentResource, () =>
-                    {
-                        _playButton.Image = _playImage;
-                    });
+                    _editor.GlobalAudioSource.Play(CurrentResource, () => { _playButton.Image = _playImage; });
                     _playButton.Image = _stopImage;
                 }
             };
@@ -61,7 +56,6 @@ namespace DREngine.Editor.SubWindows.Resources
 
         protected override void OnLoadError(bool fileExists, Exception exception)
         {
-            
         }
 
         protected override void OnClose()

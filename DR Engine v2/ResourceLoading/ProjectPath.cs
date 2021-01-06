@@ -1,14 +1,13 @@
 ﻿using DREngine.Editor;
 using DREngine.Game;
-using GameEngine;
 using GameEngine.Game;
 
 namespace DREngine
 {
     public class ProjectPath : Path
     {
-        private DRGame _game;
-        private DREditor _editor;
+        private readonly DREditor _editor;
+        private readonly DRGame _game;
 
         public ProjectPath(DRGame game, string path) : base(ParseRelativePath(path))
         {
@@ -30,13 +29,16 @@ namespace DREngine
 
         public override string ToString()
         {
-            return _game != null? _game.GameProjectData.GetFullProjectPath(RelativePath) : _editor.ProjectData.GetFullProjectPath(RelativePath);
+            return _game != null
+                ? _game.GameProjectData.GetFullProjectPath(RelativePath)
+                : _editor.ProjectData.GetFullProjectPath(RelativePath);
         }
 
         public override string GetShortName()
         {
             return ProjectResourceConverter.RESOURCE_PATH_PREFIX + RelativePath;
         }
+
         protected override Path CreateNew(string relativePath)
         {
             if (_game != null)

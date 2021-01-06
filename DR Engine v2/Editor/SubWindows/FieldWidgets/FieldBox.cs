@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;
 using Action = System.Action;
@@ -11,30 +9,25 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class FieldBox : VBox
     {
-        public object Target { get; private set; }
-
-        private List<IFieldWidget> _fields = new List<IFieldWidget>();
+        private readonly List<IFieldWidget> _fields = new List<IFieldWidget>();
 
         public Action Modified;
 
         public FieldBox(DREditor editor, Type type, bool autoApply = false)
         {
-            foreach (FieldInfo f in type.GetFields())
+            foreach (var f in type.GetFields())
             {
                 if (!f.IsPublic || f.IsStatic) continue;
                 if (!ShouldSerialize(f)) continue;
                 if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
 
-                
-                IFieldWidget widget = FieldWidgetFactory.CreateField(editor, f); 
+
+                var widget = FieldWidgetFactory.CreateField(editor, f);
                 _fields.Add(widget);
 
                 widget.Modified += o =>
                 {
-                    if (autoApply)
-                    {
-                        SaveFields();
-                    }
+                    if (autoApply) SaveFields();
                     Modified?.Invoke();
                 };
 
@@ -51,21 +44,17 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
+        public object Target { get; private set; }
+
         public void LoadTarget(object target)
         {
             Target = target;
-            foreach (IFieldWidget field in _fields)
-            {
-                field.Load(target);
-            }
+            foreach (var field in _fields) field.Load(target);
         }
 
         public void SaveFields()
         {
-            foreach (IFieldWidget field in _fields)
-            {
-                field.Apply();
-            }            
+            foreach (var field in _fields) field.Apply();
         }
 
         protected virtual bool ShouldSerialize(FieldInfo f)
@@ -76,7 +65,10 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
     public class ExtraDataFieldBox : FieldBox
     {
-        public ExtraDataFieldBox(DREditor editor, Type type, bool autoApply = false) : base(editor, type, autoApply) { }
+        public ExtraDataFieldBox(DREditor editor, Type type, bool autoApply = false) : base(editor, type, autoApply)
+        {
+        }
+
         protected override bool ShouldSerialize(FieldInfo f)
         {
             return f.GetCustomAttribute<ExtraDataAttribute>() != null;

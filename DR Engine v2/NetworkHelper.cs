@@ -2,19 +2,16 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 using Debug = GameEngine.Debug;
 
 namespace DREngine
 {
     /// <summary>
-    /// lmao 482 p4 coming in hot
+    ///     lmao 482 p4 coming in hot
     /// </summary>
     public class NetworkHelper
     {
-
         public const string DEBUG_COMMAND = "DEBUG";
         public const string LOG_COMMAND = "LOG";
         public const string WARNING_COMMAND = "WARNING";
@@ -33,39 +30,32 @@ namespace DREngine
         internal static string ReadNextMessage(StreamReader stream, out bool special)
         {
             string remainder;
-            string header = ReadHeader(stream, out remainder, out special);
+            var header = ReadHeader(stream, out remainder, out special);
 
             int messageSize;
             if (!int.TryParse(header, out messageSize))
-            {
                 throw new InvalidDataException($"Sent header is invalid: {header} (remainder={remainder})");
-            }
 
-            string secondPart = ReadString(stream, messageSize - remainder.Length);
+            var secondPart = ReadString(stream, messageSize - remainder.Length);
             return remainder + secondPart;
         }
 
-        internal static Task WriteMessage(StreamWriter stream, String toSend, bool block = true, bool special = false)
+        internal static Task WriteMessage(StreamWriter stream, string toSend, bool block = true, bool special = false)
         {
             stream.AutoFlush = true;
 
             if (ContainsDelimeter(toSend))
-            {
-                throw new ArgumentException($"Send data contains delimeter {DELIMETER}. This cannot be properly parsed.");
-            }
+                throw new ArgumentException(
+                    $"Send data contains delimeter {DELIMETER}. This cannot be properly parsed.");
 
-            int size = toSend.Length;
-            string header = size.ToString();
-            if (special)
-            {
-                header = SPECIAL_COMMAND_INDICATOR + header;
-            }
+            var size = toSend.Length;
+            var header = size.ToString();
+            if (special) header = SPECIAL_COMMAND_INDICATOR + header;
             if (header.Length > MAX_HEADER_SIZE)
-            {
-                throw new ArgumentException($"Header too big: {header}. Header must be less than {MAX_HEADER_SIZE} characters.");
-            }
+                throw new ArgumentException(
+                    $"Header too big: {header}. Header must be less than {MAX_HEADER_SIZE} characters.");
 
-            string finalMessage = header + DELIMETER + toSend;
+            var finalMessage = header + DELIMETER + toSend;
             if (block)
             {
                 stream.Write(finalMessage);
@@ -79,17 +69,17 @@ namespace DREngine
         {
             // There's no timeouts here. We may not receive a header.
 
-            char[] header = new char[MAX_HEADER_SIZE];
-            int read = 0;
-            int headerLength = MAX_HEADER_SIZE;
+            var header = new char[MAX_HEADER_SIZE];
+            var read = 0;
+            var headerLength = MAX_HEADER_SIZE;
             while (true)
             {
-                int numRead = stream.Read(header, read, MAX_HEADER_SIZE - read);
+                var numRead = stream.Read(header, read, MAX_HEADER_SIZE - read);
 
                 // check for delimeter. If we found one, that means our message is good.
-                for (int i = read; i < read + numRead; ++i)
+                for (var i = read; i < read + numRead; ++i)
                 {
-                    char c = header[i];
+                    var c = header[i];
                     if (c == DELIMETER)
                     {
                         headerLength = i;
@@ -97,11 +87,8 @@ namespace DREngine
                     }
                 }
 
-                if (numRead > 0)
-                {
-                    read += numRead;
-                }
-                
+                if (numRead > 0) read += numRead;
+
                 // We've read up to the max header.
                 if (read >= MAX_HEADER_SIZE) break;
             }
@@ -113,30 +100,26 @@ namespace DREngine
 
             string result;
             if (special)
-            {
                 // Cut off the special char. headerLength includes special.
                 result = new string(header, 1, headerLength - 1);
-            }
             else
-            {
                 result = new string(header, 0, headerLength);
-            }
             remainder = new string(header, headerLength + 1, read - headerLength - 1);
 
-            
+
             return result;
         }
 
         private static string ReadString(StreamReader stream, int size)
         {
-            Stopwatch timeout = new Stopwatch();
+            var timeout = new Stopwatch();
             timeout.Start();
 
-            char[] result = new char[size];
-            int read = 0;
+            var result = new char[size];
+            var read = 0;
             while (read < size)
             {
-                int numRead = stream.Read(result, read, size - read);
+                var numRead = stream.Read(result, read, size - read);
                 if (numRead > 0)
                 {
                     read += numRead;
@@ -145,11 +128,10 @@ namespace DREngine
                 else
                 {
                     if (timeout.Elapsed.TotalSeconds > READ_TIMEOUT_SECONDS)
-                    {
                         throw new TimeoutException("Reading message took too long.");
-                    }
                 }
             }
+
             return new string(result);
         }
 
@@ -157,13 +139,13 @@ namespace DREngine
         {
             return ContainsDelimeter(text.ToCharArray(), 0, text.Length);
         }
+
         private static bool ContainsDelimeter(char[] text, int startIndex, int length)
         {
             return false;
-            for (int i = startIndex; i < startIndex + length; ++i)
-            {
-                if (text[i] == DELIMETER) return true;
-            }
+            for (var i = startIndex; i < startIndex + length; ++i)
+                if (text[i] == DELIMETER)
+                    return true;
 
             return false;
         }
@@ -171,44 +153,47 @@ namespace DREngine
 
     public abstract class DRConnection : IDisposable
     {
+        private readonly StreamReader _input;
         protected PipeStream _inputPipe;
+
+        private readonly object _lock = new object();
+
+        private Action _onPinged;
+        private readonly StreamWriter _output;
         protected PipeStream _outputPipe;
-        private StreamReader _input;
-        private StreamWriter _output;
+
+        private int _pingCounter;
 
         private Task _receiverTask;
         private bool _receiving;
-
-        private Action _onPinged = null;
-
-        private int _pingCounter;
-        
-        private object _lock = new object();
+        public Action OnClose;
 
         public Action<string> OnMessage;
-        public Action OnClose;
 
         public DRConnection(PipeStream inputPipe, PipeStream outputPipe)
         {
             _inputPipe = inputPipe;
             _outputPipe = outputPipe;
-            if (_inputPipe != null)
-            {
-                _input = new StreamReader(_inputPipe);
-            }
+            if (_inputPipe != null) _input = new StreamReader(_inputPipe);
 
-            if (_outputPipe != null)
-            {
-                _output = new StreamWriter(_outputPipe);
-            }
+            if (_outputPipe != null) _output = new StreamWriter(_outputPipe);
 
             _receiving = false;
+        }
+
+        public void Dispose()
+        {
+            StopReceiving();
+            _inputPipe?.Dispose();
+            _outputPipe?.Dispose();
+            _input?.Dispose();
+            _output?.Dispose();
         }
 
         public void SendMessageBlocked(string message)
         {
             if (_output == null) return;
-            NetworkHelper.WriteMessage(_output, message, true);
+            NetworkHelper.WriteMessage(_output, message);
         }
 
         public Task SendMessageAsync(string message)
@@ -228,6 +213,7 @@ namespace DREngine
         {
             SendSpecialMessage(NetworkHelper.INIT_PING_STRING);
         }
+
         public void SendStop()
         {
             SendSpecialMessage(NetworkHelper.CLOSE_CONNECTION_STRING);
@@ -276,7 +262,6 @@ namespace DREngine
                     lock (_lock)
                     {
                         if (special)
-                        {
                             // Do special shit
                             try
                             {
@@ -287,12 +272,9 @@ namespace DREngine
                                 // Message was invalid. Oof.
                                 Debug.LogError($"{e.Message}: {e.StackTrace}");
                             }
-                        }
                         else
-                        {
                             // Regular message
                             OnMessage?.Invoke(message);
-                        }
                     }
                 }
             });
@@ -303,28 +285,16 @@ namespace DREngine
             if (!_receiving) return;
 
             if (toLock)
-            {
                 lock (_lock)
                 {
                     _receiving = false;
                 }
-            }
             else
-            {
                 _receiving = false;
-            }
 
             _receiverTask.Wait();
             _receiverTask.Dispose();
             _receiverTask = null;
-        }
-        public void Dispose()
-        {
-            StopReceiving();
-            _inputPipe?.Dispose();
-            _outputPipe?.Dispose();
-            _input?.Dispose();
-            _output?.Dispose();
         }
 
         private void ParseSpecialCommand(string message)
@@ -343,6 +313,7 @@ namespace DREngine
                         // We'll receive ping LATER
                         _pingCounter++;
                     }
+
                     break;
                 case NetworkHelper.CLOSE_CONNECTION_STRING:
                     // Close connection

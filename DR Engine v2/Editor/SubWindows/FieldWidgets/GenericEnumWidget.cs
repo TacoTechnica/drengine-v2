@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using GameEngine;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class GenericEnumWidget : FieldWidget<Enum>
     {
-
-        private Dictionary<string, int> _nameToValueMap = new Dictionary<string,int>();
-
         private ComboBoxText _chooser;
+
+        private readonly Dictionary<string, int> _nameToValueMap = new Dictionary<string, int>();
 
         private Type _type;
 
@@ -19,21 +17,17 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             get
             {
-                string name = _chooser.ActiveText;
+                var name = _chooser.ActiveText;
                 if (!_nameToValueMap.ContainsKey(name))
-                {
                     throw new InvalidOperationException($"Invalid enum name: {name}");
-                }
 
-                return (Enum)Enum.ToObject(_type, _nameToValueMap[name]);
+                return (Enum) Enum.ToObject(_type, _nameToValueMap[name]);
             }
             set
             {
                 TreeIter result;
                 if (!GetIter(out result, value.ToString()))
-                {
                     throw new InvalidOperationException($"Invalid enum name: {value}");
-                }
                 _chooser.SetActiveIter(result);
             }
         }
@@ -42,13 +36,13 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             _type = field.FieldType;
             _nameToValueMap.Clear();
-            
+
             _chooser = new ComboBoxText();
 
 
             foreach (int value in Enum.GetValues(_type))
             {
-                string name = Enum.GetName(_type, value);
+                var name = Enum.GetName(_type, value);
                 _nameToValueMap[name] = value;
                 _chooser.AppendText(name);
             }
@@ -67,10 +61,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
             */
 
-            _chooser.Changed += (sender, args) =>
-            {
-                OnModify();
-            };
+            _chooser.Changed += (sender, args) => { OnModify(); };
         }
 
         private bool GetIter(out TreeIter iter, string name)
@@ -79,14 +70,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
             while (true)
             {
-                string val = (string)_chooser.Model.GetValue(iter, 0);
+                var val = (string) _chooser.Model.GetValue(iter, 0);
 
                 if (val == name) return true;
 
-                if (!_chooser.Model.IterNext(ref iter))
-                {
-                    return false;
-                }
+                if (!_chooser.Model.IterNext(ref iter)) return false;
             }
         }
     }

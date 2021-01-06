@@ -8,8 +8,9 @@ namespace DREngine.Game
 {
     public class SaveState : IDependentOnDRGame
     {
-        [JsonIgnore]
-        public DRGame Game { get; set; }
+        public string ProjectName;
+        public DateTime TimeSaved;
+
         public SaveState(DRGame game)
         {
             Game = game;
@@ -17,17 +18,15 @@ namespace DREngine.Game
 
         public SaveState() : this(IDependentOnDRGame.CurrentGame)
         {
-
         }
-
-        public string ProjectName;
-        public DateTime TimeSaved;
 
         public VNState VNState
         {
             get => Game.VNRunner.State;
             set => Game.VNRunner.State = value;
         }
+
+        [JsonIgnore] public DRGame Game { get; set; }
 
         public void Save(Path file)
         {
@@ -43,17 +42,14 @@ namespace DREngine.Game
             Debug.LogDebug($"LOADING GAME from {file}");
             var copy = JsonHelper.LoadFromJson<SaveState>(Game, file);
 
-            string currentProject = Game.GameProjectData.Name;
+            var currentProject = Game.GameProjectData.Name;
             if (copy.ProjectName != currentProject)
             {
-                bool noProject = currentProject == "";
+                var noProject = currentProject == "";
                 if (noProject)
-                {
                     Debug.LogError($"Tried to load save file for project \"{copy.ProjectName}\" without loading a " +
                                    $"project first. Please load project \"{copy.ProjectName}\" before trying to load this save file.");
-                }
                 else
-                {
                     Debug.LogError("Tried to load a save file from a different project!\n" +
                                    $"You currently have project \"{currentProject}\" " +
                                    $"opened, while the save is from \"{copy.ProjectName}\".\nIf this isn't expected behaviour " +
@@ -62,7 +58,6 @@ namespace DREngine.Game
                                    "the \"ProjectName\" paramter " +
                                    $"to be equal to \"{currentProject}\"."
                     );
-                }
 
                 return false;
             }
@@ -74,6 +69,5 @@ namespace DREngine.Game
             Debug.LogDebug($"LOADING GAME from {file} Success!");
             return true;
         }
-
     }
 }

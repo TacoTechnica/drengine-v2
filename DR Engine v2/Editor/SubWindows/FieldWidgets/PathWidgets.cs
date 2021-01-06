@@ -1,15 +1,16 @@
 using System.IO;
 using System.Reflection;
-using Gdk;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
-
     public class StringPathWidget : AbstractPathWidget<string>
     {
-        public StringPathWidget(DREditor editor, string title, string startPath = null, bool requireDirectory = false, string filter=null, string filterName=null) : base(editor, title, startPath, requireDirectory, filter, filterName)
-        { }
+        public StringPathWidget(DREditor editor, string title, string startPath = null, bool requireDirectory = false,
+            string filter = null, string filterName = null) : base(editor, title, startPath, requireDirectory, filter,
+            filterName)
+        {
+        }
 
         protected override void OnFilePicked(string file)
         {
@@ -17,19 +18,18 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             OnModify();
         }
     }
-    
+
     public abstract class AbstractPathWidget<T> : FieldWidget<T>
     {
-        protected override T Data { get; set; }
-
-        private DREditor _editor;
-        private string _title;
+        private readonly DREditor _editor;
+        private readonly string _filter;
+        private readonly string _filterName;
+        private readonly bool _requireDirectory;
         private string _startPath;
-        private bool _requireDirectory = false;
-        private string _filter;
-        private string _filterName;
+        private readonly string _title;
 
-        public AbstractPathWidget(DREditor editor, string title, string startPath = null, bool requireDirectory = false, string filter = null, string filterName = null)
+        public AbstractPathWidget(DREditor editor, string title, string startPath = null, bool requireDirectory = false,
+            string filter = null, string filterName = null)
         {
             _editor = editor;
             _title = title;
@@ -39,9 +39,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _filterName = filterName;
         }
 
+        protected override T Data { get; set; }
+
         protected override void Initialize(FieldInfo field, HBox content)
         {
-            Button choose = new Button("(empty)");
+            var choose = new Button("(empty)");
 
             FileChooserDialog dialog = null;
 
@@ -53,25 +55,25 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 {
                     if (_filter != null)
                     {
-                        FileFilter filter = new FileFilter();
+                        var filter = new FileFilter();
                         if (_filterName != null) filter.Name = _filterName;
                         filter.AddPattern(_filter);
                         dialog.AddFilter(filter);
                     }
 
-                    bool validPick = false;
+                    var validPick = false;
 
                     while (!validPick)
                     {
-                        bool picked = (ResponseType) dialog.Run() == ResponseType.Accept;
+                        var picked = (ResponseType) dialog.Run() == ResponseType.Accept;
                         validPick = true;
 
                         if (picked)
                         {
-                            string path = dialog.Filename;
+                            var path = dialog.Filename;
 
-                            validPick = (_requireDirectory && Directory.Exists(path)) ||
-                                        (!_requireDirectory && File.Exists(path));
+                            validPick = _requireDirectory && Directory.Exists(path) ||
+                                        !_requireDirectory && File.Exists(path);
 
                             if (validPick)
                             {
@@ -81,11 +83,12 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                             }
                         }
                     }
+
                     dialog.Dispose();
                     dialog = null;
                 }
             };
-            
+
             content.PackStart(choose, false, false, 4);
             choose.Show();
         }

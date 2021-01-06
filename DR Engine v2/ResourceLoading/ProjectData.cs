@@ -1,68 +1,35 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
-using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Debugging;
 using GameEngine.Game.Resources;
-using GameEngine.Util;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Path = GameEngine.Game.Path;
 
 namespace DREngine
 {
     /// <summary>
-    /// Represents a project data file. (project.json)
+    ///     Represents a project data file. (project.json)
     /// </summary>
     public class ProjectData
     {
-        private const string PROJECT_DATA_FILE_NAME = "project.json"; 
-        
-        #region Data
+        private const string PROJECT_DATA_FILE_NAME = "project.json";
 
-        public string Name;
-        public string Author;
-
-        //public ProjectResourceList Resources = new ProjectResourceList();
-
-        public class OverrideableResourceList
-        {
-            [ResourceType(typeof(Font))] public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-            [ResourceType(typeof(Font))] public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
-            [ResourceType(typeof(Font))] public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
-        }
-
-        [FieldContainer]
-        public OverrideableResourceList OverridableResources = new OverrideableResourceList();
-
-        /// <summary>
-        /// Default directories of our resources.
-        /// THESE ARE NOT ENFORCED! They only serve as suggestions.
-        /// </summary>
-        public const string ROOM_DEFAULT_DIR = "rooms";
-        public const string CHARACTERS_DEFAULT_DIR = "characters";
-        public const string SPRITES_DEFAULT_DIR = "sprites";
-        public const string SFX_DEFAULT_DIR = "sfx";
-        public const string VA_DEFAULT_DIR = "va";
-        public const string BGM_DEFAULT_DIR = "bgm";
-        public const string DIALOGUE_DEFAULT_DIR = "dialogue";
-
-        #endregion
-
-        private const string CommentHeader = "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
+        private const string CommentHeader =
+            "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
         private string _fullProjectPath;
 
         /// <summary>
-        /// Loads a project from a file.
+        ///     Loads a project from a file.
         /// </summary>
         /// <param name="g"></param>
         /// <param name="fpath"></param>
-        /// <param name="fullLoad"> If false, it will NOT do any extra project loading. Use this for quick surface level project parsing. </param>
+        /// <param name="fullLoad">
+        ///     If false, it will NOT do any extra project loading. Use this for quick surface level project
+        ///     parsing.
+        /// </param>
         /// <returns></returns>
         /// <exception cref="JsonException"></exception>
         public static ProjectData LoadFromFile(Path fpath, bool fullLoad = true)
@@ -71,16 +38,11 @@ namespace DREngine
             {
                 // We might be given a relative directory, so try that first.
                 if (!File.Exists(fpath) && !Directory.Exists(fpath))
-                {
                     fpath = System.IO.Path.Combine(Environment.CurrentDirectory, fpath);
-                    //Debug.Log($"RELATIVE PATH: {fpath}");
-                }
+                //Debug.Log($"RELATIVE PATH: {fpath}");
                 // We might be given the project directory, so try to find the project file within it.
-                if (Directory.Exists(fpath))
-                {
-                    fpath += "/" + PROJECT_DATA_FILE_NAME;
-                }
-                ProjectData result = JsonHelper.LoadFromJson<ProjectData>(null, fpath);
+                if (Directory.Exists(fpath)) fpath += "/" + PROJECT_DATA_FILE_NAME;
+                var result = JsonHelper.LoadFromJson<ProjectData>(null, fpath);
                 result._fullProjectPath = fpath;
 
                 return result;
@@ -105,13 +67,14 @@ namespace DREngine
 
         public static string GetFullProjectPath(string fullProjectPath, Path path = null)
         {
-            string dir = System.IO.Path.GetDirectoryName(fullProjectPath);
+            var dir = System.IO.Path.GetDirectoryName(fullProjectPath);
             //Debug.Log($"TEMP: {fullProjectPath} : {dir} -> {path}");
             string relativePath;
             if (path is ProjectPath pp)
             {
                 relativePath = pp.RelativePath;
-            } else if (path is EnginePath ep)
+            }
+            else if (path is EnginePath ep)
             {
                 throw new NotImplementedException();
                 relativePath = ep.RelativePath;
@@ -120,37 +83,36 @@ namespace DREngine
             {
                 relativePath = path;
             }
+
             return System.IO.Path.Join(dir, relativePath);
         }
 
         public string GetRelativeProjectPath(string fullPath)
         {
-            string dir = GetFullProjectPath();
-            string result = System.IO.Path.GetRelativePath(dir, fullPath);
+            var dir = GetFullProjectPath();
+            var result = System.IO.Path.GetRelativePath(dir, fullPath);
             //Debug.Log($"{fullPath} from {_fullProjectPath} => {result}");
             if (result.StartsWith(".."))
-            {
-                throw new InvalidArgumentsException($"Full path {fullPath} does not reside within project path: {dir}.");
-            }
+                throw new InvalidArgumentsException(
+                    $"Full path {fullPath} does not reside within project path: {dir}.");
 
             return result;
         }
 
         public string GetFullDefaultResourcePath(string relative = "")
         {
-            string rootDir = System.IO.Path.GetDirectoryName(_fullProjectPath);
+            var rootDir = System.IO.Path.GetDirectoryName(_fullProjectPath);
             return System.IO.Path.Join(rootDir, DefaultResourcePath.DEFAULT_RESOURCE_FOLDER, relative);
         }
 
         public string GetRelativeDefaultResourcePath(string fullPath)
         {
-            string dir = GetFullDefaultResourcePath();
-            string result = System.IO.Path.GetRelativePath(dir, fullPath);
+            var dir = GetFullDefaultResourcePath();
+            var result = System.IO.Path.GetRelativePath(dir, fullPath);
             //Debug.Log($"{fullPath} from {_fullProjectPath} => {result}");
             if (result.StartsWith(".."))
-            {
-                throw new InvalidArgumentsException($"Full path {fullPath} does not reside within default resource path: {dir}.");
-            }
+                throw new InvalidArgumentsException(
+                    $"Full path {fullPath} does not reside within default resource path: {dir}.");
 
             return result;
         }
@@ -159,6 +121,42 @@ namespace DREngine
         {
             return fullPath.StartsWith(GetFullDefaultResourcePath());
         }
+
+        #region Data
+
+        public string Name;
+        public string Author;
+
+        //public ProjectResourceList Resources = new ProjectResourceList();
+
+        public class OverrideableResourceList
+        {
+            [ResourceType(typeof(Font))]
+            public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+
+            [ResourceType(typeof(Font))]
+            public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+
+            [ResourceType(typeof(Font))]
+            public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+        }
+
+        [FieldContainer] public OverrideableResourceList OverridableResources = new OverrideableResourceList();
+
+        /// <summary>
+        ///     Default directories of our resources.
+        ///     THESE ARE NOT ENFORCED! They only serve as suggestions.
+        /// </summary>
+        public const string ROOM_DEFAULT_DIR = "rooms";
+
+        public const string CHARACTERS_DEFAULT_DIR = "characters";
+        public const string SPRITES_DEFAULT_DIR = "sprites";
+        public const string SFX_DEFAULT_DIR = "sfx";
+        public const string VA_DEFAULT_DIR = "va";
+        public const string BGM_DEFAULT_DIR = "bgm";
+        public const string DIALOGUE_DEFAULT_DIR = "dialogue";
+
+        #endregion
 
         /*
         /// <summary>
@@ -179,9 +177,9 @@ namespace DREngine
         */
     }
 
-    
+
     [AttributeUsage(AttributeTargets.Field)]
-    class ResourceTypeAttribute : Attribute
+    internal class ResourceTypeAttribute : Attribute
     {
         public Type Type;
 

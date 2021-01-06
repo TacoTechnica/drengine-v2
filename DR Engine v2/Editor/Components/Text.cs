@@ -14,7 +14,7 @@ namespace DREngine.Editor
         public Text(string text) : base(text)
         {
             _text = text;
-            this.Wrap = true;
+            Wrap = true;
         }
 
         public void SetMode(int mode)
@@ -35,16 +35,16 @@ namespace DREngine.Editor
             }
         }
 
-        private void SetStyle(string color, string style = "normal", string weight="normal")
+        private void SetStyle(string color, string style = "normal", string weight = "normal")
         {
-            this.UseMarkup = true;
-            this.Markup = $"<span foreground=\"{color}\" font_style=\"{style}\" font_weight=\"{weight}\">{Text}</span>";
+            UseMarkup = true;
+            Markup = $"<span foreground=\"{color}\" font_style=\"{style}\" font_weight=\"{weight}\">{Text}</span>";
             //output.Buffer.InsertWithTags(ref start, message, errTag);
         }
 
         private void ResetColor()
         {
-            this.UseMarkup = false;
+            UseMarkup = false;
             //this.Text = _text;
         }
     }

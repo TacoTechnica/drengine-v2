@@ -7,20 +7,15 @@ using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Path = GameEngine.Game.Path;
 
 namespace DREngine.Game.Scene
 {
     [Serializable]
     public class DRScene : BaseSceneLoader, IGameResource
     {
-
-        [JsonIgnore]
-        public Path Path { get; set; }
-        public List<ISceneObject> Objects { get; set; } = new List<ISceneObject>();
+        private DRGame _game;
 
         private bool _testFlag;
-        private DRGame _game;
 
         public DRScene(DRGame game, string name, Path scenePath, bool testFlag) : base(game, name)
         {
@@ -35,21 +30,9 @@ namespace DREngine.Game.Scene
             Debug.LogDebug("Commencing Scene Deserialization...");
         }
 
-        public override void LoadScene()
-        {
-            new FreeCamera3D(_game, Vector3.Zero, Quaternion.Identity);
-            //TEST_DELETE_ME();
-            var copy = JsonHelper.LoadFromJson<DRScene>(_game, Path);
-            if (copy != null)
-            {
-                Objects.Clear();
-                Objects.AddRange(copy.Objects);
-            }
-            else
-            {
-                Debug.LogError($"Invalid JSON file to read scene from: {Path}. Please check to make sure the json at this path is a valid scene!");
-            }
-        }
+        public List<ISceneObject> Objects { get; set; } = new List<ISceneObject>();
+
+        [JsonIgnore] public Path Path { get; set; }
 
         public void Save(Path path)
         {
@@ -82,16 +65,33 @@ namespace DREngine.Game.Scene
             Objects.Clear();
         }
 
+        public override void LoadScene()
+        {
+            new FreeCamera3D(_game, Vector3.Zero, Quaternion.Identity);
+            //TEST_DELETE_ME();
+            var copy = JsonHelper.LoadFromJson<DRScene>(_game, Path);
+            if (copy != null)
+            {
+                Objects.Clear();
+                Objects.AddRange(copy.Objects);
+            }
+            else
+            {
+                Debug.LogError(
+                    $"Invalid JSON file to read scene from: {Path}. Please check to make sure the json at this path is a valid scene!");
+            }
+        }
+
         public void TEST_DELETE_ME()
         {
-            VNScript script = new VNScript(_game);
+            var script = new VNScript(_game);
 
             script.Commands = new List<VNCommand>(new VNCommand[]
             {
-                new LabelCommand() {Label = "STARTO"},
-                new PrintCommand() {Text = "poopity scoop"},
-                new PrintCommand() {Text = "scoopity poop"},
-                new LabelCommand() {Label = "ENDO"}
+                new LabelCommand {Label = "STARTO"},
+                new PrintCommand {Text = "poopity scoop"},
+                new PrintCommand {Text = "scoopity poop"},
+                new LabelCommand {Label = "ENDO"}
             });
 
             //_game.VNRunner.State.CurrentScript = script;

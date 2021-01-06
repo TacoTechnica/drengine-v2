@@ -1,10 +1,4 @@
-﻿using System;
-using GameEngine;
-using GameEngine.Game;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-namespace DREngine.Game.Scene
+﻿namespace DREngine.Game.Scene
 {
     //[JsonConverter(typeof(SceneObjectJsonReader))]
     public interface ISceneObject

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using GameEngine;
-using GameEngine.Game;
 using Gdk;
 using Gtk;
 using Action = System.Action;
@@ -12,31 +11,30 @@ namespace DREngine.Editor.SubWindows
 {
     public abstract class SavableWindow : SubWindow
     {
-        private DREditor _editor;
-
-        public Path CurrentPath { get; private set; }
-
-        public bool Dirty { get; private set; }
-
-        public string RootTitle { get; private set; }
-
-
         private Box _container;
+        private readonly DREditor _editor;
+
+        private readonly bool _includeTopBar;
         private HBox _topMenu;
 
-        private bool _includeTopBar;
 
-        
-        public SavableWindow(DREditor editor, ProjectPath resPath, bool includeTopBar = true) : base(editor, $"{resPath?.RelativePath}")
+        public SavableWindow(DREditor editor, ProjectPath resPath, bool includeTopBar = true) : base(editor,
+            $"{resPath?.RelativePath}")
         {
             RootTitle = Title;
             _editor = editor;
             _includeTopBar = includeTopBar;
         }
 
+        public Path CurrentPath { get; private set; }
+
+        public bool Dirty { get; private set; }
+
+        public string RootTitle { get; }
+
         private void OnKeyPressEvent(object o, KeyPressEventArgs args)
         {
-            bool control = (args.Event.State & ModifierType.ControlMask) != 0;
+            var control = (args.Event.State & ModifierType.ControlMask) != 0;
             OnKey(args.Event.Key, control);
         }
 
@@ -46,13 +44,13 @@ namespace DREngine.Editor.SubWindows
             {
                 // Intercept close
                 args.RetVal = true;
-                string message = "Unsaved changes, close anyway and discard changes?";
+                var message = "Unsaved changes, close anyway and discard changes?";
 
-                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Close and Discard Changes", "Cancel");
+                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Close and Discard Changes");
 
                 //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
                 //    ButtonsType.OkCancel, false, message);
-                bool ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
+                var ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
 
                 dialogue.Dispose();
                 if (ok)
@@ -98,7 +96,7 @@ namespace DREngine.Editor.SubWindows
         {
             // Init layout
 
-            VBox mainBox = new VBox();
+            var mainBox = new VBox();
 
             if (_includeTopBar)
             {
@@ -118,39 +116,35 @@ namespace DREngine.Editor.SubWindows
 
             Add(mainBox);
 
-            this.DeleteEvent += OnDeleteEvent;
+            DeleteEvent += OnDeleteEvent;
 
-            this.KeyPressEvent += OnKeyPressEvent;
-
+            KeyPressEvent += OnKeyPressEvent;
         }
 
         protected virtual void OnKey(Key key, bool control)
         {
             if (control)
-            {
                 if (key == Key.S || key == Key.s)
                 {
                     Save();
                     return;
                 }
-            }
 
-            if (key == Key.Escape)
-            {
-                Close();
-            }
+            if (key == Key.Escape) Close();
         }
-        
+
         #region Abstract Functions
+
         protected abstract void OnInitialize(Box container);
         protected abstract void OnOpen(Path path, Box container);
         protected abstract void OnSave(Path path);
         protected abstract void OnLoadError(bool fileExists, Exception exception);
         protected abstract void OnClose();
+
         #endregion
 
         #region Very Useful Protected Functions for use in children
-        
+
         protected void MarkDirty()
         {
             Dirty = true;
@@ -159,26 +153,21 @@ namespace DREngine.Editor.SubWindows
 
         protected Button AddMenuBarItem(string name, Pixbuf icon = null, Action onPress = null)
         {
-            Button result = new Button();
+            var result = new Button();
             result.TooltipText = name;
 
-            if (onPress != null)
-            {
-                result.Pressed += (sender, args) => { onPress.Invoke(); };
-            }
+            if (onPress != null) result.Pressed += (sender, args) => { onPress.Invoke(); };
 
             if (icon == null)
-            {
                 result.Label = name;
-            } else {
+            else
                 result.Image = new Image(icon);
-            }
             _topMenu.PackStart(result, false, false, 0);
             result.Show();
-            
+
             return result;
         }
-        
+
         #endregion
     }
 }

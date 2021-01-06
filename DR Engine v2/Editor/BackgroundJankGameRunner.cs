@@ -4,14 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 namespace DREngine.Editor
 {
     /// <summary>
-    /// Here because we can't initialize a GraphicsDevice on its own. This is dumb.
+    ///     Here because we can't initialize a GraphicsDevice on its own. This is dumb.
     /// </summary>
     public class BackgroundJankGameRunner : Microsoft.Xna.Framework.Game
     {
-
-        private GraphicsDeviceManager _graphics;
-
-        public GraphicsDevice GraphicsDevice => _graphics.GraphicsDevice;
+        private readonly GraphicsDeviceManager _graphics;
 
         public BackgroundJankGameRunner()
         {
@@ -21,6 +18,8 @@ namespace DREngine.Editor
             };
             // In initialize: new SpriteBatch(GraphicsDevice);?
         }
+
+        public GraphicsDevice GraphicsDevice => _graphics.GraphicsDevice;
 
         protected override void Initialize()
         {
