@@ -33,8 +33,8 @@ namespace DREngine.Editor.SubWindows.Resources
             
             container.PackStart(scroll, true, true, 16);
             //container.PackStart(_image, true, true, 4);
-            container.PackEnd(_label, false, false, 4);
-            container.PackEnd(_fields, false, true, 4);
+            container.PackEnd(_label, false, false, 16);
+            container.PackEnd(_fields, false, true, 16);
             scroll.Show();
             _image.Show();
             _label.Show();

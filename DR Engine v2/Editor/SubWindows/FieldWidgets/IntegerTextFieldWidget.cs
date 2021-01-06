@@ -4,6 +4,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     {
         protected override int FromString(string value)
         {
+            if (value == "") return 0;
             return int.Parse(value);
         }
 
@@ -14,6 +15,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected override bool IsValidParse(string value)
         {
+            if (value == "") return true;
             return int.TryParse(value, out _);
         }
     }

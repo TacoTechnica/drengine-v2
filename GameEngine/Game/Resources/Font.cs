@@ -41,7 +41,6 @@ namespace GameEngine.Game.Resources
         public void Load(ResourceLoaderData data)
         {
 
-            // TODO: Load extra data
             var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(Path),
                 Size,
                 1024,
@@ -56,6 +55,8 @@ namespace GameEngine.Game.Resources
             );
 
             SpriteFont = fontBakeResult.CreateSpriteFont(data.GraphicsDevice);
+            
+            ExtraResourceHelper.LoadExtraData(this, Path);
         }
 
         public void Save(Path path)

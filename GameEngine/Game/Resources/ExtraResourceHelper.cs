@@ -56,7 +56,7 @@ namespace GameEngine.Game.Resources
                 if (!IsType(realType, autoType))
                 {
                     // Fields don't match, will have to re-parse.
-                    if (autoType != typeof(string) && realType != typeof(System.Single))
+                    if (autoType != typeof(string) && realType != typeof(System.Single) && realType != typeof(System.Int32))
                     {
                         Debug.LogWarning($"[Extra Resource] Weird mismatch on field {name}: Parsed {autoType} (<< not string!!) but we need {realType}");
                         //continue;

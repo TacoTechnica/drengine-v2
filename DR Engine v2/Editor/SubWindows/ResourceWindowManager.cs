@@ -84,6 +84,10 @@ namespace DREngine.Editor.SubWindows
                 case "json":
                 case "txt":
                     return new SimpleTextWindow(_editor, path);
+                case "ttf":
+                    return new FontResourceWindow(_editor, path);
+                case "wav":
+                    return new AudioClipResourceWindow(_editor, path);
             }
             return new UnknownResourceWindow(_editor, path, extension);
         }
