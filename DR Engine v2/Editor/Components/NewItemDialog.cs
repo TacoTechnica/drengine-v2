@@ -26,6 +26,11 @@ namespace DREngine.Editor.Components
 
         protected override void OnModified()
         {
+            if (GetTargetDirectory() == null)
+            {
+                SetFailure("No import file set.");
+                return;
+            }
             string displayPath = GetTargetDirectory().GetShortName();
             if (Directory.Exists(GetTargetDirectory()) || File.Exists(GetTargetDirectory()) )
             {
@@ -62,6 +67,7 @@ namespace DREngine.Editor.Components
 
         public virtual ProjectPath GetTargetDirectory()
         {
+            if (Name == null) return null;
             return (ProjectPath)(_parentDirectory + "/" + Name);
         }
 

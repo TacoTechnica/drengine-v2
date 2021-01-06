@@ -9,9 +9,8 @@ namespace GameEngine.Game.Audio
     /// </summary>
     public class AudioClip : IGameResource
     {
-        [ExtraData]
-        public AudioClipType Type { get; set; }
-        [ExtraData]
+        [ExtraData] public AudioClipType Type;
+
         public bool UsesSample { get; private set; }
         public Path Path { get; set; }
 
@@ -34,7 +33,7 @@ namespace GameEngine.Game.Audio
             if (UsesSample)
             {
                 toFree = -1; // We do not free our sampled audio until it is freed as a resource.
-                int sample = _clip.GetSample(); 
+                int sample = _clip.GetSample();
                 int result = Bass.SampleGetChannel(sample, true);
                 if (result == 0)
                 {
@@ -68,7 +67,7 @@ namespace GameEngine.Game.Audio
 
             Assert.IsNotNull(_clip);
             _clip.Load();
-            // TODO: Load Extra Data
+            ExtraResourceHelper.LoadExtraData(this, Path);
         }
 
         public void Save(Path path)

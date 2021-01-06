@@ -58,7 +58,13 @@ namespace GameEngine.Game.Resources
                     // Fields don't match, will have to re-parse.
                     if (autoType != typeof(string) && realType != typeof(System.Single) && realType != typeof(System.Int32))
                     {
-                        Debug.LogWarning($"[Extra Resource] Weird mismatch on field {name}: Parsed {autoType} (<< not string!!) but we need {realType}");
+                        // Enum
+                        if (!IsType(autoType, typeof(System.Int64)) && IsType(realType, typeof(Enum)))
+                        {
+                            Debug.LogWarning(
+                                $"[Extra Resource] Weird mismatch on field {name}: Parsed {autoType} (<< not string!!) but we need {realType}");
+                        }
+
                         //continue;
                     }
                     

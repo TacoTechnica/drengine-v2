@@ -30,6 +30,8 @@ namespace DREngine.Editor
         public Icons Icons => Window.Icons;
 
         public AudioOutput AudioOutput { get; private set; }
+        public AudioSource GlobalAudioSource { get; private set; }
+        private AudioMixer _globalMixer;
         public GraphicsDevice GraphicsDevice { get; private set; }
 
         public DRProjectRunner ProjectRunner;
@@ -88,6 +90,9 @@ namespace DREngine.Editor
             // Kinda jank but like... if it works it works right?
             //GraphicsDevice = CreateGraphicsDevice();
             AudioOutput = new AudioOutput();
+            _globalMixer = new AudioMixer(AudioOutput);
+
+            GlobalAudioSource = new AudioSource(_globalMixer);
 
             ResourceLoaderData.Initialize(GraphicsDevice, AudioOutput);
 

@@ -19,10 +19,13 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public FieldBox(DREditor editor, Type type, bool autoApply = false)
         {
-            foreach (FieldInfo f in type.GetFields().Where(f => f.IsPublic && !f.IsStatic && ShouldSerialize(f)))
+            foreach (FieldInfo f in type.GetFields())
             {
+                if (!f.IsPublic || f.IsStatic) continue;
+                if (!ShouldSerialize(f)) continue;
                 if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
 
+                
                 IFieldWidget widget = FieldWidgetFactory.CreateField(editor, f); 
                 _fields.Add(widget);
 

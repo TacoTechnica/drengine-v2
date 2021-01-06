@@ -152,6 +152,12 @@ namespace DREngine.Editor
                         Path toCopy = dialog.AudioToCopy;
                         File.Copy(toCopy, toAdd);
                         Debug.LogSilent($"New Audio Clip: {toAdd.RelativePath}");
+                        
+                        // Load and save extra file...
+                        AudioClip clip = new AudioClip();
+                        clip.Type = dialog.ImportType;
+                        clip.Save(toAdd);
+
                         resourceView.AddFile(toAdd.RelativePath, true);
                     }                    
                 }

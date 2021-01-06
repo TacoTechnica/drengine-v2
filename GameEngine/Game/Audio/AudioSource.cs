@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using ManagedBass;
 using ManagedBass.Mix;
 
@@ -13,7 +14,6 @@ namespace GameEngine.Game.Audio
         private int _toFree;
 
         private AudioClip _currentClip;
-
 
         public bool Playing
         {
@@ -30,7 +30,7 @@ namespace GameEngine.Game.Audio
             _currentClip = null;
         }
 
-        public void Play(AudioClip clip)
+        public void Play(AudioClip clip, Action OnStop = null)
         {
             // If we're playing the same clip, use the old channel.
             if (_currentClip != clip)
@@ -46,6 +46,18 @@ namespace GameEngine.Game.Audio
             }
 
             _mixer.PlayChannel(_channel);
+
+            if (OnStop != null)
+            {
+                new Thread(() =>
+                {
+                    while (Playing)
+                    {
+                        Thread.SpinWait(5);
+                    }
+                    OnStop.Invoke();
+                }).Start();
+            }
         }
 
         public void Stop()

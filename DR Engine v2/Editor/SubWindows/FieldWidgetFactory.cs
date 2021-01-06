@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using GameEngine;
 using GameEngine.Game;
+using Microsoft.Xna.Framework;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
@@ -33,6 +34,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             {
                 return new StringTextFieldWidget();
             }
+            // BOOL
+            if (IsType(type, typeof(bool)))
+            {
+                return new BoolField();
+            }
 
             // DEFAULT NUMBERS
             if (IsType(type, typeof(int)))
@@ -43,7 +49,19 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             {
                 return new FloatTextFieldWidget();
             }
+            
+            // Enum
+            if (IsType(type, typeof(Enum)))
+            {
+                return new GenericEnumWidget();
+            }
 
+            // Vector2
+            if (IsType(type, typeof(Vector2)))
+            {
+                return new Vector2Widget();
+            }
+            
             // MISC
             if (IsType(type, typeof(OverridablePath)))
             {
