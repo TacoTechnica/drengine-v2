@@ -2,6 +2,7 @@ using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using Gdk;
 using Gtk;
 

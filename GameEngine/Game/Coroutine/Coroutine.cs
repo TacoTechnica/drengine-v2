@@ -1,15 +1,12 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Timers;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Coroutine
 {
-
     public class Coroutine
     {
-        private IEnumerator _enumerator;
+        private readonly IEnumerator _enumerator;
 
         internal Coroutine(IEnumerator enumerator)
         {
@@ -23,27 +20,23 @@ namespace GameEngine.Game
 
         private IEnumerator RecursiveIterate(IEnumerator enumerator)
         {
-            Stack<IEnumerator> toRun = new Stack<IEnumerator>();
+            var toRun = new Stack<IEnumerator>();
             toRun.Push(enumerator);
             while (toRun.Count != 0)
             {
-                IEnumerator current = toRun.Peek();
+                var current = toRun.Peek();
                 if (!current.MoveNext())
                 {
                     toRun.Pop();
                     continue;
                 }
 
-                if (current.Current is IEnumerator inner)
-                {
-                    toRun.Push(inner);
-                }
+                if (current.Current is IEnumerator inner) toRun.Push(inner);
 
                 // That's one iteration down.
                 yield return null;
             }
         }
-
 
 
         /*
@@ -56,7 +49,6 @@ namespace GameEngine.Game
             }
         }
         */
-
     }
 
     public abstract class CustomCoroutine : IEnumerator
@@ -67,6 +59,7 @@ namespace GameEngine.Game
         {
             _game = game;
         }
+
         public abstract bool MoveNext();
 
         public void Reset()
@@ -79,12 +72,14 @@ namespace GameEngine.Game
     public class WaitForSeconds : CustomCoroutine
     {
         private readonly float _time;
-        private float _start;
+        private readonly float _start;
+
         public WaitForSeconds(GamePlus game, float time) : base(game)
         {
             _time = time;
             _start = game.Time;
         }
+
         public override bool MoveNext()
         {
             return _game.Time < _start + _time;
@@ -93,7 +88,7 @@ namespace GameEngine.Game
 
     public class WaitUntilCondition : CustomCoroutine
     {
-        private Func<bool> _condition;
+        private readonly Func<bool> _condition;
 
         public WaitUntilCondition(GamePlus game, Func<bool> condition) : base(game)
         {
@@ -105,5 +100,4 @@ namespace GameEngine.Game
             return !_condition.Invoke();
         }
     }
-
 }

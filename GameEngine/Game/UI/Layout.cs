@@ -1,25 +1,18 @@
 ﻿using System;
-using System.Numerics;
-using System.Reflection;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
-
     /// <summary>
-    /// This sets how a UI element will be positioned, using margins, anchors and pivots.
-    /// It does NOT represent the state of the UI itself, but rather its layout strategy. This is best kept fixed.
-    /// Thus this will NOT store things like rotation, scale, translations that might animate.
+    ///     This sets how a UI element will be positioned, using margins, anchors and pivots.
+    ///     It does NOT represent the state of the UI itself, but rather its layout strategy. This is best kept fixed.
+    ///     Thus this will NOT store things like rotation, scale, translations that might animate.
     /// </summary>
     public class Layout
     {
-        public Margin Margin = new Margin();
-        public Vector2 AnchorMin = Vector2.Zero, AnchorMax = Vector2.One;
-        public Vector2 Pivot = 0.5f * Vector2.One;
-
         // unwrapped enums
         /// <summary>
-        /// Corner
+        ///     Corner
         /// </summary>
         public const int
             TopLeft = 4,
@@ -28,7 +21,7 @@ namespace GameEngine.Game.UI
             BottomRight = 7;
 
         /// <summary>
-        /// Side
+        ///     Side
         /// </summary>
         public const int
             Top = 0,
@@ -36,8 +29,15 @@ namespace GameEngine.Game.UI
             Left = 2,
             Right = 3;
 
+        public Vector2 AnchorMin = Vector2.Zero, AnchorMax = Vector2.One;
+        public Margin Margin = new Margin();
+        public Vector2 Pivot = 0.5f * Vector2.One;
+
         // Empty constructor
-        public Layout() { }
+        public Layout()
+        {
+        }
+
         public Layout(Layout toCopy) : this()
         {
             Margin = new Margin(toCopy.Margin);
@@ -59,10 +59,12 @@ namespace GameEngine.Game.UI
             Margin.Offset(x, y);
             return this;
         }
+
         public Layout OffsetBy(Vector2 offset)
         {
             return OffsetBy(offset.X, offset.Y);
         }
+
         public Layout WithPivot(float x, float y)
         {
             Pivot = new Vector2(x, y);
@@ -70,7 +72,7 @@ namespace GameEngine.Game.UI
         }
 
         /// <summary>
-        ///    Give a layout that's fullscreen.
+        ///     Give a layout that's fullscreen.
         ///     Optional offsets from the corners.
         /// </summary>
         public static Layout FullscreenLayout(Vector2 minOffset, Vector2 maxOffset)
@@ -99,7 +101,7 @@ namespace GameEngine.Game.UI
         }
 
         /// <summary>
-        ///    Give an empty layout that will create a rect of size zero
+        ///     Give an empty layout that will create a rect of size zero
         ///     on the top left corner.
         /// </summary>
         public static Layout EmptyLayout()
@@ -109,7 +111,7 @@ namespace GameEngine.Game.UI
 
         public static Layout CustomLayout(Vector2 anchorMin, Vector2 anchorMax, Margin margin)
         {
-            return new Layout()
+            return new Layout
             {
                 AnchorMin = anchorMin,
                 AnchorMax = anchorMax,
@@ -117,14 +119,15 @@ namespace GameEngine.Game.UI
             };
         }
 
-        public static Layout CustomLayout(float anchorMinX=0, float anchorMinY=0, float anchorMaxX=1, float anchorMaxY=1, float marginLeft=0, float marginTop=0, float marginRight=0, float marginBot=0)
+        public static Layout CustomLayout(float anchorMinX = 0, float anchorMinY = 0, float anchorMaxX = 1,
+            float anchorMaxY = 1, float marginLeft = 0, float marginTop = 0, float marginRight = 0, float marginBot = 0)
         {
             return CustomLayout(new Vector2(anchorMinX, anchorMinY), new Vector2(anchorMaxX, anchorMaxY),
                 new Margin(marginLeft, marginTop, marginRight, marginBot));
         }
 
-    /// <summary>
-        ///    Give a layout that's scaled.
+        /// <summary>
+        ///     Give a layout that's scaled.
         /// </summary>
         public static Layout ScaledLayout(float leftPercent, float topPercent, float rightPercent, float botPercent)
         {
@@ -141,14 +144,14 @@ namespace GameEngine.Game.UI
             {
                 AnchorMin = Vector2.One / 2f,
                 AnchorMax = Vector2.One / 2f,
-                Margin = new Margin(-width/2, -height/2, -width/2, -height/2)
+                Margin = new Margin(-width / 2, -height / 2, -width / 2, -height / 2)
             };
         }
 
         public static Layout CornerLayout(int corner, float width = 0, float height = 0)
         {
-            Vector2 anchor = Vector2.Zero;
-            Vector2 delta = Vector2.Zero;
+            var anchor = Vector2.Zero;
+            var delta = Vector2.Zero;
             switch (corner)
             {
                 case TopLeft:
@@ -189,6 +192,7 @@ namespace GameEngine.Game.UI
                 default:
                     throw new ArgumentOutOfRangeException(nameof(corner), corner, null);
             }
+
             return new Layout
             {
                 AnchorMin = anchor,
@@ -196,9 +200,10 @@ namespace GameEngine.Game.UI
                 Margin = new Margin(delta.X, delta.Y, -delta.X - width, -delta.Y - height)
             };
         }
+
         public static Layout SideStretchLayout(int side, float size = 0, float padding = 0, float offset = 0)
         {
-            Layout result = new Layout {Margin = new Margin(padding, padding, padding, padding)};
+            var result = new Layout {Margin = new Margin(padding, padding, padding, padding)};
             switch (side)
             {
                 case Top:
@@ -228,6 +233,7 @@ namespace GameEngine.Game.UI
                 default:
                     throw new ArgumentOutOfRangeException(nameof(side), side, null);
             }
+
             return result;
         }
 
@@ -245,10 +251,10 @@ namespace GameEngine.Game.UI
 
     public class Margin
     {
-        public float Top;
         public float Bottom;
         public float Left;
         public float Right;
+        public float Top;
 
         public Margin(float left, float top, float right, float bottom)
         {
@@ -274,7 +280,29 @@ namespace GameEngine.Game.UI
         }
 
         // Copy constructor
-        public Margin(Margin toCopy) : this(toCopy.Left, toCopy.Top, toCopy.Right, toCopy.Bottom) {}
+        public Margin(Margin toCopy) : this(toCopy.Left, toCopy.Top, toCopy.Right, toCopy.Bottom)
+        {
+        }
+
+        public Vector2 Min
+        {
+            get => new Vector2(Left, Top);
+            set
+            {
+                Left = value.X;
+                Right = value.Y;
+            }
+        }
+
+        public Vector2 Max
+        {
+            get => new Vector2(Right, Bottom);
+            set
+            {
+                Right = value.X;
+                Bottom = value.Y;
+            }
+        }
 
         public void Offset(float x, float y)
         {
@@ -297,37 +325,16 @@ namespace GameEngine.Game.UI
 
         public void SetX(float x)
         {
-            float deltaX = -x - Left;
+            var deltaX = -x - Left;
             Left += deltaX;
             Right -= deltaX;
-
         }
 
         public void SetY(float y)
         {
-            float deltaY = -y - Top;
+            var deltaY = -y - Top;
             Top += deltaY;
             Bottom -= deltaY;
-
-        }
-
-        public Vector2 Min
-        {
-            get => new Vector2(Left, Top);
-            set
-            {
-                Left = value.X;
-                Right = value.Y;
-            }
-        }
-        public Vector2 Max
-        {
-            get => new Vector2(Right, Bottom);
-            set
-            {
-                Right = value.X;
-                Bottom = value.Y;
-            }
         }
 
         public override string ToString()

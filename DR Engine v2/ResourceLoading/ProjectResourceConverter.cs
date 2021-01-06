@@ -3,6 +3,7 @@ using DREngine.Game;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Debugging;
+using GameEngine.Game.Resources;
 using Newtonsoft.Json;
 
 namespace DREngine

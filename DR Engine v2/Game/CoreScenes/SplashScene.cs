@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework.Graphics;

@@ -1,7 +1,4 @@
-﻿
-using GameEngine.Game.Input;
-
-namespace GameEngine.Game.UI
+﻿namespace GameEngine.Game.UI
 {
     public interface IMenu
     {

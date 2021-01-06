@@ -7,28 +7,28 @@ namespace GameEngine.Game.UI
     {
         private static int MaskCounter = 1;
 
-        private DepthStencilState _maskStencil;
-
-        //public RenderTarget2D RenderTarget { get; protected set; }= null;
-
-        public int MaskIndex { get; private set; }
+        private readonly DepthStencilState _maskStencil;
 
         public UIMask(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
             MaskIndex = MaskCounter++;
-            _maskStencil = new DepthStencilState {
+            _maskStencil = new DepthStencilState
+            {
                 StencilEnable = true,
                 StencilFunction = CompareFunction.Always,
                 StencilPass = StencilOperation.Replace,
                 ReferenceStencil = MaskIndex,
-                DepthBufferEnable = false,
+                DepthBufferEnable = false
             };
-
         }
+
+        //public RenderTarget2D RenderTarget { get; protected set; }= null;
+
+        public int MaskIndex { get; }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
-            DepthStencilState prev = screen.GraphicsDevice.DepthStencilState;
+            var prev = screen.GraphicsDevice.DepthStencilState;
             screen.GraphicsDevice.DepthStencilState = _maskStencil;
             DrawMask(screen, targetRect);
             screen.GraphicsDevice.DepthStencilState = prev;
@@ -40,6 +40,7 @@ namespace GameEngine.Game.UI
     public class UIMaskRect : UIMask
     {
         public Color Color;
+
         public UIMaskRect(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
             Color = Color.Black;

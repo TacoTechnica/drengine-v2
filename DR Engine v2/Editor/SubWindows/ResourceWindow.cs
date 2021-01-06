@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using Gtk;
 using Path = GameEngine.Game.Path;
 

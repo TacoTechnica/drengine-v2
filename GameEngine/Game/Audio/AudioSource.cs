@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Threading;
+using GameEngine.Game.Resources;
 using ManagedBass;
-using ManagedBass.Mix;
 
 namespace GameEngine.Game.Audio
 {
     public class AudioSource
     {
         private const int EMPTY_CHANNEL = -1;
-
-        private AudioMixer _mixer;
         private int _channel;
-        private int _toFree;
 
         private AudioClip _currentClip;
 
-        public bool Playing
-        {
-            get
-            {
-                return Bass.ChannelIsActive(_channel) == PlaybackState.Playing;
-            }
-        }
+        private readonly AudioMixer _mixer;
+        private int _toFree;
 
         public AudioSource(AudioMixer mixer)
         {
@@ -30,16 +22,16 @@ namespace GameEngine.Game.Audio
             _currentClip = null;
         }
 
+        public bool Playing => Bass.ChannelIsActive(_channel) == PlaybackState.Playing;
+
         public void Play(AudioClip clip, Action OnStop = null)
         {
             // If we're playing the same clip, use the old channel.
             if (_currentClip != clip)
             {
                 if (_currentClip != null)
-                {
                     // Stop the current clip!
                     StopInternal();
-                }
                 _currentClip = clip;
                 _channel = clip.GetNewChannelSource(out _toFree);
                 //Debug.Log($"NEW: {_toFree}");
@@ -48,16 +40,11 @@ namespace GameEngine.Game.Audio
             _mixer.PlayChannel(_channel);
 
             if (OnStop != null)
-            {
                 new Thread(() =>
                 {
-                    while (Playing)
-                    {
-                        Thread.SpinWait(5);
-                    }
+                    while (Playing) Thread.SpinWait(5);
                     OnStop.Invoke();
                 }).Start();
-            }
         }
 
         public void Stop()
@@ -76,10 +63,8 @@ namespace GameEngine.Game.Audio
             _mixer.StopChannel(_channel);
 
             if (!_currentClip.UsesSample)
-            {
                 Bass.StreamFree(_channel);
-                //Debug.Log($"DELETE: {_toFree}");
-            }
+            //Debug.Log($"DELETE: {_toFree}");
         }
     }
 }

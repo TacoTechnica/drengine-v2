@@ -1,5 +1,7 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

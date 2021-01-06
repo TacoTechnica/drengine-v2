@@ -1,6 +1,7 @@
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine.Game.Audio;
+using GameEngine.Game.Resources;
 using Gtk;
 
 namespace DREngine.Editor.Components

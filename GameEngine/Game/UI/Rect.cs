@@ -1,20 +1,13 @@
-﻿using System;
-using Microsoft.Win32.SafeHandles;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
     public class Rect
     {
+        public float Height;
+        public float Width;
         public float X;
         public float Y;
-        public float Width;
-        public float Height;
-
-        public float Left => X;
-        public float Right => X + Width;
-        public float Top => Y;
-        public float Bottom => Y + Height;
 
         public Rect(float x, float y, float width, float height)
         {
@@ -36,16 +29,29 @@ namespace GameEngine.Game.UI
             Height = toCopy.Height;
         }
 
+        public float Left => X;
+        public float Right => X + Width;
+        public float Top => Y;
+        public float Bottom => Y + Height;
+
         public Vector2 Position
         {
             get => new Vector2(X, Y);
-            set { X = value.X; Y = value. Y; }
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+            }
         }
 
         public Vector2 Size
         {
             get => new Vector2(Width, Height);
-            set { Width = value.X; Height = value.Y; }
+            set
+            {
+                Width = value.X;
+                Height = value.Y;
+            }
         }
 
         public Vector2 Min
@@ -57,7 +63,7 @@ namespace GameEngine.Game.UI
         public Vector2 Max
         {
             get => Position + Size;
-            set => Size = (Max - Min);
+            set => Size = Max - Min;
         }
 
         public bool Contains(Vector2 pos)
@@ -74,7 +80,7 @@ namespace GameEngine.Game.UI
 
         public static implicit operator Rectangle(Rect rect)
         {
-            return new Rectangle((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
+            return new Rectangle((int) rect.X, (int) rect.Y, (int) rect.Width, (int) rect.Height);
         }
     }
 }

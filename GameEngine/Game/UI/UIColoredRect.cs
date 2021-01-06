@@ -1,17 +1,17 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
     /// <summary>
-    /// A simple colored rectangle.
+    ///     A simple colored rectangle.
     /// </summary>
     public class UIColoredRect : UIComponent
     {
+        private readonly bool _border;
         public Color Color0, Color1, Color2, Color3;
 
-        private bool _border = false;
-        public UIColoredRect(GamePlus game, Color color0, Color color1, Color color2, Color color3, bool border = false, UIComponent parent = null) : base(game, parent)
+        public UIColoredRect(GamePlus game, Color color0, Color color1, Color color2, Color color3, bool border = false,
+            UIComponent parent = null) : base(game, parent)
         {
             Color0 = color0;
             Color1 = color1;
@@ -20,18 +20,17 @@ namespace GameEngine.Game.UI
             _border = border;
         }
 
-        public UIColoredRect(GamePlus game, Color color, bool border = false, UIComponent parent = null) : this(game, color, color, color, color, border, parent) {}
+        public UIColoredRect(GamePlus game, Color color, bool border = false, UIComponent parent = null) : this(game,
+            color, color, color, color, border, parent)
+        {
+        }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             if (_border)
-            {
                 screen.DrawRectOutline(targetRect, Color0, Color1, Color2, Color3);
-            }
             else
-            {
                 screen.DrawRect(targetRect, Color0, Color1, Color2, Color3);
-            }
         }
 
         public void SetColor(Color color)

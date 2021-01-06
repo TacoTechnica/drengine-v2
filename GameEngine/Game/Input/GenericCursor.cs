@@ -1,30 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Game.Input
 {
     public class GenericCursor : Cursor
     {
-        public bool UseMouse = true;
-
-        //private List<InputActionAxis2D> _overrides = new List<InputActionAxis2D>();
-        private InputActionAxis2D _override = null;
-        public float OverrideScale = 1f;
-
         public enum TimeScaleType
         {
-            None, DeltaTime, UnscaledDeltaTime
+            None,
+            DeltaTime,
+            UnscaledDeltaTime
         }
 
+        //private List<InputActionAxis2D> _overrides = new List<InputActionAxis2D>();
+        private InputActionAxis2D _override;
+        public float OverrideScale = 1f;
+
         public TimeScaleType OverrideTimeScaleMode = TimeScaleType.UnscaledDeltaTime;
+        public bool UseMouse = true;
 
         protected override void UpdateCursorPosition(GamePlus _game)
         {
-            Vector2 delta = Vector2.Zero;;
+            var delta = Vector2.Zero;
+            ;
 
-            Rectangle viewportRect = _game.GraphicsDevice.Viewport.Bounds;
+            var viewportRect = _game.GraphicsDevice.Viewport.Bounds;
 
             Position.X = Math.Clamp(Position.X, viewportRect.Left, viewportRect.Right);
             Position.Y = Math.Clamp(Position.Y, viewportRect.Top, viewportRect.Bottom);
@@ -33,11 +33,10 @@ namespace GameEngine.Game.Input
             if (true || InBounds(_game, Position))
             {
                 // TODO: If we decide for SURE that we won't be using a list delete this.
-                foreach (InputActionAxis2D ov in new InputActionAxis2D[] {_override})
-                {
+                foreach (var ov in new[] {_override})
                     if (ov != null && ov.Active)
                     {
-                        Vector2 input = ov.Value;
+                        var input = ov.Value;
                         switch (OverrideTimeScaleMode)
                         {
                             case TimeScaleType.None:
@@ -54,22 +53,15 @@ namespace GameEngine.Game.Input
 
                         // Up is negative here.
                         input.Y *= -1;
-                        Vector2 axisDelta = input * OverrideScale;
+                        var axisDelta = input * OverrideScale;
                         // Slide along border if we're not in bounds.
-                        if (InBounds(_game, Position + delta.X * Vector2.UnitX))
-                        {
-                            delta += axisDelta.X * Vector2.UnitX;
-                        }
-                        if (InBounds(_game, Position + delta.Y * Vector2.UnitY))
-                        {
-                            delta += axisDelta.Y * Vector2.UnitY;
-                        }
+                        if (InBounds(_game, Position + delta.X * Vector2.UnitX)) delta += axisDelta.X * Vector2.UnitX;
+                        if (InBounds(_game, Position + delta.Y * Vector2.UnitY)) delta += axisDelta.Y * Vector2.UnitY;
                     }
-                }
 
-                bool mouseInBounds = InBounds(_game, RawInput.GetMousePosition());
-                Vector2 mouseDelta = RawInput.GetMouseDelta();
-                bool mouseMoved = (mouseDelta.LengthSquared() > 1);
+                var mouseInBounds = InBounds(_game, RawInput.GetMousePosition());
+                var mouseDelta = RawInput.GetMouseDelta();
+                var mouseMoved = mouseDelta.LengthSquared() > 1;
 
                 /*
                 if (UseMouse && mouseInBounds)
@@ -87,7 +79,7 @@ namespace GameEngine.Game.Input
                     Position += delta;
 
                     // Whether we were moving. Also check if we clicked something.
-                    MovedLastFrame = (delta.LengthSquared() > 1);
+                    MovedLastFrame = delta.LengthSquared() > 1;
                 }
             }
         }

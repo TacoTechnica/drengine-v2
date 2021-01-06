@@ -1,13 +1,21 @@
 ﻿using System;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects.Rendering
 {
     public class SpriteRenderer : SimpleMeshAlphaTestRenderer<VertexPositionColorTexture>
     {
-        private Sprite _sprite;
         private Color _blend = Color.White;
+        private Sprite _sprite;
+
+        public SpriteRenderer(GamePlus game, Sprite sprite, Vector3 position = default, Quaternion rotation = default) :
+            base(game, position, rotation)
+        {
+            _sprite = sprite;
+            PrimitiveType = PrimitiveType.TriangleList;
+        }
 
         public Sprite Sprite
         {
@@ -18,6 +26,7 @@ namespace GameEngine.Game
                 UpdateVertices();
             }
         }
+
         public Color Blend
         {
             get => _blend;
@@ -29,28 +38,21 @@ namespace GameEngine.Game
             }
         }
 
-        public SpriteRenderer(GamePlus game, Sprite sprite, Vector3 position=default(Vector3), Quaternion rotation = default(Quaternion)) : base(game, position, rotation)
-        {
-            _sprite = sprite;
-            PrimitiveType = PrimitiveType.TriangleList;
-        }
-
         public override void Start()
         {
             base.Start();
 
             UpdateVertices();
-
-
         }
 
         private void UpdateVertices()
         {
-            Texture = _sprite.Texture ?? throw new InvalidOperationException("Sprite Renderer's Sprite was not initialized yet!");
+            Texture = _sprite.Texture ??
+                      throw new InvalidOperationException("Sprite Renderer's Sprite was not initialized yet!");
 
-            Vector3 up = Vector3.Up * _sprite.Height * _sprite.Scale;
-            Vector3 right = Vector3.Right * _sprite.Width * _sprite.Scale;
-            Vector3 pivot = _sprite.Pivot.X * right + _sprite.Pivot.Y * up;
+            var up = Vector3.Up * _sprite.Height * _sprite.Scale;
+            var right = Vector3.Right * _sprite.Width * _sprite.Scale;
+            var pivot = _sprite.Pivot.X * right + _sprite.Pivot.Y * up;
 
             Vector3 topLeft = up - pivot,
                 topRight = topLeft + right,
@@ -60,13 +62,13 @@ namespace GameEngine.Game
             // We rotate the order so the default rotation faces US, ( so technically it's backwards )
             Vertices = new[]
             {
-                new VertexPositionColorTexture(topLeft, _blend, new Vector2(0, 0) ),
-                new VertexPositionColorTexture(bottomRight, _blend, new Vector2(1, 1) ),
-                new VertexPositionColorTexture(bottomLeft, _blend, new Vector2(0, 1) ),
+                new VertexPositionColorTexture(topLeft, _blend, new Vector2(0, 0)),
+                new VertexPositionColorTexture(bottomRight, _blend, new Vector2(1, 1)),
+                new VertexPositionColorTexture(bottomLeft, _blend, new Vector2(0, 1)),
 
-                new VertexPositionColorTexture(bottomRight, _blend, new Vector2(1, 1) ),
-                new VertexPositionColorTexture(topLeft, _blend, new Vector2(0, 0) ),
-                new VertexPositionColorTexture(topRight, _blend, new Vector2(1, 0) )
+                new VertexPositionColorTexture(bottomRight, _blend, new Vector2(1, 1)),
+                new VertexPositionColorTexture(topLeft, _blend, new Vector2(0, 0)),
+                new VertexPositionColorTexture(topRight, _blend, new Vector2(1, 0))
             };
         }
 

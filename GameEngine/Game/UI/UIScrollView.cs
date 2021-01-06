@@ -1,21 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
     public class UIScrollView : UIComponent
     {
-        /**
-         * TODO: Make it so we can pass a scroll bar that uses POSITION rather than percentage.
-         */
-
-        private UIComponent _contents;
-
-        private UIComponent _viewport;
-
-        private UISlider _sliderVertical;
-        private UISlider _sliderHorizontal;
-
         public enum MovementType
         {
             Unrestricted,
@@ -23,25 +11,35 @@ namespace GameEngine.Game.UI
             Elastic
         }
 
-        public MovementType Movement = MovementType.Clamped;
+        /**
+         * TODO: Make it so we can pass a scroll bar that uses POSITION rather than percentage.
+         */
+        private readonly UIComponent _contents;
 
-        public float ElasticCoefficient = 10f;
+        private readonly UISlider _sliderHorizontal;
 
-        public bool ResizeSliderHandle = true;
+        private readonly UISlider _sliderVertical;
+
+        private readonly UIComponent _viewport;
 
         public bool AutoHideSlider = true;
 
-        public UIScrollView(GamePlus game, UIComponent contents, UIComponent viewport = null, UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null) : base(game, parent)
+        public float ElasticCoefficient = 10f;
+
+        public MovementType Movement = MovementType.Clamped;
+
+        public bool ResizeSliderHandle = true;
+
+        public UIScrollView(GamePlus game, UIComponent contents, UIComponent viewport = null,
+            UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null) : base(game,
+            parent)
         {
             _contents = contents;
             _viewport = viewport;
             _sliderVertical = sliderVertical;
             _sliderHorizontal = sliderHorizontal;
 
-            if (_viewport == null)
-            {
-                _viewport = this;
-            }
+            if (_viewport == null) _viewport = this;
 
             if (_contents != null)
             {
@@ -49,10 +47,7 @@ namespace GameEngine.Game.UI
                 _contents.Layout.AnchorMax = Vector2.Zero;
             }
 
-            if (_viewport != this)
-            {
-                AddChild(_viewport);
-            }
+            if (_viewport != this) AddChild(_viewport);
 
             _viewport.AddChild(_contents);
         }
@@ -60,15 +55,13 @@ namespace GameEngine.Game.UI
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             if (screen.NeedToUpdateControl)
-            {
                 SetContentBySliders(_viewport.LayoutRect);
 
-                //Vector2 targetMin = GetTargetMin(_viewport.LayoutRect, _contents.LayoutRect);
-                //RestrictMovement(targetMin, _viewport.LayoutRect);
-            }
+            //Vector2 targetMin = GetTargetMin(_viewport.LayoutRect, _contents.LayoutRect);
+            //RestrictMovement(targetMin, _viewport.LayoutRect);
         }
 
-        void SetContentBySliders(Rect viewRect)
+        private void SetContentBySliders(Rect viewRect)
         {
             Vector2 viewMin = viewRect.Min,
                 viewMax = viewRect.Max;
@@ -78,58 +71,48 @@ namespace GameEngine.Game.UI
             if (_sliderVertical != null)
             {
                 UpdateSlider(_sliderVertical, viewMin.Y, viewMax.Y, contentMin.Y, contentMax.Y);
-                float target = _sliderVertical.Value;
+                var target = _sliderVertical.Value;
 
                 _contents.Layout.Margin.SetY(target);
 
                 if (ResizeSliderHandle)
-                {
                     _sliderVertical.HandleSizePercent =
                         GetViewPercent(viewMin.Y, viewMax.Y, contentMin.Y, contentMax.Y);
-                }
             }
 
             if (_sliderHorizontal != null)
             {
                 UpdateSlider(_sliderHorizontal, viewMin.X, viewMax.X, contentMin.X, contentMax.X);
-                float target = _sliderHorizontal.Value;
+                var target = _sliderHorizontal.Value;
 
                 _contents.Layout.Margin.SetX(target);
 
                 if (ResizeSliderHandle)
-                {
                     _sliderHorizontal.HandleSizePercent =
                         GetViewPercent(viewMin.X, viewMax.X, contentMin.X, contentMax.X);
-                }
             }
         }
 
-        void UpdateSlider(UISlider slider, float viewMin, float viewMax, float contentMin,
+        private void UpdateSlider(UISlider slider, float viewMin, float viewMax, float contentMin,
             float contentMax)
         {
             slider.StartValue = 0;
-            slider.EndValue = (contentMax - contentMin) - (viewMax - viewMin);
-            if (AutoHideSlider)
-            {
-                slider.Active = (slider.StartValue < slider.EndValue);
-            }
+            slider.EndValue = contentMax - contentMin - (viewMax - viewMin);
+            if (AutoHideSlider) slider.Active = slider.StartValue < slider.EndValue;
         }
 
-        float GetViewPosFromSliderPercent(float sliderPercent, float viewMin, float viewMax, float contentMin,
+        private float GetViewPosFromSliderPercent(float sliderPercent, float viewMin, float viewMax, float contentMin,
             float contentMax)
         {
-            float viewSize = viewMax - viewMin;
-            float contentSize = contentMax - contentMin;
-            if (viewSize >= contentSize)
-            {
-                return viewMin + (viewSize / 2f - contentSize / 2f);
-            }
+            var viewSize = viewMax - viewMin;
+            var contentSize = contentMax - contentMin;
+            if (viewSize >= contentSize) return viewMin + (viewSize / 2f - contentSize / 2f);
 
-            float contentRange = contentSize - viewSize;
-            return viewMin - (contentRange) * sliderPercent;
+            var contentRange = contentSize - viewSize;
+            return viewMin - contentRange * sliderPercent;
         }
 
-        float GetViewPercent(float viewMin, float viewMax, float contentMin,
+        private float GetViewPercent(float viewMin, float viewMax, float contentMin,
             float contentMax)
         {
             return Math.Clamp01((viewMax - viewMin) / (contentMax - contentMin));
@@ -139,42 +122,29 @@ namespace GameEngine.Game.UI
         {
             Vector2 cmin = contentRect.Min,
                 cmax = contentRect.Max;
-            Vector2 csize = contentRect.Size;
+            var csize = contentRect.Size;
             Vector2 min = targetRect.Min,
                 max = targetRect.Max;
             bool smallX = csize.X < targetRect.Width,
                 smallY = csize.Y < targetRect.Height;
-            Vector2 targetMin = cmin;
-            Vector2 center = (targetRect.Min + targetRect.Max) / 2f;
+            var targetMin = cmin;
+            var center = (targetRect.Min + targetRect.Max) / 2f;
             // Position X
             if (smallX)
-            {
                 targetMin.X = center.X - csize.X / 2f;
-            }
             else if (cmin.X > min.X)
-            {
                 targetMin.X = min.X;
-            }
-            else if (cmax.X < max.X)
-            {
-                targetMin.X = max.X - csize.X;
-            }
+            else if (cmax.X < max.X) targetMin.X = max.X - csize.X;
             // Position Y
             if (smallY)
-            {
                 targetMin.Y = center.Y - csize.Y / 2f;
-            }
             else if (cmin.Y > min.Y)
-            {
                 targetMin.Y = min.Y;
-            }
-            else if (cmax.Y < max.Y)
-            {
-                targetMin.Y = max.Y - csize.Y;
-            }
+            else if (cmax.Y < max.Y) targetMin.Y = max.Y - csize.Y;
 
             return targetMin;
         }
+
         public UIScrollView WithContentLayout(Layout layout)
         {
             _contents.WithLayout(layout);
@@ -185,63 +155,46 @@ namespace GameEngine.Game.UI
         ///     Given a rect, move the view to fit that rect. Does no centering.
         ///     For example, if the target rect is below the viewport, the viewport will move such that
         ///     the target rect appears at the bottom.
-        ///
         ///     You can also give it some padding around the rect that the view will allocate for it.
         /// </summary>
-        public void FitRectInView(Rect rect, float padLeft = 0, float padRight = 0, float padTop = 0, float padBottom = 0) {
-            float left = rect.Left - padLeft;
-            float right = rect.Right + padRight;
-            float top = rect.Top - padTop;
-            float bot = rect.Bottom + padBottom;
+        public void FitRectInView(Rect rect, float padLeft = 0, float padRight = 0, float padTop = 0,
+            float padBottom = 0)
+        {
+            var left = rect.Left - padLeft;
+            var right = rect.Right + padRight;
+            var top = rect.Top - padTop;
+            var bot = rect.Bottom + padBottom;
 
-            Rect view = _viewport.LayoutRect;
+            var view = _viewport.LayoutRect;
 
             float dx = 0;
             float dy = 0;
             // Fit X
             if (padLeft + padRight + rect.Width > view.Width)
-            {
                 // rect is too big
-                dx = ((left + right) / 2f) - ((view.Left + view.Right) / 2f);
-            }
+                dx = (left + right) / 2f - (view.Left + view.Right) / 2f;
             else if (right > view.Right)
-            {
                 // We're too far right
                 dx = right - view.Right;
-            }
             else if (left < view.Left)
-            {
                 // We're too far left
                 dx = left - view.Left;
-            }
 
             // Fit Y
             if (padTop + padBottom + rect.Height > view.Height)
-            {
                 // rect is too big
-                dy = ((top + bot) / 2f) - ((view.Top + view.Bottom) / 2f);
-            }
+                dy = (top + bot) / 2f - (view.Top + view.Bottom) / 2f;
             else if (bot > view.Bottom)
-            {
                 // We're too far right
                 dy = bot - view.Bottom;
-            }
             else if (top < view.Top)
-            {
                 // We're too far left
                 dy = top - view.Top;
-            }
 
             _contents.Layout.OffsetBy(dx, dy);
 
-            if (_sliderHorizontal != null)
-            {
-                _sliderHorizontal.Value += dx;
-            }
-            if (_sliderVertical != null)
-            {
-                _sliderVertical.Value += dy;
-            }
+            if (_sliderHorizontal != null) _sliderHorizontal.Value += dx;
+            if (_sliderVertical != null) _sliderVertical.Value += dy;
         }
 
         public void FitRectInView(Rect rect, Padding padding)
@@ -254,12 +207,19 @@ namespace GameEngine.Game.UI
     public class UIScrollViewMasked : UIScrollView
     {
         // Transparent background
-        public UIScrollViewMasked(GamePlus game, UIComponent contents, UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null)
-            : base(game, contents, new UIMaskRect(game).WithLayout(Layout.FullscreenLayout()), sliderVertical, sliderHorizontal, parent) {
+        public UIScrollViewMasked(GamePlus game, UIComponent contents, UISlider sliderVertical = null,
+            UISlider sliderHorizontal = null, UIComponent parent = null)
+            : base(game, contents, new UIMaskRect(game).WithLayout(Layout.FullscreenLayout()), sliderVertical,
+                sliderHorizontal, parent)
+        {
         }
+
         // Color background
-        public UIScrollViewMasked(GamePlus game, UIComponent contents, Color backgroundColor, UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null)
-            : base(game, contents, new UIMaskRect(game, backgroundColor).WithLayout(Layout.FullscreenLayout()), sliderVertical, sliderHorizontal, parent) {
+        public UIScrollViewMasked(GamePlus game, UIComponent contents, Color backgroundColor,
+            UISlider sliderVertical = null, UISlider sliderHorizontal = null, UIComponent parent = null)
+            : base(game, contents, new UIMaskRect(game, backgroundColor).WithLayout(Layout.FullscreenLayout()),
+                sliderVertical, sliderHorizontal, parent)
+        {
         }
     }
 }

@@ -1,33 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
+using Microsoft.Xna.Framework;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Collision
 {
     public class RectCollider2D : ICollider
     {
         private Rectangle _rect;
-
-        public float X
-        {
-            get => _rect.X;
-            set => _rect.X = (int) value;
-        }
-        public float Y
-        {
-            get => _rect.Y;
-            set => _rect.Y = (int) value;
-        }
-        public float Width
-        {
-            get => _rect.Width;
-            set => _rect.Width = (int) value;
-        }
-        public float Height
-        {
-            get => _rect.Height;
-            set => _rect.Height = (int) value;
-        }
-
-        public GameObject? GameObject { get; }
 
         public RectCollider2D(GameObject obj, Rectangle rect)
         {
@@ -35,7 +15,37 @@ namespace GameEngine.Game
             GameObject = obj;
             obj.AddCollider(this);
         }
-        public RectCollider2D(GameObject obj, float x, float y, float width, float height) : this(obj, new Rectangle((int)x, (int)y, (int)width, (int)height)) {}
+
+        public RectCollider2D(GameObject obj, float x, float y, float width, float height) : this(obj,
+            new Rectangle((int) x, (int) y, (int) width, (int) height))
+        {
+        }
+
+        public float X
+        {
+            get => _rect.X;
+            set => _rect.X = (int) value;
+        }
+
+        public float Y
+        {
+            get => _rect.Y;
+            set => _rect.Y = (int) value;
+        }
+
+        public float Width
+        {
+            get => _rect.Width;
+            set => _rect.Width = (int) value;
+        }
+
+        public float Height
+        {
+            get => _rect.Height;
+            set => _rect.Height = (int) value;
+        }
+
+        public GameObject? GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 point)
         {
@@ -50,8 +60,7 @@ namespace GameEngine.Game
 
         public void DrawDebug(GamePlus _game, Camera3D cam)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
-
     }
 }

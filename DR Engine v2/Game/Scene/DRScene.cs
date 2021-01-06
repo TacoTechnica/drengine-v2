@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DREngine.Game.VN;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -93,7 +94,7 @@ namespace DREngine.Game.Scene
                 new LabelCommand() {Label = "ENDO"}
             });
 
-            _game.VNRunner.State.CurrentScript = script;
+            //_game.VNRunner.State.CurrentScript = script;
 
             script.Save(new ProjectPath(_game, "TEST_SCRIPT.vn"));
         }

@@ -1,43 +1,42 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace GameEngine.Game.UI
 {
     public class UIScreen : UIComponentBase
     {
-        public BasicEffect DrawEffect { get; private set; }
-        public AlphaTestEffect DrawEffectAlpha { get; private set; }
-        public SpriteBatch SpriteBatch { get; private set; }
-        public GraphicsDevice GraphicsDevice { get; private set; }
+        // Debug stuff
+        private static int _debugActiveDrawCounter;
+        private static int _debugTotalDrawCounter;
+        private static int _debugActiveDrawCount;
+        private static int _debugTotalDrawCount;
+
+        private UIComponent _rootNode;
 
         public Color DefaultDrawColor = Color.White;
 
         // Do we need to update selectables during the draw phase?
-        public bool NeedToUpdateControl = false;
-
-        public float ZPosition2D = 0;
-
-        public Matrix CurrentWorld
-        {
-            get => DrawEffect.World;
-            set => DrawEffect.World = value;
-        }
+        public bool NeedToUpdateControl;
 
         public Matrix OpenGL2Pixel;
 
-        private UIComponent _rootNode;
+        public float ZPosition2D = 0;
 
         public UIScreen(GamePlus game) : base(game)
         {
             Layout = Layout.FullscreenLayout();
         }
 
-        // Debug stuff
-        private static int _debugActiveDrawCounter = 0;
-        private static int _debugTotalDrawCounter = 0;
-        private static int _debugActiveDrawCount = 0;
-        private static int _debugTotalDrawCount = 0;
+        public BasicEffect DrawEffect { get; private set; }
+        public AlphaTestEffect DrawEffectAlpha { get; private set; }
+        public SpriteBatch SpriteBatch { get; private set; }
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
+        public Matrix CurrentWorld
+        {
+            get => DrawEffect.World;
+            set => DrawEffect.World = value;
+        }
 
         public void Initialize()
         {
@@ -57,9 +56,9 @@ namespace GameEngine.Game.UI
             _debugActiveDrawCounter = 0;
             _debugTotalDrawCounter = 0;
 
-            Rect screenRect = GetParentRect();
+            var screenRect = GetParentRect();
             float w = screenRect.Width,
-                  h = screenRect.Height;
+                h = screenRect.Height;
             OpenGL2Pixel = Matrix.CreateScale(2f / w, -2f / h, 1) * Matrix.CreateTranslation(-1, 1, 0);
             CurrentWorld = Matrix.Identity;
             DoDraw(this, CurrentWorld, screenRect);
@@ -95,25 +94,34 @@ namespace GameEngine.Game.UI
         public void AddRootChild(UIComponent ui, bool forceBase = false)
         {
             if (forceBase)
-            {
                 AddChild(ui);
-            }
             else
-            {
                 _rootNode.AddChild(ui);
-            }
+        }
+
+        // Debug stuff
+        public int GetTotalUICountAfterDraw()
+        {
+            return _debugTotalDrawCount;
+        }
+
+        public int GetActiveUICountAfterDraw()
+        {
+            return _debugActiveDrawCount;
         }
 
         /// <summary>
-        /// All UI elements will be added to this node. This is here to help deal with root level ordering.
+        ///     All UI elements will be added to this node. This is here to help deal with root level ordering.
         /// </summary>
-        class UIRootNode : UIComponent
+        private class UIRootNode : UIComponent
         {
             public UIRootNode(GamePlus game, UIComponent parent = null) : base(game, parent)
             {
             }
 
-            protected override void Draw(UIScreen screen, Rect targetRect) { }
+            protected override void Draw(UIScreen screen, Rect targetRect)
+            {
+            }
         }
 
         #region Drawing Utilities
@@ -133,9 +141,12 @@ namespace GameEngine.Game.UI
             DrawEffect.World = CurrentWorld * OpenGL2Pixel;
             DrawEffect.CurrentTechnique.Passes[0].Apply();
 
-            float z = ZPosition2D;
+            var z = ZPosition2D;
 
-            var vertices = new[] { new VertexPositionColor(new Vector3(x0, y0, z), c0),  new VertexPositionColor(new Vector3(x1, y1, z), c1) };
+            var vertices = new[]
+            {
+                new VertexPositionColor(new Vector3(x0, y0, z), c0), new VertexPositionColor(new Vector3(x1, y1, z), c1)
+            };
             GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
         }
 
@@ -151,26 +162,27 @@ namespace GameEngine.Game.UI
 
         public void DrawRect(float x, float y, float width, float height, Color c0, Color c1, Color c2, Color c3)
         {
-            DrawEffect.World = CurrentWorld *OpenGL2Pixel;
+            DrawEffect.World = CurrentWorld * OpenGL2Pixel;
             DrawEffect.CurrentTechnique.Passes[0].Apply();
 
-            float z = ZPosition2D;
+            var z = ZPosition2D;
 
-            var vertices = new[] {
+            var vertices = new[]
+            {
                 new VertexPositionColor(new Vector3(x, y, z), c0),
-                new VertexPositionColor(new Vector3(x+width, y+height, z), c2),
-                new VertexPositionColor(new Vector3(x, y+height, z), c1),
+                new VertexPositionColor(new Vector3(x + width, y + height, z), c2),
+                new VertexPositionColor(new Vector3(x, y + height, z), c1),
 
-                new VertexPositionColor(new Vector3(x+width, y+height, z), c2),
+                new VertexPositionColor(new Vector3(x + width, y + height, z), c2),
                 new VertexPositionColor(new Vector3(x, y, z), c0),
-                new VertexPositionColor(new Vector3(x+width, y, z), c3)
+                new VertexPositionColor(new Vector3(x + width, y, z), c3)
             };
             GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
         }
 
         public void DrawRect(float x, float y, float width, float height, Color c)
         {
-            DrawRect(x, y, width, height, c,c,c,c);
+            DrawRect(x, y, width, height, c, c, c, c);
         }
 
         public void DrawRect(float x, float y, float width, float height)
@@ -203,22 +215,24 @@ namespace GameEngine.Game.UI
             DrawRect(r, DefaultDrawColor);
         }
 
-        public void DrawRectInvisible(float x, float y, float width, float height, Color c0, Color c1, Color c2, Color c3)
+        public void DrawRectInvisible(float x, float y, float width, float height, Color c0, Color c1, Color c2,
+            Color c3)
         {
-            DrawEffectAlpha.World = CurrentWorld *OpenGL2Pixel;
+            DrawEffectAlpha.World = CurrentWorld * OpenGL2Pixel;
             DrawEffectAlpha.CurrentTechnique.Passes[0].Apply();
             DrawEffectAlpha.Alpha = 1f / 255f;
 
-            float z = ZPosition2D;
+            var z = ZPosition2D;
 
-            var vertices = new[] {
+            var vertices = new[]
+            {
                 new VertexPositionColor(new Vector3(x, y, z), c0),
-                new VertexPositionColor(new Vector3(x+width, y+height, z), c2),
-                new VertexPositionColor(new Vector3(x, y+height, z), c1),
+                new VertexPositionColor(new Vector3(x + width, y + height, z), c2),
+                new VertexPositionColor(new Vector3(x, y + height, z), c1),
 
-                new VertexPositionColor(new Vector3(x+width, y+height, z), c2),
+                new VertexPositionColor(new Vector3(x + width, y + height, z), c2),
                 new VertexPositionColor(new Vector3(x, y, z), c0),
-                new VertexPositionColor(new Vector3(x+width, y, z), c3)
+                new VertexPositionColor(new Vector3(x + width, y, z), c3)
             };
             GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
         }
@@ -234,14 +248,15 @@ namespace GameEngine.Game.UI
             width += 1;
             height += 1;
 
-            float z = ZPosition2D;
+            var z = ZPosition2D;
 
-            var vertices = new[] {
+            var vertices = new[]
+            {
                 new VertexPositionColor(new Vector3(x, y, z), c0),
-                new VertexPositionColor(new Vector3(x+width, y, z), c3),
-                new VertexPositionColor(new Vector3(x+width, y+height, z), c2),
-                new VertexPositionColor(new Vector3(x, y+height, z), c1),
-                new VertexPositionColor(new Vector3(x, y, z), c0),
+                new VertexPositionColor(new Vector3(x + width, y, z), c3),
+                new VertexPositionColor(new Vector3(x + width, y + height, z), c2),
+                new VertexPositionColor(new Vector3(x, y + height, z), c1),
+                new VertexPositionColor(new Vector3(x, y, z), c0)
             };
             GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertices, 0, 4);
         }
@@ -258,7 +273,7 @@ namespace GameEngine.Game.UI
 
         public void DrawRectOutline(Rect rect, Color c0, Color c1, Color c2, Color c3)
         {
-            DrawRectOutline(rect.X, rect.Y, rect.Width,rect.Height, c0, c1, c2, c3);
+            DrawRectOutline(rect.X, rect.Y, rect.Width, rect.Height, c0, c1, c2, c3);
         }
 
         public void DrawRectOutline(Rect rect, Color color)
@@ -272,10 +287,5 @@ namespace GameEngine.Game.UI
         }
 
         #endregion
-
-        // Debug stuff
-        public int GetTotalUICountAfterDraw() { return _debugTotalDrawCount; }
-        public int GetActiveUICountAfterDraw() { return _debugActiveDrawCount; }
-
     }
 }

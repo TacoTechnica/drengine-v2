@@ -1,50 +1,30 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects.Rendering
 {
     /// <summary>
-    /// TODO:
+    ///     TODO:
     ///     - Add a simple "layer" system where you can create cameras that render layers
     ///     - Whenever you add a GameObjectRender, it can have a layer. Thus it subscribes to be rendered
     ///     - by all of the cameras in those layers.
     /// </summary>
     public class Camera3D : GameObjectRender
     {
-        public Vector3 Position;
-        public Quaternion Rotation;
+        // For use in GamePlus
+        private ObjectContainerNode<Camera3D> _camListReference;
 
-        // Camera projection matrix
-        private Matrix _projectionMat = Matrix.Identity;
-
-        // Camera view matrix
-        private Matrix _viewMat;
-
-        private float _fov = 0;
+        private float _fov;
 
         private bool _needToUpdateProjection = true;
 
-        public float Fov
-        {
-            get
-            {
-                return _fov;
-            }
-            set
-            {
-                if (value != _fov) _needToUpdateProjection = true;
-                _fov = value;
-            }
-        }
+        // Camera projection matrix
 
-        // For use in GamePlus
-        private ObjectContainerNode<Camera3D> _camListReference = null;
+        // Camera view matrix
+        public Vector3 Position;
+        public Quaternion Rotation;
 
-        public Matrix ProjectionMatrix => _projectionMat;
-        public Matrix ViewMatrix => _viewMat;
-
-        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov=90f) : base(game)
+        public Camera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90f) : base(game)
         {
             Position = pos;
             Rotation = rotation;
@@ -54,24 +34,40 @@ namespace GameEngine.Game
             _camListReference = _game.SceneManager.Cameras.Add(this);
         }
 
-        public Camera3D(GamePlus game, Vector3 pos = default(Vector3)) : this(game, pos, Math.FromEuler(0,0,0), 90f) { }
+        public Camera3D(GamePlus game, Vector3 pos = default) : this(game, pos, Math.FromEuler(0, 0, 0))
+        {
+        }
+
+        public float Fov
+        {
+            get => _fov;
+            set
+            {
+                if (value != _fov) _needToUpdateProjection = true;
+                _fov = value;
+            }
+        }
+
+        public Matrix ProjectionMatrix { get; private set; } = Matrix.Identity;
+
+        public Matrix ViewMatrix { get; private set; }
 
         public Vector2 WorldCoordToScreenCoord(Vector3 worldCoord)
         {
-            Vector3 screen =
-                _game.GraphicsDevice.Viewport.Project(worldCoord, _projectionMat, _viewMat, Matrix.Identity);
+            var screen =
+                _game.GraphicsDevice.Viewport.Project(worldCoord, ProjectionMatrix, ViewMatrix, Matrix.Identity);
             return new Vector2(screen.X, screen.Y);
         }
 
         public Vector3 ScreenCoordToWorldCoord(Vector2 screenCord, float distanceFromCamera)
         {
-            Vector3 screenPos = new Vector3(screenCord.X, screenCord.Y, distanceFromCamera);
-            return _game.GraphicsDevice.Viewport.Unproject(screenPos, _projectionMat, _viewMat, Matrix.Identity);
+            var screenPos = new Vector3(screenCord.X, screenCord.Y, distanceFromCamera);
+            return _game.GraphicsDevice.Viewport.Unproject(screenPos, ProjectionMatrix, ViewMatrix, Matrix.Identity);
         }
 
         public Ray GetScreenRay(Vector2 screenPos)
         {
-            Vector3 delta = (ScreenCoordToWorldCoord(screenPos, 1) - Position);
+            var delta = ScreenCoordToWorldCoord(screenPos, 1) - Position;
             delta.Normalize();
             return new Ray(Position, delta);
         }
@@ -91,18 +87,19 @@ namespace GameEngine.Game
         {
             if (_needToUpdateProjection)
             {
-                _projectionMat = Matrix.CreatePerspectiveFieldOfView(
+                ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                     MathHelper.ToRadians(Fov),
                     _game.GraphicsDevice.Viewport.AspectRatio,
                     1f, 1000f
                 );
                 _needToUpdateProjection = false;
             }
+
             // TODO: Use a custom matrix so we don't do this math every damn frame,
             //     instead just using the rotation directly.
-            Vector3 target = Position + Math.RotateVector(Vector3.Forward, Rotation);
-            Vector3 up = Math.RotateVector(Vector3.Up, Rotation);
-            _viewMat = Matrix.CreateLookAt(Position, target, up);
+            var target = Position + Math.RotateVector(Vector3.Forward, Rotation);
+            var up = Math.RotateVector(Vector3.Up, Rotation);
+            ViewMatrix = Matrix.CreateLookAt(Position, target, up);
         }
 
         public override void OnDestroy()
@@ -110,6 +107,7 @@ namespace GameEngine.Game
             Debug.Log("deleted CAMERA");
             _camListReference = _game.SceneManager.Cameras.RemoveImmediate(_camListReference);
         }
+
         internal override void RunOnDisable(ObjectContainerNode<GameObject> newNode)
         {
             _camListReference = _game.SceneManager.Cameras.DisableImmediate(_camListReference);
@@ -125,10 +123,7 @@ namespace GameEngine.Game
         public override void Draw(GraphicsDevice g)
         {
             // If we're in debug mode, render colliders from this camera.
-            if (_game.DebugDrawColliders)
-            {
-                _game.CollisionManager.DrawDebugColliders(_game, this);
-            }
+            if (_game.DebugDrawColliders) _game.CollisionManager.DrawDebugColliders(_game, this);
         }
     }
 }

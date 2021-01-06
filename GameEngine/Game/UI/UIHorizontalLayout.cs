@@ -1,18 +1,17 @@
-﻿
-namespace GameEngine.Game.UI
+﻿namespace GameEngine.Game.UI
 {
     public class UIHorizontalLayout : UIComponent
     {
-
-        public float Spacing;
-        public Padding Padding;
-
-        public bool ExpandHeight = true;
+        public bool AutoResizeToChildren = true;
         public float ChildWidth;
 
-        public bool AutoResizeToChildren = true;
+        public bool ExpandHeight = true;
+        public Padding Padding;
 
-        public UIHorizontalLayout(GamePlus game, float childWidth, float spacing = 0, UIComponent parent = null) : base(game, parent)
+        public float Spacing;
+
+        public UIHorizontalLayout(GamePlus game, float childWidth, float spacing = 0, UIComponent parent = null) : base(
+            game, parent)
         {
             ChildWidth = childWidth;
             Spacing = 0;
@@ -22,17 +21,18 @@ namespace GameEngine.Game.UI
         {
             if (AutoResizeToChildren)
             {
-                float targetWidth = Padding.Top + Padding.Bottom + ChildCount * (ChildWidth + Spacing);
-                float dx = targetWidth - targetRect.Width;
+                var targetWidth = Padding.Top + Padding.Bottom + ChildCount * (ChildWidth + Spacing);
+                var dx = targetWidth - targetRect.Width;
                 Layout.Margin.Right -= dx;
             }
-            int i = 0;
-            foreach (UIComponent child in Children)
+
+            var i = 0;
+            foreach (var child in Children)
             {
-                float dx = Padding.Left + i * (ChildWidth + Spacing);
-                float dy = Padding.Top;
-                Rect childRect = child.LayoutRect;
-                float childHeight = ExpandHeight ? targetRect.Height - (Padding.Top + Padding.Bottom) : childRect.Height;
+                var dx = Padding.Left + i * (ChildWidth + Spacing);
+                var dy = Padding.Top;
+                var childRect = child.LayoutRect;
+                var childHeight = ExpandHeight ? targetRect.Height - (Padding.Top + Padding.Bottom) : childRect.Height;
                 child.WithLayout(
                     Layout.CornerLayout(Layout.TopLeft, ChildWidth, childHeight)
                         .OffsetBy(dx, dy)

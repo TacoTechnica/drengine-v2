@@ -1,18 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects.Rendering
 {
     /// <summary>
-    /// Since this relies on passing a game object like everywhere, consider not making this static.
-    /// Might want to keep it like this though so it's easier to remove or something.
+    ///     Since this relies on passing a game object like everywhere, consider not making this static.
+    ///     Might want to keep it like this though so it's easier to remove or something.
     /// </summary>
     public static class DebugDrawer
     {
+        private static readonly Color DEFAULT_COLOR = Color.Green;
 
-        private static Color DEFAULT_COLOR = Color.Green;
-
-        private static SpriteFont _debugFont = null;
+        private static SpriteFont _debugFont;
 
         public static void DrawLine3D(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to, Color fromC, Color toC)
         {
@@ -20,13 +19,13 @@ namespace GameEngine.Game
             _game.DebugEffect.Projection = cam.ProjectionMatrix;
 
             _game.DebugEffect.CurrentTechnique.Passes[0].Apply();
-            var vertices = new[] { new VertexPositionColor(from, fromC),  new VertexPositionColor(to, toC) };
+            var vertices = new[] {new VertexPositionColor(from, fromC), new VertexPositionColor(to, toC)};
             _game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
         }
 
         public static void DrawLine3D(GamePlus _game, Camera3D cam, Vector3 from, Vector3 to)
         {
-            DrawLine3D(_game,cam, from, to, DEFAULT_COLOR, DEFAULT_COLOR);
+            DrawLine3D(_game, cam, from, to, DEFAULT_COLOR, DEFAULT_COLOR);
         }
 
         public static void DrawLines(GamePlus _game, Camera3D cam, Vector3[] lines, Color color)
@@ -35,11 +34,8 @@ namespace GameEngine.Game
             _game.DebugEffect.Projection = cam.ProjectionMatrix;
 
             _game.DebugEffect.CurrentTechnique.Passes[0].Apply();
-            VertexPositionColor[] vertices = new VertexPositionColor[lines.Length];
-            for (int i = 0; i < lines.Length; ++i)
-            {
-                vertices[i] = new VertexPositionColor(lines[i], color);
-            }
+            var vertices = new VertexPositionColor[lines.Length];
+            for (var i = 0; i < lines.Length; ++i) vertices[i] = new VertexPositionColor(lines[i], color);
             _game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, vertices.Length / 2);
         }
 
@@ -52,12 +48,12 @@ namespace GameEngine.Game
         {
             Vector3 min = b.Min,
                 max = b.Max;
-            Vector3 delta = max - min;
+            var delta = max - min;
             Vector3 dx = delta.X * Vector3.UnitX,
                 dy = delta.Y * Vector3.UnitY,
                 dz = delta.Z * Vector3.UnitZ;
             DrawLines(_game, cam,
-                new Vector3[]
+                new[]
                 {
                     min, min + dx,
                     min, min + dy,
@@ -71,7 +67,7 @@ namespace GameEngine.Game
                     min + dy, min + dy + dx,
                     min + dy, min + dy + dz,
                     min + dz, min + dz + dx,
-                    min + dz, min + dz + dy,
+                    min + dz, min + dz + dy
                 }, color
             );
         }
@@ -105,10 +101,7 @@ namespace GameEngine.Game
 
         private static SpriteFont GetFont(GamePlus _game)
         {
-            if (_debugFont == null)
-            {
-                _debugFont = _game.Content.Load<SpriteFont>("Debug/DebugFont");
-            }
+            if (_debugFont == null) _debugFont = _game.Content.Load<SpriteFont>("Debug/DebugFont");
 
             return _debugFont;
         }

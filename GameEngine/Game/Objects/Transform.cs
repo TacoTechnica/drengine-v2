@@ -1,25 +1,25 @@
-﻿
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects
 {
     [Serializable]
     public class Transform3D
     {
         private Vector3 _position = Vector3.Zero;
-        private Quaternion _rotation = Quaternion.Identity;
-        private Vector3 _scale = Vector3.One;
 
         private Matrix _posMat = Matrix.Identity;
+        private Quaternion _rotation = Quaternion.Identity;
         private Matrix _rotMat = Matrix.Identity;
+        private Vector3 _scale = Vector3.One;
         private Matrix _scaleMat = Matrix.Identity;
 
         public Transform3D()
         {
             // Do nothing we chilling
         }
+
         public Transform3D(Vector3 pos, Quaternion rot, Vector3 scale) : this()
         {
             // Start with position
@@ -52,8 +52,7 @@ namespace GameEngine.Game
             _scaleMat = Matrix.CreateScale(_scale);
         }
 
-        [JsonIgnore]
-        public Matrix Local { get; private set; } = Matrix.Identity;
+        [JsonIgnore] public Matrix Local { get; private set; } = Matrix.Identity;
 
         public Vector3 Position
         {
@@ -77,6 +76,7 @@ namespace GameEngine.Game
                 UpdateWorld();
             }
         }
+
         public Vector3 Scale
         {
             get => _scale;
@@ -92,6 +92,5 @@ namespace GameEngine.Game
         {
             Local = _scaleMat * _rotMat * _posMat;
         }
-
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SpriteFontPlus;
@@ -8,15 +7,11 @@ namespace GameEngine.Game.Resources
 {
     public class Font : IGameResource
     {
-        public Path Path { get; set; }
-        
-        [ExtraData]
-        public int Size;
-
-        [JsonIgnore]
-        public SpriteFont SpriteFont;
-
         private GamePlus _game;
+
+        [ExtraData] public int Size;
+
+        [JsonIgnore] public SpriteFont SpriteFont;
 
         public Font(GamePlus game, Path path, int size)
         {
@@ -32,14 +27,10 @@ namespace GameEngine.Game.Resources
             Size = 12;
         }
 
-        ~Font()
-        {
-            Unload();
-        }
+        public Path Path { get; set; }
 
         public void Load(ResourceLoaderData data)
         {
-
             var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes(Path),
                 Size,
                 1024,
@@ -54,7 +45,7 @@ namespace GameEngine.Game.Resources
             );
 
             SpriteFont = fontBakeResult.CreateSpriteFont(data.GraphicsDevice);
-            
+
             ExtraResourceHelper.LoadExtraData(this, Path);
         }
 
@@ -67,6 +58,11 @@ namespace GameEngine.Game.Resources
         public void Unload()
         {
             SpriteFont = null;
+        }
+
+        ~Font()
+        {
+            Unload();
         }
     }
 }

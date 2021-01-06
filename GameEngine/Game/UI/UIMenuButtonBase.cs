@@ -11,6 +11,11 @@ namespace GameEngine.Game.UI
             // Do nothing for now.
         }
 
+        protected abstract void OnSelectVisual();
+        protected abstract void OnDeselectVisual();
+        protected abstract void OnPressVisual();
+        protected abstract void OnDepressVisual();
+
         #region Interface
 
         public IMenu ParentMenu { get; set; }
@@ -50,12 +55,5 @@ namespace GameEngine.Game.UI
         }
 
         #endregion
-
-        protected abstract void OnSelectVisual();
-        protected abstract void OnDeselectVisual();
-        protected abstract void OnPressVisual();
-        protected abstract void OnDepressVisual();
-
-
     }
 }

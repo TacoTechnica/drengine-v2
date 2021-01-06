@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Text.Json.Serialization;
-using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Resources
 {
     /// <summary>
     ///     A sprite object.
@@ -12,36 +10,14 @@ namespace GameEngine.Game
     ///
     public class Sprite : IGameResource
     {
-        private Texture2D _texture = null;
-
-        public Texture2D Texture
-        {
-            get
-            {
-                if (_texture == null)
-                {
-                    throw new InvalidOperationException("Tried accessing sprite texture before it was made.\n" +
-                                                        "MAKE SURE SPRITE ACCESS IS DONE IN Start(), and NOT in a constructor!!");
-                }
-
-                return _texture;
-            }
-            private set => _texture = value;
-        }
+        private readonly GamePlus _game;
+        private Texture2D _texture;
 
         [ExtraData]
         public Vector2 Pivot;
+
         [ExtraData]
         public float Scale;
-
-        public Path Path { get; set; }
-
-        public float Width => Texture.Width;
-        public float Height => Texture.Height;
-
-        public bool Loaded { get; private set; }
-
-        private GamePlus _game;
 
         /*
         public Sprite(GamePlus game, Texture2D texture)
@@ -54,10 +30,10 @@ namespace GameEngine.Game
 
         public Sprite(GamePlus game, Path path, Vector2 Pivot, float Scale = 0.01f)
         {
-            this._game = game;
+            _game = game;
             this.Pivot = Pivot;
             this.Scale = Scale;
-            this.Path = path;
+            Path = path;
 
             Loaded = false;
             _game.LoadWhenSafe(() =>
@@ -71,10 +47,25 @@ namespace GameEngine.Game
         // Deserialize Constructor
         public Sprite() {}
 
-        ~Sprite()
+        public Texture2D Texture
         {
-            _texture?.Dispose();
+            get
+            {
+                if (_texture == null)
+                    throw new InvalidOperationException("Tried accessing sprite texture before it was made.\n" +
+                                                        "MAKE SURE SPRITE ACCESS IS DONE IN Start(), and NOT in a constructor!!");
+
+                return _texture;
+            }
+            private set => _texture = value;
         }
+
+        public float Width => Texture.Width;
+        public float Height => Texture.Height;
+
+        public bool Loaded { get; private set; }
+
+        public Path Path { get; set; }
 
         public virtual void Load(ResourceLoaderData data)
         {
@@ -94,6 +85,11 @@ namespace GameEngine.Game
         {
             Texture.Dispose();
             Loaded = false;
+        }
+
+        ~Sprite()
+        {
+            _texture?.Dispose();
         }
     }
 }

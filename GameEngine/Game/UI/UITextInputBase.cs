@@ -6,18 +6,17 @@ namespace GameEngine.Game.UI
 {
     public abstract class UITextInputBase : UIMenuButtonBase
     {
-
-        public abstract string Text { get; set; }
-
         public Action<string> Submitted;
-
-        public bool Selected { get; private set; }
 
         public UITextInputBase(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
             RawInput.OnKeysPressed += OnInput;
             Selected = false;
         }
+
+        public abstract string Text { get; set; }
+
+        public bool Selected { get; private set; }
 
         ~UITextInputBase()
         {
@@ -40,11 +39,10 @@ namespace GameEngine.Game.UI
             if (!Active) return;
             if (!Selected) return;
             // TODO: Caps lock?
-            bool shift = RawInput.KeyPressing(Keys.LeftShift) || RawInput.KeyPressing(Keys.RightShift);
-            bool ctrl = RawInput.KeyPressing(Keys.LeftControl) || RawInput.KeyPressing(Keys.RightControl);
+            var shift = RawInput.KeyPressing(Keys.LeftShift) || RawInput.KeyPressing(Keys.RightShift);
+            var ctrl = RawInput.KeyPressing(Keys.LeftControl) || RawInput.KeyPressing(Keys.RightControl);
             // We got keys boys
-            foreach (Keys key in obj)
-            {
+            foreach (var key in obj)
                 // Check for special keys
                 switch (key)
                 {
@@ -76,22 +74,17 @@ namespace GameEngine.Game.UI
                         OnEnd(shift);
                         break;
                     default:
-                        char c = key.ToChar(shift);
-                        if (c != (Char) 0)
+                        var c = key.ToChar(shift);
+                        if (c != (char) 0)
                         {
                             if (ctrl)
-                            {
                                 OnControlInput(c);
-                            }
                             else
-                            {
                                 OnCharacterInput(c);
-                            }
                         }
 
                         break;
                 }
-            }
         }
 
 
@@ -104,6 +97,5 @@ namespace GameEngine.Game.UI
         protected abstract void OnTab();
         protected abstract void OnHome(bool shift);
         protected abstract void OnEnd(bool shift);
-
     }
 }

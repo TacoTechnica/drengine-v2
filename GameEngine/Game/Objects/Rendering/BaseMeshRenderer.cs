@@ -2,17 +2,21 @@
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects.Rendering
 {
     public abstract class BaseMeshRenderer<VType> : GameObjectRender3D where VType : struct, IVertexType
     {
-
-        [JsonIgnore]
-        public PrimitiveType PrimitiveType = PrimitiveType.TriangleList;
-
-        protected VertexBuffer _vertexBuffer = null;
+        protected VertexBuffer _vertexBuffer;
 
         private VType[] _vertices = new VType[0];
+
+        [JsonIgnore] public PrimitiveType PrimitiveType = PrimitiveType.TriangleList;
+
+        protected BaseMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position,
+            rotation)
+        {
+        }
+
         [JsonIgnore]
         public VType[] Vertices
         {
@@ -21,16 +25,10 @@ namespace GameEngine.Game
             {
                 _vertices = value;
                 if (_vertexBuffer == null)
-                {
                     _vertexBuffer = new VertexBuffer(_game.GraphicsDevice, typeof(VType),
                         Vertices.Length, BufferUsage.WriteOnly);
-                }
-                _vertexBuffer.SetData<VType>(Vertices);
+                _vertexBuffer.SetData(Vertices);
             }
-        }
-
-        protected BaseMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation)
-        {
         }
 
         protected abstract Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform);
@@ -41,13 +39,13 @@ namespace GameEngine.Game
         {
             if (Vertices.Length == 0) return;
 
-            Effect e = PrepareEffectForDraw(cam, g, transform);
+            var e = PrepareEffectForDraw(cam, g, transform);
 
             // Render verts
             g.SetVertexBuffer(_vertexBuffer);
 
             // Go through all passes, apply and draw the triangle for each pass.
-            foreach (EffectPass pass in e.CurrentTechnique.Passes)
+            foreach (var pass in e.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 g.DrawPrimitives(PrimitiveType, 0, Vertices.Length / 3);
@@ -55,6 +53,5 @@ namespace GameEngine.Game
 
             ResetGraphicsPostDraw(g);
         }
-
     }
 }

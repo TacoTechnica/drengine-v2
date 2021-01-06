@@ -1,15 +1,16 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
+using Microsoft.Xna.Framework;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Collision
 {
     public interface ICollider
     {
+        public GameObject? GameObject { get; }
         bool ContainsScreen(Camera3D cam, Vector2 screenPoint);
 
         Vector3 GetRoughCenterPosition();
 
         void DrawDebug(GamePlus _game, Camera3D cam);
-
-        public GameObject? GameObject { get; }
     }
 }

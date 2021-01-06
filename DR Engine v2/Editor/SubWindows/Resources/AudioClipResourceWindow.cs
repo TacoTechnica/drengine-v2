@@ -2,6 +2,7 @@ using System;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using GameEngine;
 using GameEngine.Game.Audio;
+using GameEngine.Game.Resources;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.Resources

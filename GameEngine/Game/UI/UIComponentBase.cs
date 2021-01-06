@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GameEngine.Game.Input;
+using GameEngine.Game.Objects;
 using GameEngine.Game.Tween;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,48 +9,45 @@ namespace GameEngine.Game.UI
 {
     public abstract class UIComponentBase
     {
-        protected GamePlus _game;
-
-        public Transform3D LocalTransform = new Transform3D();
-
-        public Layout Layout = new Layout();
-
-        public bool Active = true;
-
-        private Rect _layoutRect = null;
-        public Rect LayoutRect
-        {
-            get
-            {
-                // TODO: Comment out true to avoid recalculation.
-                if (true || _layoutRect == null)
-                {
-                    _layoutRect = Layout.GetTargetRect(GetParentRect());
-                }
-                return _layoutRect;
-            }
-            set => _layoutRect = value;
-        }
-
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
-
-        private bool _isMasked = false;
-
-        private UIMask _mask = null;
         //private RenderTarget2D _maskedRenderTarget = null;
 
         protected UIComponentBase _copyLayoutFrom = null;
+        protected GamePlus _game;
 
-        public IEnumerable<UIComponent> Children => _children;
-        public int ChildCount => _children.Count;
+        private bool _isMasked;
 
-        public TweenerUI Tweener { get; private set; }
+        private Rect _layoutRect;
+
+        private UIMask _mask;
+
+        public bool Active = true;
+
+        public Layout Layout = new Layout();
+
+        public Transform3D LocalTransform = new Transform3D();
 
         public UIComponentBase(GamePlus game)
         {
             _game = game;
             Tweener = new TweenerUI(game, this);
         }
+
+        public Rect LayoutRect
+        {
+            get
+            {
+                // TODO: Comment out true to avoid recalculation.
+                if (true || _layoutRect == null) _layoutRect = Layout.GetTargetRect(GetParentRect());
+                return _layoutRect;
+            }
+            set => _layoutRect = value;
+        }
+
+        public IEnumerable<UIComponent> Children => _children;
+        public int ChildCount => _children.Count;
+
+        public TweenerUI Tweener { get; }
 
         public void AddChild(UIComponent child)
         {
@@ -60,11 +57,13 @@ namespace GameEngine.Game.UI
             {
                 child._isMasked = true;
                 child._mask = mask;
-            } else if (_isMasked)
+            }
+            else if (_isMasked)
             {
                 child._isMasked = true;
                 child._mask = _mask;
             }
+
             child.ReceiveParent(this, _children.Add(child));
         }
 
@@ -77,7 +76,7 @@ namespace GameEngine.Game.UI
         public virtual void DestroyImmediate()
         {
             // Delete all children too.
-            _children.LoopThroughAll((child) =>
+            _children.LoopThroughAll(child =>
             {
                 _children.RemoveEnqueue(child.GetParentListNode());
                 child.DestroyImmediate();
@@ -92,21 +91,14 @@ namespace GameEngine.Game.UI
 
             if (!Active) return;
 
-            if (screen.NeedToUpdateControl)
-            {
-                Tweener.RunUpdate();
-            }
+            if (screen.NeedToUpdateControl) Tweener.RunUpdate();
 
-            if (_copyLayoutFrom != null)
-            {
-                Layout = new Layout(_copyLayoutFrom.Layout);
-            }
+            if (_copyLayoutFrom != null) Layout = new Layout(_copyLayoutFrom.Layout);
 
             screen.CurrentWorld = worldMat;
 
-            DepthStencilState prevStencil = screen.GraphicsDevice.DepthStencilState;
+            var prevStencil = screen.GraphicsDevice.DepthStencilState;
             if (_isMasked)
-            {
                 // Allow masking
                 screen.GraphicsDevice.DepthStencilState = new DepthStencilState
                 {
@@ -114,69 +106,55 @@ namespace GameEngine.Game.UI
                     StencilFunction = CompareFunction.Equal,
                     StencilPass = StencilOperation.Keep,
                     ReferenceStencil = _mask.MaskIndex,
-                    DepthBufferEnable = false,
+                    DepthBufferEnable = false
                 };
-            }
 
             LayoutRect = targetRect;
             Draw(screen, targetRect);
 
-            bool childSelected = false;
+            var childSelected = false;
 
             _children.LoopThroughAllAndDeleteQueued(
                 child =>
                 {
-                    Matrix childMat = child.LocalTransform.Local;
+                    var childMat = child.LocalTransform.Local;
                     // Transform around pivot
-                    Rect target = child.Layout.GetTargetRect(targetRect);
-                    Vector2 pivotPos = target.Min + target.Size * child.Layout.Pivot;
-                    screen.CurrentWorld = Matrix.CreateTranslation(-pivotPos.X, -pivotPos.Y, 0) * childMat * Matrix.CreateTranslation(pivotPos.X, pivotPos.Y, 0) * worldMat;
+                    var target = child.Layout.GetTargetRect(targetRect);
+                    var pivotPos = target.Min + target.Size * child.Layout.Pivot;
+                    screen.CurrentWorld = Matrix.CreateTranslation(-pivotPos.X, -pivotPos.Y, 0) * childMat *
+                                          Matrix.CreateTranslation(pivotPos.X, pivotPos.Y, 0) * worldMat;
                     child.DoDraw(screen, screen.CurrentWorld, target);
 
                     // If any child is selected after the corresponding draw call, mark that.
                     if (!childSelected && screen.NeedToUpdateControl && child is ICursorSelectable selectable)
-                    {
-                        if (selectable.__ChildWasSelected || selectable.CursorSelected) childSelected = true;
-                    }
+                        if (selectable.__ChildWasSelected || selectable.CursorSelected)
+                            childSelected = true;
                 }
             );
 
-            if (_isMasked)
-            {
-                screen.GraphicsDevice.DepthStencilState = prevStencil;
-            }
+            if (_isMasked) screen.GraphicsDevice.DepthStencilState = prevStencil;
 
             // if our object asks for it, do selection checking.
             if (screen.NeedToUpdateControl && this is ICursorSelectable selectable)
             {
                 selectable.__ChildWasSelected = childSelected;
 
-                Vector2 cursorPos = _game.CurrentCursor.Position;
-                bool isCursorMoving = _game.CurrentCursor.MovedLastFrame;
-                bool prevSelected = selectable.CursorSelected;
+                var cursorPos = _game.CurrentCursor.Position;
+                var isCursorMoving = _game.CurrentCursor.MovedLastFrame;
+                var prevSelected = selectable.CursorSelected;
                 bool selected;
                 // If a child was selected, we might want to ignore this selection.
                 if (selectable.ChildrenSelectFirst && childSelected)
-                {
                     selected = false;
-                }
                 else
-                {
                     selected = targetRect.Contains(cursorPos);
-                }
 
                 // Selection can be obfuscated by the mask.
-                if (_isMasked)
-                {
-                    selected = selected && _mask.LayoutRect.Contains(cursorPos);
-                }
+                if (_isMasked) selected = selected && _mask.LayoutRect.Contains(cursorPos);
 
-                if (isCursorMoving)
-                {
-                    selectable.CursorSelected = selected;
-                }
+                if (isCursorMoving) selectable.CursorSelected = selected;
 
-                bool newlySelected = selectable.CursorSelected && !prevSelected;
+                var newlySelected = selectable.CursorSelected && !prevSelected;
 
                 if (newlySelected)
                 {
@@ -185,10 +163,7 @@ namespace GameEngine.Game.UI
                     {
                         if (menuItem.ParentMenu != null)
                         {
-                            if (menuItem.ParentMenu.UseMouse)
-                            {
-                                menuItem.ParentMenu.SetSelected(menuItem);
-                            }
+                            if (menuItem.ParentMenu.UseMouse) menuItem.ParentMenu.SetSelected(menuItem);
                         }
                         else
                         {
@@ -209,33 +184,23 @@ namespace GameEngine.Game.UI
                     selectable.OnCursorDeselect();
                     // If we are a parent-less menu item, deselect manually by mouse.
                     if (selectable is IMenuItem menuItem)
-                    {
                         if (menuItem.ParentMenu == null)
-                        {
                             if (menuItem.MenuSelected)
                             {
                                 menuItem.MenuSelected = false;
                                 menuItem.OnMenuDeselect();
                             }
-                        }
-                    }
                 }
 
                 // Now handle pressing if we are a menu item and we have no parent.
                 if (RawInput.MousePressed(MouseButton.Left) && selectable is IMenuItem menuItemm)
-                {
                     if (menuItemm.ParentMenu == null)
                     {
                         if (menuItemm.MenuSelected)
-                        {
                             menuItemm.OnMenuPress(true);
-                        }
                         else
-                        {
                             menuItemm.OnMenuDepress(true);
-                        }
                     }
-                }
             }
         }
 
@@ -249,7 +214,7 @@ namespace GameEngine.Game.UI
 
         public override string ToString()
         {
-            return GetType().Name + (Active? "" : " (not active) ");
+            return GetType().Name + (Active ? "" : " (not active) ");
         }
     }
 }

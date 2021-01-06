@@ -2,6 +2,8 @@
 
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Objects.Rendering;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 using ManagedBass;
 using ManagedBass.Mix;
 
@@ -23,34 +20,11 @@ namespace GameEngine.Game.Audio
          */
         private const bool IS_THERE_MIXER_BULLSHIT = true;
 
-        internal static bool IgnoreBassMixLibrary => true;//IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        private readonly AudioMixerLinux _linuxFix;
 
-        private AudioMixerLinux _linuxFix = null;
-
-        private int _stream;
+        private readonly int _stream;
 
         private float _volume;
-        public float Volume
-        {
-            get => _volume;
-            set
-            {
-                _volume = value;
-
-                if (IgnoreBassMixLibrary)
-                {
-                    _linuxFix.SetVolume(_volume);
-                }
-                else
-                {
-                    // Normal way
-                    if (!Bass.ChannelSetAttribute(_stream, ChannelAttribute.Volume, _volume))
-                    {
-                        Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
-                    }
-                }
-            }
-        }
 
         public AudioMixer(AudioOutput output)
         {
@@ -68,6 +42,27 @@ namespace GameEngine.Game.Audio
             output.AddMixer(this);
         }
 
+        internal static bool IgnoreBassMixLibrary => true;//IS_THERE_MIXER_BULLSHIT && RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+        public float Volume
+        {
+            get => _volume;
+            set
+            {
+                _volume = value;
+
+                if (IgnoreBassMixLibrary)
+                {
+                    _linuxFix.SetVolume(_volume);
+                }
+                else
+                {
+                    // Normal way
+                    if (!Bass.ChannelSetAttribute(_stream, ChannelAttribute.Volume, _volume)) Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
+                }
+            }
+        }
+
         internal void PlayChannel(int channel)
         {
             Bass.ChannelPlay(channel, true);
@@ -76,14 +71,9 @@ namespace GameEngine.Game.Audio
                 _linuxFix.AddChannel(channel);
             } else {
                 if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerMatrix))
-                {
-                    if (Bass.LastError != Errors.Decode)
-                    {
-                        Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
-                    }
-                }
+                    if (Bass.LastError != Errors.Decode) Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
 
-                Bass.ChannelPlay(_stream, false);
+                Bass.ChannelPlay(_stream);
             }
         }
 
@@ -91,30 +81,24 @@ namespace GameEngine.Game.Audio
         {
             Bass.ChannelStop(channel);
             if (IgnoreBassMixLibrary)
-            {
                 _linuxFix.RemoveChannel(channel);
-            }
             else
-            {
                 BassMix.MixerRemoveChannel(channel);
-            }
         }
 
         public void StopAll()
         {
-            List<int> channels = new List<int>(IgnoreBassMixLibrary? _linuxFix.GetChannels() : BassMix.MixerGetChannels(_stream));
-            foreach (int channel in channels)
-            {
-                StopChannel(channel);
-            }
+            var channels = new List<int>(IgnoreBassMixLibrary? _linuxFix.GetChannels() : BassMix.MixerGetChannels(_stream));
+            foreach (var channel in channels) StopChannel(channel);
         }
 
 
         // This is stupid
-        class AudioMixerLinux
+        private class AudioMixerLinux
         {
-            private List<int> _channels;
+            private readonly List<int> _channels;
             private float _volume;
+
             public AudioMixerLinux(int outputSampleRate, int outputChannelCount)
             {
                 _channels = new List<int>();
@@ -145,12 +129,8 @@ namespace GameEngine.Game.Audio
             public void SetVolume(float volume)
             {
                 _volume = VolumeScale(volume);
-                foreach (int channel in GetChannels())
-                {
-                    Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, _volume);
-                }
+                foreach (var channel in GetChannels()) Bass.ChannelSetAttribute(channel, ChannelAttribute.Volume, _volume);
             }
         }
-
     }
 }

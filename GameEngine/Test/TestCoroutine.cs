@@ -1,6 +1,9 @@
 using System.Collections;
 using GameEngine.Game;
+using GameEngine.Game.Coroutine;
 using GameEngine.Game.Input;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 

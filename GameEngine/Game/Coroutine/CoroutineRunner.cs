@@ -1,0 +1,37 @@
+using System.Collections;
+using System.Collections.Generic;
+
+namespace GameEngine.Game.Coroutine
+{
+    public class CoroutineRunner
+    {
+        private readonly List<Game.Coroutine.Coroutine> _routines = new List<Game.Coroutine.Coroutine>();
+
+        public Game.Coroutine.Coroutine Run(IEnumerator enumerator)
+        {
+            var c = new Game.Coroutine.Coroutine(enumerator);
+            _routines.Add(c);
+            return c;
+        }
+
+        public void StopAll()
+        {
+            _routines.Clear();
+        }
+
+        public void Stop(Game.Coroutine.Coroutine c)
+        {
+            _routines.Remove(c);
+        }
+
+        // TODO: Pause & Resume coroutine for the extra spice
+
+        public void OnTick()
+        {
+            for (var i = _routines.Count - 1; i >= 0; --i)
+                if (!_routines[i].UpdateNext())
+                    _routines.RemoveAt(i);
+            //_routines.RemoveAll(c => !c.UpdateNext());
+        }
+    }
+}

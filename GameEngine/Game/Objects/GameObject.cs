@@ -1,36 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GameEngine.Game.Collision;
+using GameEngine.Game.Coroutine;
 using GameEngine.Game.Tween;
 using Newtonsoft.Json;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects
 {
     public abstract class GameObject : IGameObject
     {
+        private bool _alive;
+
+        private readonly ObjectContainer<GameObject> _children = new ObjectContainer<GameObject>();
+
+        private readonly List<ICollider> _colliders = new List<ICollider>();
+
+        private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
         protected GamePlus _game;
+
+        private ObjectContainerNode<GameObject> _gameAddedNode;
 
         private bool _gottaStart = true;
 
-        [JsonIgnore]
-        public bool Active { get; private set; }
-        protected internal bool _activeAsChild { get; private set; } // Whether we should automatically get activated as a child.
-        protected internal bool _parentActive { get; private set; }
-
-        private ObjectContainerNode<GameObject> _gameAddedNode = null;
-
-        private ObjectContainer<GameObject> _children = new ObjectContainer<GameObject>();
-
         // To catch circular parenting which would break the game badly.
-        private HashSet<GameObject> _parents = new HashSet<GameObject>();
-
-        private bool _alive = false;
-
-        private List<Coroutine> _routines = new List<Coroutine>();
-        private List<ICollider> _colliders = new List<ICollider>();
-
-        [JsonIgnore]
-        public Tweener Tweener { get; private set; }
+        private readonly HashSet<GameObject> _parents = new HashSet<GameObject>();
 
         public GameObject(GamePlus game)
         {
@@ -48,20 +42,40 @@ namespace GameEngine.Game
             Awake();
         }
 
+        [JsonIgnore] public bool Active { get; private set; }
+
+        protected internal bool
+            _activeAsChild { get; private set; } // Whether we should automatically get activated as a child.
+
+        protected internal bool _parentActive { get; private set; }
+
+        [JsonIgnore] public Tweener Tweener { get; }
+
+        // When we've been destroyed, we can be compared to null.
+        public static bool operator ==(GameObject obj, object other)
+        {
+            if (obj._alive)
+                return obj.Equals(other);
+            return Equals(other, null);
+        }
+
+        public static bool operator !=(GameObject obj, object other)
+        {
+            return !(obj == other);
+        }
+
         #region Public Control
 
         public void AddChild(GameObject obj)
         {
             AssertAlive();
             if (obj._parents.Contains(this))
-            {
-                throw new InvalidOperationException($"Attempted to add child to parent more than once! Child: {obj}, Parent: {this}");
-            }
+                throw new InvalidOperationException(
+                    $"Attempted to add child to parent more than once! Child: {obj}, Parent: {this}");
 
             if (_parents.Contains(obj))
-            {
-                throw new InvalidOperationException($"Circular Parenting Detected when trying to add child! Child: {obj}, Parent: {this}");
-            }
+                throw new InvalidOperationException(
+                    $"Circular Parenting Detected when trying to add child! Child: {obj}, Parent: {this}");
             // Add all of our parents and ourselves to the child.
             obj._parents.UnionWith(_parents);
             obj._parents.Add(this);
@@ -73,20 +87,16 @@ namespace GameEngine.Game
             AssertAlive();
             _colliders.Add(c);
             // If we're already running, initialize immediately.
-            if (!_gottaStart)
-            {
-                _game.CollisionManager.RegisterCollider(c);
-            }
+            if (!_gottaStart) _game.CollisionManager.RegisterCollider(c);
         }
 
         /// <summary>
-        /// Set the object to be active.
+        ///     Set the object to be active.
         /// </summary>
         /// <param name="active"> Whether to set it to active. </param>
         /// <param name="childMode"> If true, will NOT activate child objects that were disabled previously. </param>
-        public void SetActive(bool active, bool childMode=false)
+        public void SetActive(bool active, bool childMode = false)
         {
-
             if (childMode)
             {
                 _parentActive = active;
@@ -104,32 +114,23 @@ namespace GameEngine.Game
             }
 
             if (Active)
-            {
                 _game.SceneManager.GameObjects.EnableEnqueue(_gameAddedNode);
-            }
             else
-            {
                 _game.SceneManager.GameObjects.DisableEnqueue(_gameAddedNode);
-            }
 
             // Do the same for the children
-            _children.LoopThroughAll(child =>
-            {
-                child.SetActive(Active, true);
-            });
+            _children.LoopThroughAll(child => { child.SetActive(Active, true); });
         }
 
         internal void RunStart()
         {
-            if (Active)
-            {
-                RunOnEnable(_gameAddedNode);
-            }
+            if (Active) RunOnEnable(_gameAddedNode);
 
             Start();
             // We might create colliders in start so register them now.
             _colliders.ForEach(c => _game.CollisionManager.RegisterCollider(c));
         }
+
         internal void RunUpdate(float dt)
         {
             AssertAlive();
@@ -137,8 +138,9 @@ namespace GameEngine.Game
             EnsureStarted();
             Tweener?.RunUpdate();
             Update(dt);
-            UpdateCoroutines();
+            _coroutineRunner.OnTick();
         }
+
         internal void RunPreUpdate(float dt)
         {
             AssertAlive();
@@ -146,6 +148,7 @@ namespace GameEngine.Game
             EnsureStarted();
             PreUpdate(dt);
         }
+
         internal void RunPostUpdate(float dt)
         {
             AssertAlive();
@@ -153,6 +156,7 @@ namespace GameEngine.Game
             EnsureStarted();
             PreUpdate(dt);
         }
+
         internal virtual void RunOnDestroy()
         {
             AssertAlive();
@@ -162,10 +166,7 @@ namespace GameEngine.Game
             _gameAddedNode = null;
 
             // Delete all children too.
-            _children.LoopThroughAll(child =>
-            {
-                child.Destroy();
-            });
+            _children.LoopThroughAll(child => { child.Destroy(); });
             // Cleanup, may as well empty the list.
             _children.RemoveAllQueuedImmediate();
 
@@ -178,10 +179,7 @@ namespace GameEngine.Game
 
             OnDestroy();
 
-            if (Active)
-            {
-                RunOnDisable(_gameAddedNode);
-            }
+            if (Active) RunOnDisable(_gameAddedNode);
 
             _alive = false;
         }
@@ -191,6 +189,7 @@ namespace GameEngine.Game
             _gameAddedNode = newNode;
             OnEnable();
         }
+
         internal virtual void RunOnDisable(ObjectContainerNode<GameObject> newNode)
         {
             _gameAddedNode = newNode;
@@ -208,47 +207,31 @@ namespace GameEngine.Game
         {
             AssertAlive();
             if (!_alive) return;
-            _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, (self) => { self.RunOnDestroy(); });
+            _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, self => { self.RunOnDestroy(); });
         }
 
         #endregion
 
         #region Coroutine
 
-        public Coroutine StartCoroutine(IEnumerator enumerator)
+        public Coroutine.Coroutine StartCoroutine(IEnumerator enumerator)
         {
-            Coroutine c = new Coroutine(enumerator);
-            _routines.Add(c);
-            return c;
+            return _coroutineRunner.Run(enumerator);
         }
 
-        public void StopCoroutine(Coroutine c)
+        public void StopCoroutine(Coroutine.Coroutine c)
         {
             RemoveCoroutine(c);
         }
 
         public void StopAllCoroutines()
         {
-            _routines.Clear();
+            _coroutineRunner.StopAll();
         }
 
-        internal void RemoveCoroutine(Coroutine c)
+        internal void RemoveCoroutine(Coroutine.Coroutine c)
         {
-            _routines.Remove(c);
-        }
-
-        // TODO: Pause & Resume coroutine for the extra spice
-
-        private void UpdateCoroutines()
-        {
-            for (int i = _routines.Count - 1; i >= 0; --i)
-            {
-                if (!_routines[i].UpdateNext())
-                {
-                    _routines.RemoveAt(i);
-                }
-            }
-            //_routines.RemoveAll(c => !c.UpdateNext());
+            _coroutineRunner.Stop(c);
         }
 
         #endregion
@@ -268,9 +251,8 @@ namespace GameEngine.Game
         private void AssertAlive()
         {
             if (!_alive)
-            {
-                throw new InvalidOperationException($"Object is destroyed but you still tried accessing it! Object: {this}");
-            }
+                throw new InvalidOperationException(
+                    $"Object is destroyed but you still tried accessing it! Object: {this}");
         }
 
         protected virtual Tweener NewTweener(GamePlus game)
@@ -281,69 +263,44 @@ namespace GameEngine.Game
         #endregion
 
         #region Interface
+
         /// <summary>
-        ///
         /// </summary>
         public virtual void Awake()
         {
-
         }
 
-        public  virtual void Start()
+        public virtual void Start()
         {
-
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="dt"> delta time in seconds </param>
-        public  virtual void Update(float dt)
+        public virtual void Update(float dt)
         {
-
         }
 
         public virtual void PreUpdate(float dt)
         {
-
         }
+
         public virtual void PostUpdate(float dt)
         {
-
         }
 
         public virtual void OnDestroy()
         {
-
         }
 
         public virtual void OnEnable()
         {
-
         }
 
         public virtual void OnDisable()
         {
-
         }
+
         #endregion
-
-        // When we've been destroyed, we can be compared to null.
-        public static bool operator ==(GameObject obj, object other)
-        {
-            if (obj._alive)
-            {
-                return obj.Equals(other);
-            }
-            else
-            {
-                return (Object.Equals(other, null));
-            }
-        }
-
-        public static bool operator !=(GameObject obj, object other)
-        {
-            return !(obj == other);
-        }
     }
 }

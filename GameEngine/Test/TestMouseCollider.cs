@@ -1,5 +1,8 @@
 ﻿using GameEngine.Game;
+using GameEngine.Game.Collision;
 using GameEngine.Game.Input;
+using GameEngine.Game.Objects.Rendering;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Test

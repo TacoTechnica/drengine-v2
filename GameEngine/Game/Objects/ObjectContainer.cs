@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects
 {
-
     /// <summary>
     ///     Whenever we add an object to an object container we return a reference
     ///     for where that object is. This is to potentially swap out the
@@ -14,6 +13,7 @@ namespace GameEngine.Game
     public class ObjectContainerNode<T>
     {
         internal LinkedListNode<T> Node;
+
         public ObjectContainerNode(LinkedListNode<T> node)
         {
             Node = node;
@@ -26,12 +26,11 @@ namespace GameEngine.Game
     /// <typeparam name="T"> The gameobject type. </typeparam>
     public class ObjectContainer<T> : IEnumerable<T>
     {
+        private readonly LinkedList<T> _disabledObjects = new LinkedList<T>();
         private readonly LinkedList<T> _objects = new LinkedList<T>();
         private readonly HashSet<ObjectContainerNode<T>> _toDelete = new HashSet<ObjectContainerNode<T>>();
         private readonly HashSet<ObjectContainerNode<T>> _toDisable = new HashSet<ObjectContainerNode<T>>();
         private readonly HashSet<ObjectContainerNode<T>> _toEnable = new HashSet<ObjectContainerNode<T>>();
-
-        private readonly LinkedList<T> _disabledObjects = new LinkedList<T>();
 
         public int Count => _objects.Count;
 
@@ -42,7 +41,7 @@ namespace GameEngine.Game
 
         public ObjectContainerNode<T> Add(T obj)
         {
-            ObjectContainerNode<T> n = new ObjectContainerNode<T>(_objects.AddLast(obj));
+            var n = new ObjectContainerNode<T>(_objects.AddLast(obj));
             return n;
         }
 
@@ -50,7 +49,8 @@ namespace GameEngine.Game
         {
             if (objNode == null) return;
             if (objNode.Node.List != _objects && objNode.Node.List != _disabledObjects)
-                throw new InvalidOperationException("Tried enqueuing invalid object to delete! Deletion object must come from Add(T obj) or be disabled!");
+                throw new InvalidOperationException(
+                    "Tried enqueuing invalid object to delete! Deletion object must come from Add(T obj) or be disabled!");
             _toDelete.Add(objNode);
         }
 
@@ -58,7 +58,8 @@ namespace GameEngine.Game
         {
             if (objNode == null || objNode.Node == null) return null;
             if (objNode.Node.List != _objects && objNode.Node.List != _disabledObjects)
-                throw new InvalidOperationException("Invalid object to delete/disable! Deletion object must come from Add(T obj) or be disabled!");
+                throw new InvalidOperationException(
+                    "Invalid object to delete/disable! Deletion object must come from Add(T obj) or be disabled!");
 
             System.Diagnostics.Debug.Assert(objNode.Node.List != null, "objNode.Node.List != null");
             objNode.Node.List.Remove(objNode.Node);
@@ -71,7 +72,8 @@ namespace GameEngine.Game
         {
             if (objNode == null) return;
             if (objNode.Node.List != _objects)
-                throw new InvalidOperationException("Tried enqueuing invalid object to disable! Disable object must come from Add(T obj)!");
+                throw new InvalidOperationException(
+                    "Tried enqueuing invalid object to disable! Disable object must come from Add(T obj)!");
             _toDisable.Add(objNode);
             // Make sure we're not being enabled.
             _toEnable.Remove(objNode);
@@ -81,7 +83,8 @@ namespace GameEngine.Game
         {
             if (objNode == null) return;
             if (objNode.Node.List != _disabledObjects)
-                throw new InvalidOperationException("Tried enqueuing invalid object to enable! Enable object must already be disabled!");
+                throw new InvalidOperationException(
+                    "Tried enqueuing invalid object to enable! Enable object must already be disabled!");
             _toEnable.Add(objNode);
             // Make sure we're not being disabled.
             _toDisable.Remove(objNode);
@@ -108,7 +111,7 @@ namespace GameEngine.Game
         public ObjectContainerNode<T> EnableImmediate(ObjectContainerNode<T> objNode)
         {
             // Add back to object list
-            ObjectContainerNode<T> result = new ObjectContainerNode<T>(_objects.AddLast(objNode.Node.Value));
+            var result = new ObjectContainerNode<T>(_objects.AddLast(objNode.Node.Value));
             // Behaviour here is exactly the same. Remove from DISABLED OBJECT list.
             RemoveImmediate(objNode);
             return result;
@@ -122,23 +125,16 @@ namespace GameEngine.Game
 
         public void LoopThroughAll(Action<T> toRun, bool includeDisabled = false)
         {
-            foreach (T obj in _objects)
-            {
-                toRun.Invoke(obj);
-            }
+            foreach (var obj in _objects) toRun.Invoke(obj);
 
             if (includeDisabled)
-            {
-                foreach (T obj in _disabledObjects)
-                {
+                foreach (var obj in _disabledObjects)
                     toRun.Invoke(obj);
-                }
-            }
         }
 
         internal void EnableAllQueuedImmediate(Action<T, ObjectContainerNode<T>> afterEnable)
         {
-            EmptyOutHashSetWhileModifying(_toEnable, (node) =>
+            EmptyOutHashSetWhileModifying(_toEnable, node =>
             {
                 var newNode = EnableImmediate(node);
                 afterEnable?.Invoke(node.Node.Value, newNode);
@@ -147,7 +143,7 @@ namespace GameEngine.Game
 
         internal void DisableAllQueuedImmediate(Action<T, ObjectContainerNode<T>> afterDisable = null)
         {
-            EmptyOutHashSetWhileModifying(_toDisable, (node) =>
+            EmptyOutHashSetWhileModifying(_toDisable, node =>
             {
                 var newNode = DisableImmediate(node);
                 afterDisable?.Invoke(node.Node.Value, newNode);
@@ -156,13 +152,11 @@ namespace GameEngine.Game
 
         internal void RemoveAllQueuedImmediate(Action<T> afterDestroy = null)
         {
-            EmptyOutHashSetWhileModifying(_toDelete, (node) =>
-            {
-                RemoveImmediate(node, afterDestroy);
-            });
+            EmptyOutHashSetWhileModifying(_toDelete, node => { RemoveImmediate(node, afterDestroy); });
         }
 
-        private void EmptyOutHashSetWhileModifying(HashSet<ObjectContainerNode<T>> setOfNodes, Action<ObjectContainerNode<T>> duringEmpty)
+        private void EmptyOutHashSetWhileModifying(HashSet<ObjectContainerNode<T>> setOfNodes,
+            Action<ObjectContainerNode<T>> duringEmpty)
         {
             if (setOfNodes.Count == 0) return;
             // Go through all disabled objects and properly delete em
@@ -170,10 +164,7 @@ namespace GameEngine.Game
             IEnumerable<ObjectContainerNode<T>> diffSet = new List<ObjectContainerNode<T>>(setOfNodes);
             do
             {
-                foreach (ObjectContainerNode<T> node in diffSet)
-                {
-                    duringEmpty.Invoke(node);
-                }
+                foreach (var node in diffSet) duringEmpty.Invoke(node);
 
                 setOfNodes.ExceptWith(diffSet);
                 diffSet = new List<ObjectContainerNode<T>>(setOfNodes);

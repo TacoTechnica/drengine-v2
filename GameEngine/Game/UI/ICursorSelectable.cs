@@ -1,5 +1,4 @@
-﻿
-namespace GameEngine.Game.UI
+﻿namespace GameEngine.Game.UI
 {
     public interface ICursorSelectable
     {

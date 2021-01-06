@@ -1,11 +1,9 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.Input
 {
     /// <summary>
     ///     This abstracts away all cursor handling so that many devices can use a cursor.
-    ///
     ///     For instance, a cursor may use both mouse and a joystick to move itself.
     /// </summary>
     public abstract class Cursor
@@ -20,6 +18,5 @@ namespace GameEngine.Game.Input
         }
 
         protected abstract void UpdateCursorPosition(GamePlus _game);
-
     }
 }

@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using ManagedBass;
 
 namespace GameEngine.Game.Audio
 {
     public abstract class AudioStorageBase
     {
+        private readonly Path _fpath;
         private GamePlus _game;
-        private Path _fpath;
 
         protected AudioOutput _output;
 
         public AudioStorageBase(AudioOutput targetOutput, Path audioFile)
         {
-            if (!File.Exists(audioFile))
-            {
-                throw new FileNotFoundException($"Audio File does Not Exist: {audioFile}");
-            }
+            if (!File.Exists(audioFile)) throw new FileNotFoundException($"Audio File does Not Exist: {audioFile}");
             _fpath = audioFile;
             _output = targetOutput;
         }
@@ -49,6 +43,7 @@ namespace GameEngine.Game.Audio
         private Path _path;
 
         private int _sample = -1;
+
         public AudioStorageCached(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
         {
             _sample = -1;
@@ -57,16 +52,10 @@ namespace GameEngine.Game.Audio
         protected override void OnLoad(Path path)
         {
             _path = path;
-            if (_sample != -1)
-            {
-                Unload();
-            }
+            if (_sample != -1) Unload();
 
             _sample = Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerMatrix | BassFlags.Decode);
-            if (_sample == 0)
-            {
-                Debug.LogError($"Failed to load sample: {Bass.LastError}");
-            }
+            if (_sample == 0) Debug.LogError($"Failed to load sample: {Bass.LastError}");
         }
 
         protected override void OnUnload()
@@ -92,9 +81,9 @@ namespace GameEngine.Game.Audio
     public class AudioStorageStreamed : AudioStorageBase
     {
         private Path _path;
+
         public AudioStorageStreamed(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
         {
-
         }
 
         protected override void OnLoad(Path path)
@@ -110,11 +99,8 @@ namespace GameEngine.Game.Audio
         public override int GetStream()
         {
             Debug.Log($"Stream from {_path}");
-            int result = Bass.CreateStream(_path, 0, 0);
-            if (result == 0)
-            {
-                Debug.LogError($"Stream error: {Bass.LastError}");
-            }
+            var result = Bass.CreateStream(_path);
+            if (result == 0) Debug.LogError($"Stream error: {Bass.LastError}");
             return result;
             /*,
                 AudioMixer.IgnoreBassMixLibrary? BassFlags.MixerChanMatrix : BassFlags.MixerChanMatrix | BassFlags.Decode

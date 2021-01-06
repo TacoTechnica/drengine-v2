@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Objects
 {
     public abstract class GameObjectRender : GameObject, IGameObject
     {
-
-        private ObjectContainerNode<GameObjectRender> _renderAddedNode = null;
+        private ObjectContainerNode<GameObjectRender> _renderAddedNode;
 
         protected GameObjectRender(GamePlus game) : base(game)
         {
@@ -20,16 +18,19 @@ namespace GameEngine.Game
             EnsureStarted();
             Draw(g);
         }
+
         internal void DoPreDraw(GraphicsDevice g)
         {
             EnsureStarted();
             PreDraw(g);
         }
+
         internal void DoPostDraw(GraphicsDevice g)
         {
             EnsureStarted();
             PostDraw(g);
         }
+
         #endregion
 
         #region Util
@@ -61,24 +62,22 @@ namespace GameEngine.Game
         #region Object Functions
 
         /// <summary>
-        /// Draws. Abstract cause we don't want to
-        /// mistakenly make tons of game-object-renderers without
-        /// ensuring that its rendering is actually taken
-        /// advantage of.
+        ///     Draws. Abstract cause we don't want to
+        ///     mistakenly make tons of game-object-renderers without
+        ///     ensuring that its rendering is actually taken
+        ///     advantage of.
         /// </summary>
         /// <param name="g"></param>
         public abstract void Draw(GraphicsDevice g);
 
         public virtual void PreDraw(GraphicsDevice g)
         {
-
         }
+
         public virtual void PostDraw(GraphicsDevice g)
         {
-
         }
 
         #endregion
-
     }
 }

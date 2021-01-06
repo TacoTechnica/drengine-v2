@@ -1,40 +1,31 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using GameEngine.Game.Input;
 
 namespace GameEngine.Game.UI
 {
     /// <summary>
-    /// A simple menu list that lets you use the keyboard to select our elements.
+    ///     A simple menu list that lets you use the keyboard to select our elements.
     /// </summary>
     public class MenuList : IMenu
     {
-        public bool UseMouse { get; set; }
+        private readonly List<IMenuItem> _items = new List<IMenuItem>();
+        private IMenuItem _pressed;
+
+        private readonly InputActionButton _selectAction;
+
+        private readonly InputActionButton _mouseSelect;
+
+        private readonly InputActionButton _nextAction;
+
+        private readonly InputActionButton _prevAction;
+
+        private int _selectedIndex = -1;
 
         public Action<IMenuItem> ItemSelected;
 
-        private IMenuItem _selected
-        {
-            get
-            {
-                if (_selectedIndex == -1) return null;
-                return _items[_selectedIndex];
-            }
-        }
-        private int _selectedIndex = -1;
-        private IMenuItem _pressed = null;
-
-        private List<IMenuItem> _items = new List<IMenuItem>();
-
-        public IEnumerable<IMenuItem> Children => _items;
-
-        private InputActionButton _selectAction,
-            _mouseSelect,
-            _nextAction,
-            _prevAction;
-
-        public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton mouseSelect, InputActionButton nextAction, InputActionButton prevAction)
+        public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton mouseSelect,
+            InputActionButton nextAction, InputActionButton prevAction)
         {
             _selectAction = selectAction;
             _mouseSelect = mouseSelect;
@@ -53,19 +44,31 @@ namespace GameEngine.Game.UI
 
             _nextAction.Pressed += OnPressedNext;
             _prevAction.Pressed += OnPressedPrev;
-
         }
+
         // Constructor without mouse
-        public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton nextAction, InputActionButton prevAction) : this(game, selectAction, null, nextAction, prevAction) {}
+        public MenuList(GamePlus game, InputActionButton selectAction, InputActionButton nextAction,
+            InputActionButton prevAction) : this(game, selectAction, null, nextAction, prevAction)
+        {
+        }
+
+        private IMenuItem _selected
+        {
+            get
+            {
+                if (_selectedIndex == -1) return null;
+                return _items[_selectedIndex];
+            }
+        }
+
+        public IEnumerable<IMenuItem> Children => _items;
+        public bool UseMouse { get; set; }
 
         public void Destroy()
         {
             // ReSharper disable DelegateSubtraction
             _selectAction.Pressed -= OnSelectionPressKeyboard;
-            if (_mouseSelect != null)
-            {
-                _mouseSelect.Pressed -= OnSelectionPressMouse;
-            }
+            if (_mouseSelect != null) _mouseSelect.Pressed -= OnSelectionPressMouse;
 
             _nextAction.Pressed -= OnPressedNext;
             _prevAction.Pressed -= OnPressedPrev;
@@ -104,8 +107,9 @@ namespace GameEngine.Game.UI
 
         public void SetSelected(IMenuItem item)
         {
-            int newIndex = _items.IndexOf(item);
-            if (newIndex == -1) throw new InvalidOperationException("Cannot select menu item that wasn't added to the menu list!");
+            var newIndex = _items.IndexOf(item);
+            if (newIndex == -1)
+                throw new InvalidOperationException("Cannot select menu item that wasn't added to the menu list!");
             // Deselect previous
             DeselectItem(_selectedIndex);
             // Select new
@@ -117,16 +121,17 @@ namespace GameEngine.Game.UI
         private void DeselectItem(int index)
         {
             if (index == -1) return;
-            IMenuItem item = _items[index];
+            var item = _items[index];
             if (item.MenuSelected)
             {
                 item.MenuSelected = false;
                 item.OnMenuDeselect();
             }
         }
+
         private void SelectItem(int index)
         {
-            IMenuItem item = _items[index];
+            var item = _items[index];
             if (!item.MenuSelected)
             {
                 item.MenuSelected = true;
@@ -138,7 +143,7 @@ namespace GameEngine.Game.UI
         private void DeselectCursorItem(int index)
         {
             if (index == -1) return;
-            IMenuItem item = _items[index];
+            var item = _items[index];
             // If we can be selected by a cursor, deselect that.
             if (item is ICursorSelectable cursorSelectable && cursorSelectable.CursorSelected)
             {
@@ -165,6 +170,7 @@ namespace GameEngine.Game.UI
         {
             ChangeSelectIndex(+1);
         }
+
         private void OnPressedPrev(InputActionButton obj)
         {
             ChangeSelectIndex(-1);
@@ -172,7 +178,7 @@ namespace GameEngine.Game.UI
 
         private void ChangeSelectIndex(int delta)
         {
-            int targetIndex = Math.Mod(_selectedIndex + delta, _items.Count);
+            var targetIndex = Math.Mod(_selectedIndex + delta, _items.Count);
             //Debug.Log($"OOF? {_selectedIndex} + {delta} % {_items.Count} => {targetIndex}");
             DeselectItem(_selectedIndex);
             DeselectCursorItem(_selectedIndex);

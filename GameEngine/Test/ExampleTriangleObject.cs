@@ -1,4 +1,6 @@
 ﻿using GameEngine.Game;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

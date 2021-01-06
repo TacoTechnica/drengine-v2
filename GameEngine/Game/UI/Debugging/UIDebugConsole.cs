@@ -1,22 +1,59 @@
-﻿
-using System;
-using System.Text;
-using GameEngine.Game.Resources;
+﻿using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game.UI.Debugging
 {
     /// <summary>
-    /// The visual part of the debug console.
+    ///     The visual part of the debug console.
     /// </summary>
     public class UIDebugConsole : UIComponent
     {
-        private UIText _log;
-        private UITextInput _input;
-        private UISlider _slider;
+        private int _dropToBottomFlag;
+        private readonly UITextInput _input;
+        private readonly UIText _log;
 
-        private int _dropToBottomFlag = 0;
+        private readonly float _outputViewHeight;
+        private readonly UISlider _slider;
+
+        public UIDebugConsole(GamePlus game, Font font, float outputHeight, UIComponent parent = null) : base(game,
+            parent)
+        {
+            _outputViewHeight = outputHeight;
+
+            // LAYOUTS
+            var padding = 4f;
+            var textPadding = 2f;
+            var sliderWidth = 12f;
+
+            // Text input
+            var inputHeight = font.SpriteFont != null ? font.SpriteFont.LineSpacing + textPadding * 2 : 18;
+            _input = (UITextInput) new UITextInput(game, font, Color.White)
+                .WithLayout(Layout.FullscreenLayout());
+
+            var textBackground =
+                new UIMaskRect(game, Color.Black, this) // new UIColoredRect(game, Color.Black, false, this) //
+                    .WithLayout(Layout.SideStretchLayout(Layout.Bottom, inputHeight, padding))
+                    .WithChild(_input);
+
+            // Output
+            _slider = (UISlider) new UISlider(game)
+                .WithLayout(Layout.SideStretchLayout(Layout.Right, sliderWidth));
+            _log = (UIText) new UIText(game, font, "TEST OUTPUT", Color.White)
+                .WithLayout(Layout.CornerLayout(Layout.TopLeft, 0, outputHeight));
+            _log.Layout.Margin.Right = sliderWidth;
+            var logViewport =
+                new UIScrollViewMasked(game, _log, Color.Black,
+                        _slider) // new UIScrollView(game, _log, null, outputSlider)//
+                    .WithLayout(Layout.FullscreenLayout());
+
+            _log.Layout.AnchorMax.X = 1f;
+
+            //new UIContainer(game, this)
+            new UIColoredRect(game, Color.Red, true, this)
+                .WithLayout(Layout.SideStretchLayout(Layout.Bottom, outputHeight, padding, inputHeight + padding))
+                .WithChild(logViewport)
+                .WithChild(_slider);
+        }
 
         public Font Font => _log.Font;
 
@@ -32,55 +69,14 @@ namespace GameEngine.Game.UI.Debugging
             set => _input.Text = value;
         }
 
-        private float _outputViewHeight;
-
-        public UIDebugConsole(GamePlus game, Font font, float outputHeight, UIComponent parent = null) : base(game, parent)
-        {
-            _outputViewHeight = outputHeight;
-
-            // LAYOUTS
-            float padding = 4f;
-            float textPadding = 2f;
-            float sliderWidth = 12f;
-
-            // Text input
-            float inputHeight = (font.SpriteFont != null)? font.SpriteFont.LineSpacing + textPadding * 2 : 18;
-            _input = (UITextInput) new UITextInput(game, font, Color.White)
-                .WithLayout(Layout.FullscreenLayout());
-
-            UIComponent textBackground = new UIMaskRect(game, Color.Black, this) // new UIColoredRect(game, Color.Black, false, this) //
-                .WithLayout(Layout.SideStretchLayout(Layout.Bottom, inputHeight, padding))
-                .WithChild(_input);
-
-            // Output
-            _slider = (UISlider) new UISlider(game, UISlider.SliderDirection.TopToBottom)
-                .WithLayout(Layout.SideStretchLayout(Layout.Right, sliderWidth));
-            _log = (UIText) new UIText(game, font, "TEST OUTPUT", Color.White)
-                .WithLayout(Layout.CornerLayout(Layout.TopLeft, 0, outputHeight));
-            _log.Layout.Margin.Right = sliderWidth;
-            UIComponent logViewport = new UIScrollViewMasked(game, _log, Color.Black, _slider) // new UIScrollView(game, _log, null, outputSlider)//
-                .WithLayout(Layout.FullscreenLayout());
-
-            _log.Layout.AnchorMax.X = 1f;
-
-            //new UIContainer(game, this)
-            new UIColoredRect(game, Color.Red, true, this)
-                .WithLayout(Layout.SideStretchLayout(Layout.Bottom, outputHeight, padding, inputHeight + padding))
-                .WithChild(logViewport)
-                .WithChild(_slider);
-        }
-
         protected override void Draw(UIScreen screen, Rect targetRect)
         {
             // Resize text
-            float logHeight = Math.Max(_outputViewHeight, _log.CachedDrawnTextHeight);
+            var logHeight = Math.Max(_outputViewHeight, _log.CachedDrawnTextHeight);
             _log.Layout.Margin.Bottom = -logHeight - _log.Layout.Margin.Top;
 
             // If we need to move to the bottom, do so at a delayed pace.
-            if (_dropToBottomFlag-- > 0)
-            {
-                _slider.SlidePercent = 1f;
-            }
+            if (_dropToBottomFlag-- > 0) _slider.SlidePercent = 1f;
             //Debug.LogSilent($"HEIGHT: {logHeight} => {_log.LayoutRect.Max.Y - _log.LayoutRect.Min.Y}");
         }
 
@@ -103,7 +99,7 @@ namespace GameEngine.Game.UI.Debugging
 
         public bool IsLogAtBottom()
         {
-            return (_slider.EndValue <= _slider.StartValue || _slider.SlidePercent > 0.999f);
+            return _slider.EndValue <= _slider.StartValue || _slider.SlidePercent > 0.999f;
         }
     }
 }

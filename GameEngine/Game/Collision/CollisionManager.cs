@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using GameEngine.Game.Objects.Rendering;
 using GameEngine.Util;
 using Microsoft.Xna.Framework;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Collision
 {
     /// <summary>
-    /// This registers and confirms collisions in a space.
-    /// For now this will include simple stuff, like whether a point
-    /// collides with a rect or cube.
+    ///     This registers and confirms collisions in a space.
+    ///     For now this will include simple stuff, like whether a point
+    ///     collides with a rect or cube.
     /// </summary>
     public class CollisionManager
     {
-        private List<ICollider> _colliders = new List<ICollider>();
+        private readonly List<ICollider> _colliders = new List<ICollider>();
 
         internal void RegisterCollider(ICollider collider)
         {
@@ -31,11 +31,11 @@ namespace GameEngine.Game
         }
 
         /// <summary>
-        /// Gets the CLOSEST collider that we collide with.
+        ///     Gets the CLOSEST collider that we collide with.
         /// </summary>
         public ICollider ScreenCollisionCheckNearest(Camera3D cam, Vector2 mousePos)
         {
-            float minDistSq = float.PositiveInfinity;
+            var minDistSq = float.PositiveInfinity;
             return ScreenCollisionCheckAll(cam, mousePos).GetMinOrDefault(collider =>
                 (collider.GetRoughCenterPosition() - cam.Position).LengthSquared()
             ).First;
@@ -54,10 +54,7 @@ namespace GameEngine.Game
 
         public void DrawDebugColliders(GamePlus _game, Camera3D cam)
         {
-            foreach (ICollider c in _colliders)
-            {
-                c.DrawDebug(_game, cam);
-            }
+            foreach (var c in _colliders) c.DrawDebug(_game, cam);
         }
     }
 }

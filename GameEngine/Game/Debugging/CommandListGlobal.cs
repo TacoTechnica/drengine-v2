@@ -9,34 +9,40 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 {
     class Help : Command
     {
-        public Help () : base(
+        public Help() : base(
             "help", "Lists all commands or gets help from specific command.",
             new Arg<string>("command", "", 0, false)
-        ) {}
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
-            string command = parser.Get<string>();
+            var command = parser.Get<string>();
 
-            if (command == "") {
+            if (command == "")
+            {
                 // List all commands
                 Log("");
                 Log("Command List:");
                 Log("=========================");
-                List<Command> commands = new List<Command>(Commands.AllCommands);
+                var commands = new List<Command>(Commands.AllCommands);
                 var comparer = Comparer<Command>.Create(
-                    ( c1, c2 ) => c1.Name.CompareTo(c2.Name));
+                    (c1, c2) => c1.Name.CompareTo(c2.Name));
                 commands.Sort(comparer);
-                foreach ( Command c in commands) {
-                    Log($"    {c.Name.PadRight(10)} : {c.Description}");
-                }
+                foreach (var c in commands) Log($"    {c.Name.PadRight(10)} : {c.Description}");
                 Log("=========================");
-            } else {
+            }
+            else
+            {
                 // We have a command!
-                Command c = Commands.Get(command);
-                if (c == null) {
+                var c = Commands.Get(command);
+                if (c == null)
+                {
                     LogError($"Command does not exist: {command}");
-                } else {
+                }
+                else
+                {
                     Log("");
                     Log("=========================");
                     Log($"{c.Name}");
@@ -52,38 +58,41 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class Temp : Command
     {
-        enum TempEnum
-        {
-            Level0,
-            Level1
-        }
-
-        public Temp () : base(
+        public Temp() : base(
             "temp", "Temporary demonstration command.",
-                new Arg<string>("stringA"),
-                new Arg<int>("num1", 24, 3),
-                new Arg<string>("stringB", "hi", 2),
-                new Arg<TempEnum>("choice")
-        ) {}
+            new Arg<string>("stringA"),
+            new Arg<int>("num1", 24, 3),
+            new Arg<string>("stringB", "hi", 2),
+            new Arg<TempEnum>("choice")
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser args)
         {
-            string stringA = args.Get<string>();     // First arg
-            int num1 = args.Get<int>();                // Second (optional) arg
-            string stringB = args.Get<string>();     // Third arg
-            TempEnum en = args.Get<TempEnum>();   // Fourth arg.
+            var stringA = args.Get<string>(); // First arg
+            var num1 = args.Get<int>(); // Second (optional) arg
+            var stringB = args.Get<string>(); // Third arg
+            var en = args.Get<TempEnum>(); // Fourth arg.
 
             Log("YOU RAN THE COMMAND!");
             Log($"stringA = {stringA}, num1 = {num1}, stringB = {stringB}, choice = {en}");
             //string[] extra = args.Get<string[]>(); // "Args" args.
         }
+
+        private enum TempEnum
+        {
+            Level0,
+            Level1
+        }
     }
 
     class Clear : Command
     {
-        public Clear () : base(
+        public Clear() : base(
             "clear", "Clears the console.")
-        { }
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
@@ -93,9 +102,11 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class Close : Command
     {
-        public Close () : base(
+        public Close() : base(
             "close", "Closes the console. Pressing Escape also works."
-        ) { }
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
@@ -106,42 +117,46 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class Print : Command
     {
-        public Print () : base(
+        public Print() : base(
             "print", "Print to the console. Calls Debug.Log",
             new Arg<string>("text")
-        ) { }
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
-            string text = parser.Get<string>();
+            var text = parser.Get<string>();
             Debug.Log(text);
         }
     }
 
     class Scene : Command
     {
-        public Scene () : base(
+        private static HashSet<string> scenesBuilt = null;
+
+        public Scene() : base(
             "scene", "Switch scene or list all scenes.",
             new Arg<string>("scenePath", "", 0, false)
-        ) { }
-
-        private static HashSet<string> scenesBuilt = null;
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
-            string scene = parser.Get<string>();
+            var scene = parser.Get<string>();
 
             LogError("Not implemented.");
         }
-
-
     }
 
     class Reload : Command
     {
-        public Reload () : base(
+        public Reload() : base(
             "reload", "Reloads the current scene."
-        ) { }
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
@@ -152,9 +167,11 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class Restart : Command
     {
-        public Restart () : base(
+        public Restart() : base(
             "restart", "Restarts the game."
-        ) { }
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
@@ -164,9 +181,11 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class TreeUI : Command
     {
-        public TreeUI () : base(
+        public TreeUI() : base(
             "uitree", "Prints a tree of the current UI structure."
-            ) {}
+        )
+        {
+        }
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
@@ -185,25 +204,16 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
         {
             if (ui == null) return;
 
-            string pref = "";
-            for (int i = 0; i < depth; ++i)
-            {
-                pref += "   .";
-            }
+            var pref = "";
+            for (var i = 0; i < depth; ++i) pref += "   .";
 
-            if (!ui.Active)
-            {
-                parentEnabled = false;
-            }
+            if (!ui.Active) parentEnabled = false;
 
-            string post = parentEnabled ? "" : " X";
+            var post = parentEnabled ? "" : " X";
 
             Print($"{pref}{ui}{post}");
 
-            foreach (UIComponent b in ui.Children)
-            {
-                PrintSubtree(b, depth + 1, parentEnabled);
-            }
+            foreach (var b in ui.Children) PrintSubtree(b, depth + 1, parentEnabled);
         }
 
         private void Print(string a)

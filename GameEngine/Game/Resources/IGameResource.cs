@@ -1,7 +1,4 @@
-﻿
-using GameEngine.Game.Resources;
-
-namespace GameEngine.Game
+﻿namespace GameEngine.Game.Resources
 {
     /// <summary>
     ///     Defines a resource that the game might want to load from somewhere.

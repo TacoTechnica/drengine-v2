@@ -1,6 +1,7 @@
 ﻿using System;
 using DREngine.Game.Scene;
 using GameEngine.Game;
+using GameEngine.Game.Objects;
 
 namespace DREngine.Game.CoreScenes
 {

@@ -7,15 +7,15 @@ using Microsoft.Xna.Framework.Input;
 namespace GameEngine.Game.Input
 {
     /// <summary>
-    /// Represents a list of controls that you can subscribe to.
+    ///     Represents a list of controls that you can subscribe to.
     /// </summary>
     public abstract class Controls
     {
-        private List<InputAction> _actions = new List<InputAction>();
-
-        public bool Enabled = true;
+        private readonly List<InputAction> _actions = new List<InputAction>();
 
         protected GamePlus _game;
+
+        public bool Enabled = true;
 
         public Controls(GamePlus game)
         {
@@ -31,10 +31,9 @@ namespace GameEngine.Game.Input
         public void DoUpdate()
         {
             if (!Enabled) return;
-            foreach (InputAction a in _actions)
-            {
-                if (a.Active) a.Update();
-            }
+            foreach (var a in _actions)
+                if (a.Active)
+                    a.Update();
         }
 
         internal void AddAction(InputAction a)
@@ -46,28 +45,19 @@ namespace GameEngine.Game.Input
         {
             _actions.Remove(a);
         }
-
     }
 
 
     public class InputAxis
     {
-        enum Type
-        {
-            Keyboard,
-            Mouse,
-            MouseAxis,
-            GamepadButton,
-            GamepadAxis
-        }
+        private readonly GamepadAxis _gamepadAxis;
+        private readonly Buttons _gamepadButton;
 
-        private Type _type;
+        private readonly Keys _keys;
+        private readonly MouseButton _mbutton;
+        private readonly MouseAxis _mouseAxis;
 
-        private Keys _keys;
-        private MouseButton _mbutton;
-        private MouseAxis _mouseAxis;
-        private Buttons _gamepadButton;
-        private GamepadAxis _gamepadAxis;
+        private readonly Type _type;
 
         public bool Inverted;
 
@@ -106,9 +96,9 @@ namespace GameEngine.Game.Input
             switch (_type)
             {
                 case Type.Keyboard:
-                    return RawInput.KeyPressing(_keys)? 1f : 0;
+                    return RawInput.KeyPressing(_keys) ? 1f : 0;
                 case Type.Mouse:
-                    return RawInput.MousePressing(_mbutton)? 1f : 0;
+                    return RawInput.MousePressing(_mbutton) ? 1f : 0;
                 case Type.MouseAxis:
                     switch (_mouseAxis)
                     {
@@ -124,7 +114,7 @@ namespace GameEngine.Game.Input
                             throw new ArgumentOutOfRangeException();
                     }
                 case Type.GamepadButton:
-                    return RawInput.GamepadPressing(_gamepadButton)? 1f : 0;
+                    return RawInput.GamepadPressing(_gamepadButton) ? 1f : 0;
                 case Type.GamepadAxis:
                     return RawInput.GetGamepadAxis(_gamepadAxis);
                 default:
@@ -134,7 +124,7 @@ namespace GameEngine.Game.Input
 
         public override string ToString()
         {
-            StringBuilder b = new StringBuilder();
+            var b = new StringBuilder();
             b.Append("[");
             switch (_type)
             {
@@ -167,10 +157,12 @@ namespace GameEngine.Game.Input
         {
             return new InputAxis(k);
         }
+
         public static implicit operator InputAxis(MouseButton m)
         {
             return new InputAxis(m);
         }
+
         public static implicit operator InputAxis(MouseAxis m)
         {
             return new InputAxis(m);
@@ -180,25 +172,35 @@ namespace GameEngine.Game.Input
         {
             return new InputAxis(a);
         }
+
         public static implicit operator InputAxis(Buttons b)
         {
             return new InputAxis(b);
+        }
+
+        private enum Type
+        {
+            Keyboard,
+            Mouse,
+            MouseAxis,
+            GamepadButton,
+            GamepadAxis
         }
     }
 
     public abstract class InputAction
     {
+        private readonly Controls _controls;
 
         public bool Active = true;
-        public bool Pressing { get; protected set; }
-
-        private Controls _controls;
 
         public InputAction(Controls controls)
         {
             _controls = controls;
             _controls.AddAction(this);
         }
+
+        public bool Pressing { get; protected set; }
 
         ~InputAction()
         {
@@ -210,22 +212,24 @@ namespace GameEngine.Game.Input
 
     public class InputActionButton : InputAction
     {
-        private InputAxis[] _axis;
+        private readonly InputAxis[] _axis;
 
-        private bool _prevPressing = false;
-        public float Threshold;
+        private bool _prevPressing;
+        public Action<InputActionButton> Held;
 
         public Action<InputActionButton> Pressed;
-        public Action<InputActionButton> Held;
         public Action<InputActionButton> Released;
+        public float Threshold;
 
-        public InputActionButton(Controls controls, InputAxis[] axis, float threshold=0.5f) : base(controls)
+        public InputActionButton(Controls controls, InputAxis[] axis, float threshold = 0.5f) : base(controls)
         {
             _axis = axis;
             Threshold = threshold;
         }
 
-        public InputActionButton(Controls controls, params InputAxis[] axis) : this(controls, axis, 0.5f) {}
+        public InputActionButton(Controls controls, params InputAxis[] axis) : this(controls, axis, 0.5f)
+        {
+        }
 
         internal override void Update()
         {
@@ -233,50 +237,40 @@ namespace GameEngine.Game.Input
 
             Pressing = false;
 
-            foreach (InputAxis a in _axis)
-            {
+            foreach (var a in _axis)
                 //Debug.Log($"{a} : {a.ReadCurrentAxis()} > {Threshold}?, {a.ReadCurrentAxis() > Threshold}");
                 if (Math.Abs(a.ReadCurrentAxis()) > Threshold)
                 {
                     Pressing = true;
                     break;
                 }
-            }
 
-            if (Pressing)
-            {
-                Held?.Invoke(this);
-            }
+            if (Pressing) Held?.Invoke(this);
             if (Pressing && !_prevPressing)
-            {
                 Pressed?.Invoke(this);
-            }
-            else if (!Pressing && _prevPressing)
-            {
-                Released?.Invoke(this);
-            }
+            else if (!Pressing && _prevPressing) Released?.Invoke(this);
 
             _prevPressing = Pressing;
         }
     }
 
-    public abstract class InputActionAxis<T> : InputAction {
-
+    public abstract class InputActionAxis<T> : InputAction
+    {
         public enum AxisMode
         {
             MaxMagnitude,
             Sum
         }
 
-        public float Scale = 1f;
-
         protected AxisMode _axisMode;
 
-        public bool SquareInput = false;
+        public float Scale = 1f;
+
+        public bool SquareInput;
 
         public T Value;
 
-        public InputActionAxis( Controls controls, AxisMode axisMode = AxisMode.Sum) : base(controls)
+        public InputActionAxis(Controls controls, AxisMode axisMode = AxisMode.Sum) : base(controls)
         {
             _axisMode = axisMode;
         }
@@ -284,10 +278,11 @@ namespace GameEngine.Game.Input
 
     public class InputActionAxis1D : InputActionAxis<float>
     {
-        private List<InputAxis> _positive;
-        private List<InputAxis> _negative;
+        private readonly List<InputAxis> _negative;
+        private readonly List<InputAxis> _positive;
 
-        public InputActionAxis1D(Controls controls, InputAxis[] negative, InputAxis[] positive, AxisMode mode = AxisMode.Sum) : base(controls, mode)
+        public InputActionAxis1D(Controls controls, InputAxis[] negative, InputAxis[] positive,
+            AxisMode mode = AxisMode.Sum) : base(controls, mode)
         {
             _positive = new List<InputAxis>(positive);
             _negative = new List<InputAxis>(negative);
@@ -297,20 +292,29 @@ namespace GameEngine.Game.Input
         ///     Empty constructor. Pair with .Positive() and .Negative()
         /// </summary>
         public InputActionAxis1D(Controls controls, AxisMode mode = AxisMode.Sum) : this(controls, new InputAxis[0],
-            new InputAxis[0], mode) { }
-        public InputActionAxis1D(Controls controls, InputAxis negative, InputAxis positive, AxisMode mode = AxisMode.Sum) : this(
+            new InputAxis[0], mode)
+        {
+        }
+
+        public InputActionAxis1D(Controls controls, InputAxis negative, InputAxis positive,
+            AxisMode mode = AxisMode.Sum) : this(
             controls,
-            new[]{negative}, new[]{positive}, mode ) {}
+            new[] {negative}, new[] {positive}, mode)
+        {
+        }
+
         public InputActionAxis1D(Controls controls, InputAxis positive, AxisMode mode = AxisMode.Sum) : this(
             controls,
-            new InputAxis[0], new[]{positive}, mode ) {}
+            new InputAxis[0], new[] {positive}, mode)
+        {
+        }
 
         internal override void Update()
         {
             float value = 0;
-            foreach (InputAxis p in _positive)
+            foreach (var p in _positive)
             {
-                float val = p.ReadCurrentAxis();
+                var val = p.ReadCurrentAxis();
                 switch (_axisMode)
                 {
                     case AxisMode.MaxMagnitude:
@@ -323,9 +327,10 @@ namespace GameEngine.Game.Input
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            foreach (InputAxis p in _negative)
+
+            foreach (var p in _negative)
             {
-                float val = p.ReadCurrentAxis();
+                var val = p.ReadCurrentAxis();
                 switch (_axisMode)
                 {
                     case AxisMode.MaxMagnitude:
@@ -340,10 +345,7 @@ namespace GameEngine.Game.Input
             }
 
             Value = value * Scale;
-            if (SquareInput)
-            {
-                Value = Math.CopySign(Value * Value, Value);
-            }
+            if (SquareInput) Value = Math.CopySign(Value * Value, Value);
         }
 
         public InputActionAxis1D Positive(params InputAxis[] toAdd)
@@ -351,11 +353,13 @@ namespace GameEngine.Game.Input
             _positive.AddRange(toAdd);
             return this;
         }
+
         public InputActionAxis1D Negative(params InputAxis[] toAdd)
         {
             _negative.AddRange(toAdd);
             return this;
         }
+
         public InputActionAxis1D Squared()
         {
             SquareInput = true;
@@ -365,50 +369,66 @@ namespace GameEngine.Game.Input
 
     public class InputActionAxis2D : InputActionAxis<Vector2>
     {
-        private List<InputAxis> _up;
-        private List<InputAxis> _down;
-        private List<InputAxis> _left;
-        private List<InputAxis> _right;
-
-        public float Threshold = 0.15f;
+        private readonly List<InputAxis> _down;
+        private readonly List<InputAxis> _left;
+        private readonly List<InputAxis> _right;
+        private readonly List<InputAxis> _up;
 
         public float MaxMagnitude = float.PositiveInfinity;
 
+        public float Threshold = 0.15f;
+
         /// <summary>
-        /// Default Constructor, all inputs specified.
+        ///     Default Constructor, all inputs specified.
         /// </summary>
-        public InputActionAxis2D(Controls controls, InputAxis[] up, InputAxis[] down, InputAxis[] left, InputAxis[] right, AxisMode mode = AxisMode.Sum) : base(controls, mode)
+        public InputActionAxis2D(Controls controls, InputAxis[] up, InputAxis[] down, InputAxis[] left,
+            InputAxis[] right, AxisMode mode = AxisMode.Sum) : base(controls, mode)
         {
             _up = new List<InputAxis>(up);
             _down = new List<InputAxis>(down);
             _left = new List<InputAxis>(left);
             _right = new List<InputAxis>(right);
         }
+
         /// <summary>
-        /// Two axis Constructor.
+        ///     Two axis Constructor.
         /// </summary>
-        public InputActionAxis2D(Controls controls, InputAxis[] axisY, InputAxis[] axisX, AxisMode mode = AxisMode.Sum) :
-            this(controls, axisY, new InputAxis[]{}, new InputAxis[]{}, axisX, mode ) {}
+        public InputActionAxis2D(Controls controls, InputAxis[] axisY, InputAxis[] axisX,
+            AxisMode mode = AxisMode.Sum) :
+            this(controls, axisY, new InputAxis[] { }, new InputAxis[] { }, axisX, mode)
+        {
+        }
+
         public InputActionAxis2D(Controls controls, InputAxis axisY, InputAxis axisX, AxisMode mode = AxisMode.Sum) :
-            this(controls, new []{axisY}, new []{axisX}, mode) {}
+            this(controls, new[] {axisY}, new[] {axisX}, mode)
+        {
+        }
+
         /// <summary>
-        /// Empty Constructor
+        ///     Empty Constructor
         /// </summary>
-        public InputActionAxis2D(Controls controls, AxisMode mode = AxisMode.Sum) : this(controls, new InputAxis[0], new InputAxis[0], new InputAxis[0], new InputAxis[0], mode  ) {}
+        public InputActionAxis2D(Controls controls, AxisMode mode = AxisMode.Sum) : this(controls, new InputAxis[0],
+            new InputAxis[0], new InputAxis[0], new InputAxis[0], mode)
+        {
+        }
+
         /// <summary>
-        /// Single mapping constructor
+        ///     Single mapping constructor
         /// </summary>
-        public InputActionAxis2D(Controls controls, InputAxis up, InputAxis down, InputAxis left, InputAxis right, AxisMode mode = AxisMode.Sum) : this(
+        public InputActionAxis2D(Controls controls, InputAxis up, InputAxis down, InputAxis left, InputAxis right,
+            AxisMode mode = AxisMode.Sum) : this(
             controls,
-            new InputAxis[]{up}, new InputAxis[]{down}, new InputAxis[]{left}, new InputAxis[]{right}, mode ) {}
+            new[] {up}, new[] {down}, new[] {left}, new[] {right}, mode)
+        {
+        }
 
         internal override void Update()
         {
             Value = Vector2.Zero
-                            + Apply(_up, Vector2.UnitY)
-                            - Apply(_down, Vector2.UnitY)
-                            - Apply(_left, Vector2.UnitX)
-                            + Apply(_right, Vector2.UnitX);
+                    + Apply(_up, Vector2.UnitY)
+                    - Apply(_down, Vector2.UnitY)
+                    - Apply(_left, Vector2.UnitX)
+                    + Apply(_right, Vector2.UnitX);
             switch (_axisMode)
             {
                 case AxisMode.Sum:
@@ -429,19 +449,16 @@ namespace GameEngine.Game.Input
 
         private Vector2 Apply(IEnumerable<InputAxis> sideAxis, Vector2 sideDirection)
         {
-            Vector2 result = Vector2.Zero;
-            Vector2 max = Vector2.Zero;
-            foreach (InputAxis p in sideAxis)
+            var result = Vector2.Zero;
+            var max = Vector2.Zero;
+            foreach (var p in sideAxis)
             {
-                float val = p.ReadCurrentAxis();
-                Vector2 pInput = Math.Threshold(val, Threshold) * sideDirection;
+                var val = p.ReadCurrentAxis();
+                var pInput = Math.Threshold(val, Threshold) * sideDirection;
                 switch (_axisMode)
                 {
                     case AxisMode.MaxMagnitude:
-                        if (pInput.LengthSquared() > max.LengthSquared())
-                        {
-                            max = pInput;
-                        }
+                        if (pInput.LengthSquared() > max.LengthSquared()) max = pInput;
                         break;
                     case AxisMode.Sum:
                         result += pInput;
@@ -467,16 +484,19 @@ namespace GameEngine.Game.Input
             _up.AddRange(toAdd);
             return this;
         }
+
         public InputActionAxis2D Down(params InputAxis[] toAdd)
         {
             _down.AddRange(toAdd);
             return this;
         }
+
         public InputActionAxis2D Left(params InputAxis[] toAdd)
         {
             _left.AddRange(toAdd);
             return this;
         }
+
         public InputActionAxis2D Right(params InputAxis[] toAdd)
         {
             _right.AddRange(toAdd);
@@ -487,10 +507,12 @@ namespace GameEngine.Game.Input
         {
             return Right(toAdd);
         }
+
         public InputActionAxis2D YAxis(params InputAxis[] toAdd)
         {
             return Up(toAdd);
         }
+
         public InputActionAxis2D Squared()
         {
             SquareInput = true;

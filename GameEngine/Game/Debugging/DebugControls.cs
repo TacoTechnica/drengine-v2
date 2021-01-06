@@ -5,8 +5,8 @@ namespace GameEngine.Game.Debugging
 {
     public class DebugControls : Controls
     {
-        public InputActionButton ConsoleOpen;
         public InputActionButton ConsoleClose;
+        public InputActionButton ConsoleOpen;
         public InputActionButton ConsoleSubmit;
 
         public DebugControls(GamePlus _game) : base(_game)

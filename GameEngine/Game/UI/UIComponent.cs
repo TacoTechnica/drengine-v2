@@ -1,27 +1,22 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
+using GameEngine.Game.Objects;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
-    public abstract class UIComponent: UIComponentBase
+    public abstract class UIComponent : UIComponentBase
     {
+        private ObjectContainerNode<UIComponent> _addedNode;
         protected UIComponentBase _parent;
 
-        private ObjectContainerNode<UIComponent> _addedNode;
-
         /// <summary>
-        /// General component constructor with a parent
+        ///     General component constructor with a parent
         /// </summary>
-        public UIComponent(GamePlus game, UIComponent parent=null) : base(game)
+        public UIComponent(GamePlus game, UIComponent parent = null) : base(game)
         {
             _parent = parent;
 
-            if (parent != null)
-            {
-                _parent.AddChild(this);
-            }
+            if (parent != null) _parent.AddChild(this);
         }
 
         internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UIComponent> node)
@@ -51,10 +46,7 @@ namespace GameEngine.Game.UI
 
         public UIComponent WithChild(params UIComponent[] children)
         {
-            foreach (UIComponent c in children)
-            {
-                AddChild(c);
-            }
+            foreach (var c in children) AddChild(c);
 
             return this;
         }
@@ -80,9 +72,8 @@ namespace GameEngine.Game.UI
         public UIComponent AddToRoot(bool forceBase = false)
         {
             if (_parent != null)
-            {
-                throw new InvalidOperationException("Tried to set our UI parent to root when we already have a parent!");
-            }
+                throw new InvalidOperationException(
+                    "Tried to set our UI parent to root when we already have a parent!");
 
             _game.UiScreen.AddRootChild(this, forceBase);
 
@@ -103,7 +94,9 @@ namespace GameEngine.Game.UI
     public class UIContainer : UIComponent
 
     {
-        public UIContainer(GamePlus game, UIComponent parent = null) : base(game, parent) {}
+        public UIContainer(GamePlus game, UIComponent parent = null) : base(game, parent)
+        {
+        }
 
         protected override void Draw(UIScreen screen, Rect targetRect)
         {

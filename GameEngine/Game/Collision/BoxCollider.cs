@@ -1,23 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Game.Objects;
+using GameEngine.Game.Objects.Rendering;
+using Microsoft.Xna.Framework;
 
-namespace GameEngine.Game
+namespace GameEngine.Game.Collision
 {
     public class BoxCollider : ICollider
     {
         private BoundingBox _box;
-        public Vector3 Min
-        {
-            get => _box.Min;
-            set => _box.Min = value;
-        }
-        public Vector3 Max
-        {
-            get => _box.Max;
-            set => _box.Max = value;
-        }
+        private Rectangle _cachedScreenRect = Rectangle.Empty;
 
         private bool _needsToUpdateScreen = false;
-        private Rectangle _cachedScreenRect = Rectangle.Empty;
 
         public BoxCollider(GameObject obj, BoundingBox b)
         {
@@ -26,13 +18,27 @@ namespace GameEngine.Game
             obj.AddCollider(this);
         }
 
-        public GameObject? GameObject { get; }
+        public BoxCollider(GameObject obj, Vector3 min, Vector3 max) : this(obj, new BoundingBox(min, max))
+        {
+        }
 
-        public BoxCollider(GameObject obj, Vector3 min, Vector3 max) : this(obj, new BoundingBox(min, max)) {}
+        public Vector3 Min
+        {
+            get => _box.Min;
+            set => _box.Min = value;
+        }
+
+        public Vector3 Max
+        {
+            get => _box.Max;
+            set => _box.Max = value;
+        }
+
+        public GameObject? GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 screenPoint)
         {
-            Ray r = cam.GetScreenRay(screenPoint);
+            var r = cam.GetScreenRay(screenPoint);
             return r.Intersects(_box).HasValue;
         }
 
