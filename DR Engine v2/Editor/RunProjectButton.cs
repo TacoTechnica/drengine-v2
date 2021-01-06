@@ -6,33 +6,40 @@ namespace DREngine.Editor
 {
     public class RunProjectButton : Button
     {
-        public RunProjectButton()
+        private DREditor _editor;
+
+        public RunProjectButton(DREditor editor)
         {
-            SetIcon("Run Project", DREditor.Instance.Window.Icons.Play);
-            DREditor.Instance.ProjectRunner.OnRun += OnGameRun;
-            DREditor.Instance.ProjectRunner.OnStop += OnGameStop;
+            SetIcon("Run Project", editor.Window.Icons.Play);
+            editor.ProjectRunner.OnRun += OnGameRun;
+            editor.ProjectRunner.OnStop += OnGameStop;
         }
 
         private void OnGameStop()
         {
-            SetIcon("Run Project", DREditor.Instance.Window.Icons.Play);
+            SetIcon("Run Project", _editor.Window.Icons.Play);
         }
 
         private void OnGameRun()
         {
-            SetIcon("Stop Project", DREditor.Instance.Window.Icons.Stop);
+            SetIcon("Stop Project", _editor.Window.Icons.Stop);
         }
 
         protected override void OnClicked()
         {
             base.OnClicked();
-            if (DREditor.Instance.ProjectRunner.Running)
+            if (!_editor.ProjectLoaded)
             {
-                DREditor.Instance.ProjectRunner.Stop();
+                _editor.Window.AlertProblem("Project not loaded.");
+                return;
+            }
+            if (_editor.ProjectRunner.Running)
+            {
+                _editor.ProjectRunner.Stop();
             }
             else
             {
-                DREditor.Instance.RunCurrentProject();
+                _editor.RunCurrentProject();
             }
         }
 

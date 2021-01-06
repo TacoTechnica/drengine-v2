@@ -43,6 +43,12 @@ namespace DREngine.Editor.SubWindows
             IsOpen = false;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            IsOpen = false;
+            base.Dispose(disposing);
+        }
+
         protected override void OnDestroyed()
         {
             IsOpen = false;

@@ -17,7 +17,7 @@ namespace DREngine.Editor.Components
 
         public Action<string, Type> OnNewResource;
 
-        public ResourceView()
+        public ResourceView(Icons icons) : base(icons)
         {
             OnFileRightClicked += (projectPath, fullPath) =>
             {

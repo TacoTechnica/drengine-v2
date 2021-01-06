@@ -54,6 +54,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             {
                 if (s.StartsWith("/")) s = s.Substring(1);
                 OnPathSelected(s);
+                _chooser.Close();
+                _chooser.Hide();
             };
 
             _button.Pressed += (sender, args) =>
@@ -106,8 +108,15 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
             protected override void OnInitialize(Box container)
             {
+                HBox b = new HBox();
+                Label searchLabel = new Label("Search:");
                 _searchBar = new TextView();
-                _tree = new GenericTreeView();
+                _tree = new GenericTreeView(_editor.Icons);
+
+                b.PackStart(searchLabel, false, false, 16);
+                b.PackEnd(_searchBar, true, true, 16);
+                
+                _searchBar.TooltipText = "Search here...";
 
                 _tree.OnFileOpened += (s, s1) =>
                 {
@@ -118,11 +127,15 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                     }
                 };
 
-                container.PackStart(_searchBar, false, false, 4);
-                container.PackStart(_tree, true, true, 4);
                 
+                searchLabel.Show();
                 _searchBar.Show();
                 _tree.Show();
+
+                b.Show();
+
+                container.PackStart(b, false, false, 4);
+                container.PackStart(_tree, true, true, 4);
 
                 Add(container);
                 container.Show();

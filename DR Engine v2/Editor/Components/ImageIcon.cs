@@ -8,12 +8,18 @@ namespace DREngine.Editor
     {
         public ImageIcon(Pixbuf pixbuf, int width, int height) : base(pixbuf)
         {
-            Rescale(width, height);
+            if (Pixbuf != null)
+            {
+                Rescale(width, height);
+            }
         }
 
         public ImageIcon(string path, int width, int height) : base(path)
         {
-            Rescale(width, height);
+            if (Pixbuf != null)
+            {
+                Rescale(width, height);
+            }
         }
 
         public void Rescale(int targetWidth, int targetHeight)

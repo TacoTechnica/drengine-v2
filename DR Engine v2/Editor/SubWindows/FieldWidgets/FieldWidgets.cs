@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -60,7 +61,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         public void InitializeField(FieldInfo field)
         {
             _field = field;
-            Label label = new Label(field.Name);
+            Label label = new Label(GetFieldName(field));
             HBox modifierContainer = new HBox();
 
             this.PackStart(label, false, false, 4);
@@ -88,6 +89,17 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             {
                 Apply();
             }
+        }
+
+        // Split into capital spaces.
+        private static readonly Regex SpaceRegex = new Regex(@"
+                (?<=[A-Z])(?=[A-Z][a-z]) |
+                 (?<=[^A-Z])(?=[A-Z]) |
+                 (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
+
+        private static string GetFieldName(FieldInfo field)
+        {
+            return SpaceRegex.Replace(field.Name, " ");
         }
     }
 }

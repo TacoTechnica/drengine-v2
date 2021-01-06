@@ -12,22 +12,25 @@ namespace DREngine.Editor
 {
     public class GenericTreeView : VBox
     {
+
         // Only used for directory stuff
         private string _fpath = "";
 
         private TreeView _tree;
         private TreeStore _store;
-        private Icons Icons => DREditor.Instance.Window.Icons;
+        private Icons Icons;
 
         public Action<string, string> OnFileOpened;
 
         public Action<string, string> OnFileRightClicked;
 
-        public GenericTreeView()
+        public GenericTreeView(Icons icons)
         {
+            Icons = icons;
+
             _tree = new TreeView
             {
-                //EnableSearch = true,
+                EnableSearch = true,
                 //HeadersClickable = false,
                 HeadersVisible = false
             };
@@ -145,16 +148,17 @@ namespace DREngine.Editor
                 foreach (string file in Directory.GetFiles(path))
                 {
                     if (Ignore(file)) continue;
+                    string relativePath = System.IO.Path.GetRelativePath(fpath, file);
 
                     string name = System.IO.Path.GetFileName(file);
 
                     if (root)
                     {
-                        _store.AppendValues(name, Icons.File);
+                        _store.AppendValues(name, GetFileIcon(relativePath, file));
                     }
                     else
                     {
-                        _store.AppendValues(iter, name, Icons.File);
+                        _store.AppendValues(iter, name, GetFileIcon(relativePath, file));
                     }
 
                     OnFileLoad?.Invoke(file);
@@ -186,9 +190,15 @@ namespace DREngine.Editor
 
             if (path.Length == 0) throw new InvalidOperationException("Can't add an empty path!");
 
+            string[] splitted = path.Split("/");
             bool root = true;
-            foreach (string sub in path.Split("/"))
+            int counter = 0;
+            foreach (string sub in splitted)
             {
+                bool last = (counter++ == splitted.Length);
+
+                bool addLast = (last && isFile);
+                
                 if (!GetTreeIterChild(ref iter, iter, _store, sub, root))
                 {
                     if (autoAddParentDirs)
@@ -196,14 +206,25 @@ namespace DREngine.Editor
                         // Add this parent
                         if (root)
                         {
-                            //iter = _store.AppendValues(sub, Icons.Folder);
-                            iter = _store.InsertWithValues(0, sub, Icons.Folder);
+                            if (addLast)
+                            {
+                                iter = _store.AppendValues(sub, Icons.Folder);
+                            }
+                            else
+                            {
+                                iter = _store.InsertWithValues(0, sub, Icons.Folder);
+                            }
                         }
                         else
                         {
-                            //iter = _store.AppendValues(iter, sub, Icons.Folder);
-                            iter = _store.InsertWithValues(iter, 0, sub, Icons.Folder);
-
+                            if (addLast)
+                            {
+                                iter = _store.AppendValues(iter, sub, Icons.Folder);
+                            }
+                            else
+                            {
+                                iter = _store.InsertWithValues(iter, 0, sub, Icons.Folder);
+                            }
                         }
                     }
                     else
@@ -214,7 +235,7 @@ namespace DREngine.Editor
                 root = false;
             }
 
-            _store.SetValue(iter, 1, isFile? Icons.File : Icons.Folder);
+            _store.SetValue(iter, 1, isFile? GetFileIcon(path,splitted.Last()) : Icons.Folder);
         }
 
         /// <summary>
@@ -405,6 +426,40 @@ namespace DREngine.Editor
         protected virtual bool Ignore(string path)
         {
             return path.EndsWith(".extra");
+        }
+
+        private Pixbuf GetFileIcon(string relativePath, string fullPath)
+        {
+            if (relativePath == "project.json")
+            {
+                return Icons.ProjectFile;
+            }
+
+            if (relativePath == "icon.png")
+            {
+                Pixbuf buf = new Pixbuf(fullPath);
+                Pixbuf result = Icons.ScaleToRegularSize(buf);
+                buf.Dispose();
+                return result;
+            }
+
+            string extension = System.IO.Path.GetExtension(fullPath);
+            if (extension.StartsWith(".")) extension = extension.Substring(1);
+
+            switch (extension)
+            {
+                case "png":
+                    return Icons.ImageFile;
+                case "wav":
+                    return Icons.AudioFile;
+                case "ttf":
+                    return Icons.FontFile;
+                case "txt":
+                case "json":
+                    return Icons.TextFile;
+            }
+
+            return Icons.UnknownFile;
         }
 
     }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using GameEngine;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
@@ -23,7 +22,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             if (path == DEFAULT_NAME) path = null;
             ResourceData.OverrideProjectPath = path;
-            
+
             // Trigger modification
             Data = ResourceData;
             OnModify();

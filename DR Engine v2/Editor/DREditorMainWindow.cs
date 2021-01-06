@@ -3,11 +3,14 @@ using System.IO;
 using DREngine.Editor.Components;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Audio;
+using GameEngine.Game.Resources;
 using Gdk;
 using GLib;
 using Gtk;
 using MonoGame.Framework.Utilities.Deflate;
 using Action = System.Action;
+using Menu = Gtk.Menu;
 using MenuItem = Gtk.MenuItem;
 using WindowType = Gtk.WindowType;
 using Path = GameEngine.Game.Path;
@@ -57,7 +60,7 @@ namespace DREngine.Editor
             vertPane.WideHandle = true; // Separate left and right side
             vertPane.Position = 256; // How wide the left side starts
 
-            _resourceView = new ResourceView();
+            _resourceView = new ResourceView(Icons);
             HookupLog(_log);
             HookupResourceView(_resourceView);
             VPaned rightSide = new VPaned();
@@ -102,15 +105,72 @@ namespace DREngine.Editor
         {
             resourceView.OnNewFolder += projectDir =>
             {
+                if (!AssertProjectLoaded()) return;
+
                 using NewFolderDialog dialog = new NewFolderDialog(_editor, this, new ProjectPath(_editor, projectDir));
                 if (dialog.RunUntilAccept())
                 {
                     ProjectPath toAdd = dialog.GetTargetDirectory();
                     Directory.CreateDirectory(toAdd);
-                    Debug.LogSilent($"New Folder: {toAdd}");
+                    Debug.LogSilent($"New Folder: {toAdd.RelativePath}");
                     resourceView.AddFolder(toAdd.RelativePath, true);
                 }
             };
+
+            resourceView.OnNewResource += (projectDir, type) =>
+            {
+                if (!AssertProjectLoaded()) return;
+
+                if (type == typeof(Sprite))
+                {
+                    using NewSpriteDialog dialog = new NewSpriteDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    if (dialog.RunUntilAccept())
+                    {
+                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        Path toCopy = dialog.ImageToCopy;
+                        File.Copy(toCopy, toAdd);
+                        Debug.LogSilent($"New Sprite: {toAdd.RelativePath}");
+                        resourceView.AddFile(toAdd.RelativePath, true);
+                    }
+                } else if (type == typeof(Font))
+                {
+                    using NewFontDialog dialog = new NewFontDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    if (dialog.RunUntilAccept())
+                    {
+                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        Path toCopy = dialog.FontToCopy;
+                        File.Copy(toCopy, toAdd);
+                        Debug.LogSilent($"New Font: {toAdd.RelativePath}");
+                        resourceView.AddFile(toAdd.RelativePath, true);
+                    }
+                } else if (type == typeof(AudioClip))
+                {
+                    using NewAudioClipDialog dialog = new NewAudioClipDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    if (dialog.RunUntilAccept())
+                    {
+                        ProjectPath toAdd = dialog.GetTargetDirectory();
+                        Path toCopy = dialog.AudioToCopy;
+                        File.Copy(toCopy, toAdd);
+                        Debug.LogSilent($"New Audio Clip: {toAdd.RelativePath}");
+                        resourceView.AddFile(toAdd.RelativePath, true);
+                    }                    
+                }
+                else
+                {
+                    AlertProblem($"Resource creation not implemented yet: {type}. Sorry!");
+                }
+            };
+        }
+
+        private bool AssertProjectLoaded()
+        {
+            if (!_editor.ProjectLoaded)
+            {
+                AlertProblem("Project not loaded.");
+                return false;
+            }
+
+            return true;
         }
 
 
@@ -197,10 +257,25 @@ namespace DREngine.Editor
         private Widget MakeMenuBar()
         {
             MenuBar menuBar = new MenuBar();
-            // TODO: Add more options
-            MenuItem fileItem = new MenuItem("File");
-            menuBar.Add(fileItem);
-            fileItem.Show();
+
+            Menu fileMenu = new Menu();
+
+            MenuItem file = new MenuItem("File");
+            file.Submenu = fileMenu;
+            
+            MenuItem newProject = new MenuItem("New Project");
+            newProject.Activated += (sender, args) => NewProjectPressed(); 
+            fileMenu.Append(newProject);
+            MenuItem openProject = new MenuItem("Open Project");
+            openProject.Activated += (sender, args) => OpenProjectPressed(); 
+            fileMenu.Append(openProject);
+            MenuItem reloadProject = new MenuItem("Reload Project");
+            reloadProject.Activated += (sender, args) => _editor.ReloadCurrentProject(); 
+            fileMenu.Append(reloadProject);
+
+            menuBar.Append(file);
+            menuBar.ShowAll();
+
             return menuBar;
         }
 
@@ -218,7 +293,7 @@ namespace DREngine.Editor
             Separator s1 = new HSeparator();
             Button export = NewButton("Export Project", Icons.Export, ExportProjectPressed);
             Separator s2 = new HSeparator();
-            Button run = new RunProjectButton();//NewButton("Run Project", Icons.Play, RunProjectPressed);
+            Button run = new RunProjectButton(_editor);//NewButton("Run Project", Icons.Play, RunProjectPressed);
             s2.Hexpand = true;
             b.PackStart(newProj, false, false, 0);
             newProj.Show();
@@ -289,7 +364,6 @@ namespace DREngine.Editor
             {
                 _editor.ResourceWindowManager.ForceCloseAllWindows();
 
-                Debug.Log($"LOADING: {chooser.Filename}");
                 _editor.LoadProject(chooser.Filename);
             }
         }

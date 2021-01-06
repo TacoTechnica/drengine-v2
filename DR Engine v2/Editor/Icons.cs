@@ -1,4 +1,5 @@
-﻿using GameEngine;
+﻿using System.Runtime.Serialization.Formatters.Binary;
+using GameEngine;
 using Gdk;
 using Gtk;
 
@@ -7,8 +8,10 @@ namespace DREngine.Editor
     public class Icons
     {
 
+        public const int IconSize = 24;
+        
         public readonly Pixbuf Folder;
-        public readonly Pixbuf File;
+        public readonly Pixbuf TextFile;
 
         public readonly Pixbuf New;
         public readonly Pixbuf Save;
@@ -17,6 +20,13 @@ namespace DREngine.Editor
 
         public readonly Pixbuf Play;
         public readonly Pixbuf Stop;
+
+        public readonly Pixbuf ImageFile;
+        public readonly Pixbuf AudioFile;
+        public readonly Pixbuf FontFile;
+
+        public readonly Pixbuf ProjectFile;
+        public readonly Pixbuf UnknownFile;
 
         public Icons()
         {
@@ -32,19 +42,50 @@ namespace DREngine.Editor
             }
             Debug.Log("done");
             */
-            Folder = LoadIcon("inode-directory");
-            File = LoadIcon("text-x-generic");
+            Folder = LoadThemeIcon("inode-directory-symbolic");
+            TextFile = LoadThemeIcon("text-x-generic-symbolic");
 
-            New = LoadIcon("document-new");
-            Save = LoadIcon("document-save");
-            Open = LoadIcon("folder-new-symbolic");
-            Export = LoadIcon("applications-games-symbolic");
+            New = LoadThemeIcon("document-new");
+            Save = LoadThemeIcon("document-save");
+            Open = LoadThemeIcon("folder-new-symbolic");
+            Export = LoadThemeIcon("applications-games-symbolic");
 
-            Play = LoadIcon("media-playback-start-symbolic");
-            Stop = LoadIcon("media-playback-stop-symbolic");
+            Play = LoadThemeIcon("media-playback-start-symbolic");
+            Stop = LoadThemeIcon("media-playback-stop-symbolic");
+
+            ImageFile = LoadThemeIcon("image-x-generic-symbolic");
+            AudioFile = LoadThemeIcon("audio-x-generic-symbolic");
+            FontFile = LoadThemeIcon("font-x-generic-symbolic");
+            UnknownFile = LoadThemeIcon("dialog-question-symbolic");
+            ProjectFile = LoadThemeIcon("text-editor-symbolic");
         }
 
-        private Pixbuf LoadIcon(string icon, int size = 24)
+        public Pixbuf ScaleToRegularSize(Pixbuf buf, int targetSize = IconSize)
+        {
+            InterpType interp = InterpType.Bilinear;
+            // This part here is kinda silly but whatever
+            if (buf.Height == 0)
+            {
+                return buf.ScaleSimple(targetSize, 0, interp);
+            }
+            if (buf.Width == 0)
+            {
+                return buf.ScaleSimple(0, targetSize, interp);
+            }
+            bool wider = (buf.Width > buf.Height);
+            double factor;
+            if (wider)
+            {
+                factor = (double)targetSize / (double)buf.Width;
+            }
+            else
+            {
+                factor = (double)targetSize / (double)buf.Height;
+            }
+            return buf.ScaleSimple((int)(buf.Width * factor), (int)(buf.Height * factor), interp);
+        }
+
+        private Pixbuf LoadThemeIcon(string icon, int size = IconSize)
         {
             if (IconTheme.Default.HasIcon(icon))
             {

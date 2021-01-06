@@ -36,14 +36,10 @@ namespace DREngine.Editor
 
         public ResourceNameCache ResourceNameCache { get; private set; }
 
-        // Poo poo singleton
-        public static DREditor Instance = null;
+        public bool ProjectLoaded => ProjectData != null;
 
         public DREditor()
         {
-            // Poo poo singleton
-            if (Instance != null) Debug.LogError("Editor already initialized! Will see problems.");
-            Instance = this;
 
             // Initialize our jank game. Run it one frame and grab the graphics device. Bullshit I tell you.
             BackgroundJankGameRunner jankGame = new BackgroundJankGameRunner();
@@ -61,8 +57,6 @@ namespace DREngine.Editor
             GLib.ExceptionManager.UnhandledException += OnHandleExceptionEvent;
             // Init app
             Application.Init();
-
-            //_jankGame.RunOneFrame(); // hmmm
 
             ProjectRunner = new DRProjectRunner();
             ResourceLoaderData = new ResourceLoaderData();
@@ -130,6 +124,7 @@ namespace DREngine.Editor
 
         public void LoadProject(string fullPath)
         {
+            Debug.LogDebug($"Loading project at {fullPath}");
             ProjectData = ProjectData.LoadFromFile(fullPath);
             if (ProjectData != null)
             {
@@ -143,12 +138,14 @@ namespace DREngine.Editor
             }
         }
 
+        public void ReloadCurrentProject()
+        {
+            LoadProject(_projectPath);
+        }
+
         private void Initialize()
         {
             EmptyProject();
-            LoadProject(new EnginePath("projects/test_project"));
-
-            //new SubWindow(this, "Test window");
         }
 
         private void OpenProjectFile(string projectPath, string fullPath)
