@@ -1,5 +1,6 @@
 ﻿//using System;
 
+using DREngine.ResourceLoading;
 using GameEngine.Game.Objects.Rendering;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
@@ -12,18 +13,19 @@ namespace DREngine.Game.Scene
     //[Serializable]
     public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnDRGame
     {
+
         private Vector3 _size = Vector3.One;
 
         private Sprite _sprite;
 
-        private readonly Color Blend;
+        private readonly Color _blend;
 
         public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game,
             position, rotation)
         {
-            Game = game;
+            Game = game; // TODO: Why?
             PrimitiveType = PrimitiveType.TriangleList;
-            Blend = Color.White;
+            _blend = Color.White;
             Size = size;
             Sprite = sprite;
             //Debug.LogDebug("CUBE CREATED");
@@ -114,7 +116,7 @@ namespace DREngine.Game.Scene
                 _sprite = value;
                 if (_sprite != null && !_sprite.Loaded)
                 {
-                    _game.LoadWhenSafe(() => { Texture = _sprite.Texture; });
+                    Game.LoadWhenSafe(() => { Texture = _sprite.Texture; });
                 }
                 else
                 {
@@ -123,7 +125,7 @@ namespace DREngine.Game.Scene
             }
         }
 
-        [JsonIgnore] public DRGame Game { get; set; }
+        [JsonIgnore] public new DRGame Game { get; set; }
 
         public string Type { get; set; } = "Cube";
 
@@ -131,7 +133,7 @@ namespace DREngine.Game.Scene
             float uy)
         {
             pz *= -1;
-            return new VertexPositionColorTexture(new Vector3(px, py, pz) * Size, Blend, new Vector2(ux, uy));
+            return new VertexPositionColorTexture(new Vector3(px, py, pz) * Size, _blend, new Vector2(ux, uy));
         }
     }
 }

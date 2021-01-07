@@ -12,11 +12,11 @@ namespace GameEngine.Game.Input
 
         public bool MovedLastFrame { get; protected set; } = true;
 
-        public void DoUpdate(GamePlus _game)
+        public void DoUpdate(GamePlus game)
         {
-            UpdateCursorPosition(_game);
+            UpdateCursorPosition(game);
         }
 
-        protected abstract void UpdateCursorPosition(GamePlus _game);
+        protected abstract void UpdateCursorPosition(GamePlus game);
     }
 }

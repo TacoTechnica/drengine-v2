@@ -3,7 +3,6 @@ using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
@@ -27,14 +26,13 @@ namespace GameEngine.Test
             AddButton(3, "Exit");
         }
 
-        private ExampleUiMenuButton AddButton(int index, string text)
+        private void AddButton(int index, string text)
         {
             ExampleUiMenuButton b = new ExampleUiMenuButton(_game, text);
             b.WithLayout(Layout.CornerLayout(Layout.Bottom, 100, 60));
             b.OffsetBy(Vector2.UnitY * (-200 + 64 * index));
             b.AddToRoot();
             _menu.AddChild(b);
-            return b;
         }
 
         public void Update(float deltaTime)
@@ -53,7 +51,7 @@ namespace GameEngine.Test
             public InputActionButton Up;
             public InputActionButton Down;
             public InputActionButton SelectMouse;
-            public ExampleMenuControls(GamePlus _game) : base(_game)
+            public ExampleMenuControls(GamePlus game) : base(game)
             {
                 Select = new InputActionButton(this, Keys.Space, Keys.Enter);
                 SelectMouse = new InputActionButton(this, MouseButton.Left);
@@ -66,7 +64,7 @@ namespace GameEngine.Test
         class ExampleUiMenuButton : UIMenuButtonBase
         {
 
-            private Font _textFont => ((TestGame)_game).TestFont;
+            private Font TextFont => ((TestGame)Game).TestFont;
 
             private Color _normalColor;
             private Color _selectedColor;
@@ -85,7 +83,7 @@ namespace GameEngine.Test
 
                 _currentColor = _normalColor;
 
-                _text = new UIText(game, _textFont, text, this)
+                _text = new UIText(game, TextFont, text, this)
                 {
                     TextHAlign = UIText.TextHAlignMode.Center,
                     TextVAlign = UIText.TextVAlignMode.Middle

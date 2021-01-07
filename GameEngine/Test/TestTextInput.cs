@@ -2,7 +2,7 @@
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace GameEngine.Test
 {
@@ -11,7 +11,7 @@ namespace GameEngine.Test
 
         private TestGame _game;
 
-        private Font _textFont => _game.TestFont;
+        private Font TextFont => _game.TestFont;
 
         public void Initialize(GamePlus game)
         {
@@ -20,8 +20,8 @@ namespace GameEngine.Test
             float textHeight = 32,
                 textSidePad = 10;
 
-            UITextInput inputLeft = new UITextInput(game, _textFont, Color.White);
-            UITextInput inputRight = new UITextInput(game,_textFont, Color.Coral);
+            UITextInput inputLeft = new UITextInput(game, TextFont, Color.White);
+            UITextInput inputRight = new UITextInput(game,TextFont, Color.Coral);
 
             // Left box
             new UIColoredRect(game, Color.DarkSlateBlue, false)
@@ -37,11 +37,11 @@ namespace GameEngine.Test
                 ).AddToRoot();
 
             // Output example
-            UIText textLeft = (UIText) new UIText(game, _textFont, "(empty)")
+            UIText textLeft = (UIText) new UIText(game, TextFont, "(empty)")
                 .WithoutWordWrap()
                 .WithLayout(Layout.CornerLayout(Layout.BottomLeft, 1000, 64))
                 .AddToRoot();
-            UIText textRight = (UIText) new UIText(game, _textFont, "(empty)")
+            UIText textRight = (UIText) new UIText(game, TextFont, "(empty)")
                 .WithoutWordWrap()
                 .WithLayout(Layout.CornerLayout(Layout.BottomRight, 200, 64))
                 .AddToRoot();

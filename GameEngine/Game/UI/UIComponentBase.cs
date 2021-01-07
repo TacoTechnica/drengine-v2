@@ -12,8 +12,8 @@ namespace GameEngine.Game.UI
         private readonly ObjectContainer<UIComponent> _children = new ObjectContainer<UIComponent>();
         //private RenderTarget2D _maskedRenderTarget = null;
 
-        protected UIComponentBase _copyLayoutFrom = null;
-        protected GamePlus _game;
+        protected UIComponentBase CopyLayoutFrom = null;
+        protected GamePlus Game;
 
         private bool _isMasked;
 
@@ -29,7 +29,7 @@ namespace GameEngine.Game.UI
 
         public UIComponentBase(GamePlus game)
         {
-            _game = game;
+            Game = game;
             Tweener = new TweenerUI(game, this);
         }
 
@@ -93,7 +93,7 @@ namespace GameEngine.Game.UI
 
             if (screen.NeedToUpdateControl) Tweener.RunUpdate();
 
-            if (_copyLayoutFrom != null) Layout = new Layout(_copyLayoutFrom.Layout);
+            if (CopyLayoutFrom != null) Layout = new Layout(CopyLayoutFrom.Layout);
 
             screen.CurrentWorld = worldMat;
 
@@ -126,8 +126,8 @@ namespace GameEngine.Game.UI
                     child.DoDraw(screen, screen.CurrentWorld, target);
 
                     // If any child is selected after the corresponding draw call, mark that.
-                    if (!childSelected && screen.NeedToUpdateControl && child is ICursorSelectable selectable)
-                        if (selectable.__ChildWasSelected || selectable.CursorSelected)
+                    if (!childSelected && screen.NeedToUpdateControl && child is ICursorSelectable selectableChild)
+                        if (selectableChild.__ChildWasSelected || selectableChild.CursorSelected)
                             childSelected = true;
                 }
             );
@@ -139,8 +139,8 @@ namespace GameEngine.Game.UI
             {
                 selectable.__ChildWasSelected = childSelected;
 
-                var cursorPos = _game.CurrentCursor.Position;
-                var isCursorMoving = _game.CurrentCursor.MovedLastFrame;
+                var cursorPos = Game.CurrentCursor.Position;
+                var isCursorMoving = Game.CurrentCursor.MovedLastFrame;
                 var prevSelected = selectable.CursorSelected;
                 bool selected;
                 // If a child was selected, we might want to ignore this selection.
@@ -206,7 +206,7 @@ namespace GameEngine.Game.UI
 
         protected virtual Rect GetParentRect()
         {
-            return _game.UiScreen.LayoutRect;
+            return Game.UiScreen.LayoutRect;
         }
 
         protected abstract void Draw(UIScreen screen, Rect targetRect);

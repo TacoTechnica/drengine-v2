@@ -18,6 +18,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             foreach (var f in type.GetFields())
             {
                 if (!f.IsPublic || f.IsStatic) continue;
+                // ReSharper disable once VirtualMemberCallInConstructor
                 if (!ShouldSerialize(f)) continue;
                 if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
 

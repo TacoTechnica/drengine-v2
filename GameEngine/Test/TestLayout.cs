@@ -4,7 +4,6 @@ using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using GameEngine.Util;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test

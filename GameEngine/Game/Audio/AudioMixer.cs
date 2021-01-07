@@ -9,16 +9,6 @@ namespace GameEngine.Game.Audio
     /// </summary>
     public class AudioMixer
     {
-        /**
-         *
-         * I cannot get libbass.so and libbassmix.so to work together. I have this problem:
-         * http://www.un4seen.com/forum/?topic=18656.0
-         * and NO solution, because it feels like nobody uses C# on linux.
-         *
-         * For now my only solution is to keep BassMix encapsulated and have two alternative implementations.
-         *
-         */
-        private const bool IS_THERE_MIXER_BULLSHIT = true;
 
         private readonly AudioMixerLinux _linuxFix;
 
@@ -30,12 +20,12 @@ namespace GameEngine.Game.Audio
         {
             if (IgnoreBassMixLibrary)
             {
-                _linuxFix = new AudioMixerLinux(output.SampleRate, output.ChannelCount);
+                _linuxFix = new AudioMixerLinux();
                 _stream = -1;
             }
             else
             {
-                _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerMatrix);
+                _stream = BassMix.CreateMixerStream(output.SampleRate, output.ChannelCount, BassFlags.MixerChanMatrix);
             }
 
             Volume = 1f;
@@ -70,7 +60,7 @@ namespace GameEngine.Game.Audio
             {
                 _linuxFix.AddChannel(channel);
             } else {
-                if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerMatrix))
+                if (!BassMix.MixerAddChannel(_stream, channel, BassFlags.MixerChanMatrix))
                     if (Bass.LastError != Errors.Decode) Debug.LogError($"ERROR: {Bass.LastError.ToString()}");
 
                 Bass.ChannelPlay(_stream);
@@ -99,7 +89,7 @@ namespace GameEngine.Game.Audio
             private readonly List<int> _channels;
             private float _volume;
 
-            public AudioMixerLinux(int outputSampleRate, int outputChannelCount)
+            public AudioMixerLinux()
             {
                 _channels = new List<int>();
                 _volume = 1;

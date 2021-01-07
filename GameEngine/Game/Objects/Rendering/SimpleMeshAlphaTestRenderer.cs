@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game.Objects.Rendering
 {
-    public class SimpleMeshAlphaTestRenderer<VType> : BaseMeshRenderer<VType> where VType : struct, IVertexType
+    public class SimpleMeshAlphaTestRenderer<TVertex> : BaseMeshRenderer<TVertex> where TVertex : struct, IVertexType
     {
         private RasterizerState _cachedOgRasterizerState;
 
@@ -19,7 +19,7 @@ namespace GameEngine.Game.Objects.Rendering
         public override void Start()
         {
             // Shader Abstraction Handling
-            _effect = new AlphaTestEffect(_game.GraphicsDevice);
+            _effect = new AlphaTestEffect(Game.GraphicsDevice);
             _effect.Alpha = 1.0f;
             _effect.VertexColorEnabled = true;
         }

@@ -4,7 +4,7 @@ using Gtk;
 using Pango;
 using WrapMode = Gtk.WrapMode;
 
-namespace DREngine.Editor
+namespace DREngine.Editor.Components
 {
     public class EditorLog : ScrolledWindow
     {

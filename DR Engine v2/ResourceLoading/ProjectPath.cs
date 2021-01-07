@@ -2,7 +2,7 @@
 using DREngine.Game;
 using GameEngine.Game;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     public class ProjectPath : Path
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DREngine.Game.VN;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Objects;
@@ -15,13 +16,10 @@ namespace DREngine.Game.Scene
     {
         private DRGame _game;
 
-        private bool _testFlag;
-
-        public DRScene(DRGame game, string name, Path scenePath, bool testFlag) : base(game, name)
+        public DRScene(DRGame game, string name, Path scenePath) : base(game, name)
         {
             _game = game;
             Path = scenePath;
-            _testFlag = testFlag;
         }
 
         // Temporary constructor for when we are deserialized into a temporary object.

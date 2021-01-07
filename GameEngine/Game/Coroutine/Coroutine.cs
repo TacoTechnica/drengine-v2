@@ -37,27 +37,15 @@ namespace GameEngine.Game.Coroutine
                 yield return null;
             }
         }
-
-
-        /*
-        public static IEnumerator WaitForSeconds(GamePlus _game, float duration)
-        {
-            float start = _game.Time;
-            while (_game.Time < start + duration)
-            {
-                yield return null;
-            }
-        }
-        */
     }
 
     public abstract class CustomCoroutine : IEnumerator
     {
-        protected readonly GamePlus _game;
+        protected readonly GamePlus Game;
 
         public CustomCoroutine(GamePlus game)
         {
-            _game = game;
+            Game = game;
         }
 
         public abstract bool MoveNext();
@@ -66,7 +54,7 @@ namespace GameEngine.Game.Coroutine
         {
         }
 
-        public object? Current { get; }
+        public object Current => null;
     }
 
     public class WaitForSeconds : CustomCoroutine
@@ -82,7 +70,7 @@ namespace GameEngine.Game.Coroutine
 
         public override bool MoveNext()
         {
-            return _game.Time < _start + _time;
+            return Game.Time < _start + _time;
         }
     }
 

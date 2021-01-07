@@ -1,5 +1,6 @@
 using System.IO;
 using System.Reflection;
+using DREngine.Editor.Components;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -53,6 +54,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 using (dialog = new FileChooserDialog(_title, _editor.Window, FileChooserAction.Open, "Open",
                     ResponseType.Accept, "Cancel", ResponseType.Cancel))
                 {
+                    if (_startPath != null) dialog.SetCurrentFolder(_startPath);
+
                     if (_filter != null)
                     {
                         var filter = new FileFilter();

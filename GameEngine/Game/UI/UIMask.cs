@@ -5,13 +5,13 @@ namespace GameEngine.Game.UI
 {
     public abstract class UIMask : UIComponent
     {
-        private static int MaskCounter = 1;
+        private static int _maskCounter = 1;
 
         private readonly DepthStencilState _maskStencil;
 
         public UIMask(GamePlus game, UIComponent parent = null) : base(game, parent)
         {
-            MaskIndex = MaskCounter++;
+            MaskIndex = _maskCounter++;
             _maskStencil = new DepthStencilState
             {
                 StencilEnable = true,

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.Input
 {
@@ -19,20 +20,19 @@ namespace GameEngine.Game.Input
         public TimeScaleType OverrideTimeScaleMode = TimeScaleType.UnscaledDeltaTime;
         public bool UseMouse = true;
 
-        protected override void UpdateCursorPosition(GamePlus _game)
+        protected override void UpdateCursorPosition(GamePlus game)
         {
             var delta = Vector2.Zero;
-            ;
 
-            var viewportRect = _game.GraphicsDevice.Viewport.Bounds;
+            var viewportRect = game.GraphicsDevice.Viewport.Bounds;
 
             Position.X = Math.Clamp(Position.X, viewportRect.Left, viewportRect.Right);
             Position.Y = Math.Clamp(Position.Y, viewportRect.Top, viewportRect.Bottom);
 
             // While we're inside, do some funky stuff.
-            if (true || InBounds(_game, Position))
+            if (InBounds(game, Position))
             {
-                // TODO: If we decide for SURE that we won't be using a list delete this.
+                // If we decide for SURE that we won't be using a list delete this.
                 foreach (var ov in new[] {_override})
                     if (ov != null && ov.Active)
                     {
@@ -42,10 +42,10 @@ namespace GameEngine.Game.Input
                             case TimeScaleType.None:
                                 break;
                             case TimeScaleType.DeltaTime:
-                                input *= _game.DeltaTime;
+                                input *= game.DeltaTime;
                                 break;
                             case TimeScaleType.UnscaledDeltaTime:
-                                input *= _game.UnscaledDeltaTime;
+                                input *= game.UnscaledDeltaTime;
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -55,11 +55,11 @@ namespace GameEngine.Game.Input
                         input.Y *= -1;
                         var axisDelta = input * OverrideScale;
                         // Slide along border if we're not in bounds.
-                        if (InBounds(_game, Position + delta.X * Vector2.UnitX)) delta += axisDelta.X * Vector2.UnitX;
-                        if (InBounds(_game, Position + delta.Y * Vector2.UnitY)) delta += axisDelta.Y * Vector2.UnitY;
+                        if (InBounds(game, Position + delta.X * Vector2.UnitX)) delta += axisDelta.X * Vector2.UnitX;
+                        if (InBounds(game, Position + delta.Y * Vector2.UnitY)) delta += axisDelta.Y * Vector2.UnitY;
                     }
 
-                var mouseInBounds = InBounds(_game, RawInput.GetMousePosition());
+                var mouseInBounds = InBounds(game, RawInput.GetMousePosition());
                 var mouseDelta = RawInput.GetMouseDelta();
                 var mouseMoved = mouseDelta.LengthSquared() > 1;
 
@@ -84,9 +84,9 @@ namespace GameEngine.Game.Input
             }
         }
 
-        private bool InBounds(GamePlus _game, Vector2 pos)
+        private bool InBounds(GamePlus game, Vector2 pos)
         {
-            return _game.GraphicsDevice.Viewport.Bounds.Contains(pos);
+            return game.GraphicsDevice.Viewport.Bounds.Contains(pos);
         }
 
         public void SetOverride(InputActionAxis2D action, float scale)

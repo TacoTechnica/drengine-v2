@@ -24,7 +24,7 @@ namespace GameEngine.Game.Audio
 
         public bool Playing => Bass.ChannelIsActive(_channel) == PlaybackState.Playing;
 
-        public void Play(AudioClip clip, Action OnStop = null)
+        public void Play(AudioClip clip, Action onStop = null)
         {
             // If we're playing the same clip, use the old channel.
             if (_currentClip != clip)
@@ -39,11 +39,11 @@ namespace GameEngine.Game.Audio
 
             _mixer.PlayChannel(_channel);
 
-            if (OnStop != null)
+            if (onStop != null)
                 new Thread(() =>
                 {
                     while (Playing) Thread.SpinWait(5);
-                    OnStop.Invoke();
+                    onStop.Invoke();
                 }).Start();
         }
 

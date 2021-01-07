@@ -14,7 +14,7 @@
             game, parent)
         {
             ChildWidth = childWidth;
-            Spacing = 0;
+            Spacing = spacing;
         }
 
         protected override void Draw(UIScreen screen, Rect targetRect)

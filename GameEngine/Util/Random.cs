@@ -7,7 +7,7 @@ namespace GameEngine.Util
     /// </summary>
     public class Random
     {
-        private static int _seed = 0;
+        private static int _seed;
         private static System.Random _generator = new System.Random(_seed);
 
         public static int Seed
@@ -42,7 +42,7 @@ namespace GameEngine.Util
 
         public static Color Hue(float saturation, float value)
         {
-            return Math.FromHSV(Value, saturation, value);
+            return Math.FromHsv(Value, saturation, value);
         }
 
         public static Color Color => new Color(GetRange(0, 255), GetRange(0, 255), GetRange(0, 255));

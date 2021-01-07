@@ -35,12 +35,12 @@ namespace GameEngine.Game
             TargetElapsedTime = TimeSpan.FromSeconds(1f / 60f);
 
             // MonoGame config
-            _graphics = new GraphicsDeviceManager(this)
+            Graphics = new GraphicsDeviceManager(this)
             {
                 // Add a depth stencil buffer
                 PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8
             };
-            _graphics.SynchronizeWithVerticalRetrace = false; //Vsync
+            Graphics.SynchronizeWithVerticalRetrace = false; //Vsync
             Content.RootDirectory = contentPath;
             IsMouseVisible = true;
             Window.Title = windowTitle;
@@ -82,7 +82,7 @@ namespace GameEngine.Game
 
         #region Util variables & Debug
 
-        protected GraphicsDeviceManager _graphics;
+        protected readonly GraphicsDeviceManager Graphics;
 
         private readonly IGameRunner _runner;
 
@@ -97,9 +97,7 @@ namespace GameEngine.Game
         private readonly Timer _debugTimer = new Timer();
         private readonly Stopwatch _frameTimer = new Stopwatch();
         private long _lastFrameInterval;
-        private DateTime _lastDebugTime;
         private readonly DebugControls _debugControls;
-        private const string GLOBAL_DEBUG_COMMAND_NAMESPACE = "DREngine.Game.Debugging.CommandListGlobal";
 
         public DebugConsole DebugConsole;
 
@@ -188,7 +186,6 @@ namespace GameEngine.Game
         private void InitializeDebug()
         {
             _debugTimer.Start();
-            _lastDebugTime = DateTime.Now;
             _debugTimer.Elapsed += DebugTimerOnElapsed;
             Font debugFont = null;
             string[] pathsToTry =
@@ -303,9 +300,9 @@ namespace GameEngine.Game
             //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             // Draw all render-able objects.
-            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.PreDraw(_graphics.GraphicsDevice); });
-            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.Draw(_graphics.GraphicsDevice); });
-            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.PostDraw(_graphics.GraphicsDevice); });
+            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.PreDraw(Graphics.GraphicsDevice); });
+            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.Draw(Graphics.GraphicsDevice); });
+            SceneManager.GameRenderObjects.LoopThroughAll(obj => { obj.PostDraw(Graphics.GraphicsDevice); });
 
             // Draw
             base.Draw(gameTime);
@@ -373,7 +370,6 @@ namespace GameEngine.Game
                 $"{WindowTitle} | {_currentFPS:0.00} FPS ({_fpsMin:0.00} Worst) | {(float) _currentMemoryBytes / (1000f * 1000f):0.00} mB | {objs} Objects, {rends} Renderers, {uiActive} / {uiTotal} UI";
 
             _fpsMin = float.PositiveInfinity;
-            _lastDebugTime = DateTime.Now;
         }
 
         #endregion

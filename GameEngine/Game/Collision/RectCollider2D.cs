@@ -45,7 +45,7 @@ namespace GameEngine.Game.Collision
             set => _rect.Height = (int) value;
         }
 
-        public GameObject? GameObject { get; }
+        public GameObject GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 point)
         {
@@ -58,7 +58,7 @@ namespace GameEngine.Game.Collision
             return Vector3.Zero;
         }
 
-        public void DrawDebug(GamePlus _game, Camera3D cam)
+        public void DrawDebug(GamePlus game, Camera3D cam)
         {
             throw new NotImplementedException();
         }

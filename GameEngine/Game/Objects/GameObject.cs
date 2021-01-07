@@ -17,7 +17,7 @@ namespace GameEngine.Game.Objects
         private readonly List<ICollider> _colliders = new List<ICollider>();
 
         private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
-        protected GamePlus _game;
+        protected readonly GamePlus Game;
 
         private ObjectContainerNode<GameObject> _gameAddedNode;
 
@@ -28,33 +28,36 @@ namespace GameEngine.Game.Objects
 
         public GameObject(GamePlus game)
         {
-            _game = game;
+            Game = game;
             _gameAddedNode = game.SceneManager.GameObjects.Add(this);
 
             _gottaStart = true;
             _alive = true;
             Active = true;
-            _activeAsChild = true;
-            _parentActive = true;
+            ActiveAsChild = true;
+            ParentActive = true;
 
+            // ReSharper disable once VirtualMemberCallInConstructor
             Tweener = NewTweener(game);
 
+            // ReSharper disable once VirtualMemberCallInConstructor
             Awake();
         }
 
         [JsonIgnore] public bool Active { get; private set; }
 
         protected internal bool
-            _activeAsChild { get; private set; } // Whether we should automatically get activated as a child.
+            ActiveAsChild { get; private set; } // Whether we should automatically get activated as a child.
 
-        protected internal bool _parentActive { get; private set; }
+        protected internal bool ParentActive { get; private set; }
 
         [JsonIgnore] public Tweener Tweener { get; }
 
         // When we've been destroyed, we can be compared to null.
         public static bool operator ==(GameObject obj, object other)
         {
-            if (obj._alive)
+            // Ensure not null
+            if (obj is { } && obj._alive)
                 return obj.Equals(other);
             return Equals(other, null);
         }
@@ -87,7 +90,7 @@ namespace GameEngine.Game.Objects
             AssertAlive();
             _colliders.Add(c);
             // If we're already running, initialize immediately.
-            if (!_gottaStart) _game.CollisionManager.RegisterCollider(c);
+            if (!_gottaStart) Game.CollisionManager.RegisterCollider(c);
         }
 
         /// <summary>
@@ -99,24 +102,24 @@ namespace GameEngine.Game.Objects
         {
             if (childMode)
             {
-                _parentActive = active;
+                ParentActive = active;
                 // If we're a child, keep ourselves de-activated if we were activated previously.
-                if (active == Active || (active && _activeAsChild) == Active) return;
-                Active = active && _activeAsChild;
+                if (active == Active || (active && ActiveAsChild) == Active) return;
+                Active = active && ActiveAsChild;
             }
             else
             {
                 if (active == Active) return;
-                _activeAsChild = active;
+                ActiveAsChild = active;
                 // Do nothing while our parent isn't active.
-                if (!_parentActive) return;
+                if (!ParentActive) return;
                 Active = active;
             }
 
             if (Active)
-                _game.SceneManager.GameObjects.EnableEnqueue(_gameAddedNode);
+                Game.SceneManager.GameObjects.EnableEnqueue(_gameAddedNode);
             else
-                _game.SceneManager.GameObjects.DisableEnqueue(_gameAddedNode);
+                Game.SceneManager.GameObjects.DisableEnqueue(_gameAddedNode);
 
             // Do the same for the children
             _children.LoopThroughAll(child => { child.SetActive(Active, true); });
@@ -128,7 +131,7 @@ namespace GameEngine.Game.Objects
 
             Start();
             // We might create colliders in start so register them now.
-            _colliders.ForEach(c => _game.CollisionManager.RegisterCollider(c));
+            _colliders.ForEach(c => Game.CollisionManager.RegisterCollider(c));
         }
 
         internal void RunUpdate(float dt)
@@ -174,7 +177,7 @@ namespace GameEngine.Game.Objects
             _parents.Clear();
 
             // Deregister colliders
-            _colliders.ForEach(c => _game.CollisionManager.DeregisterCollider(c));
+            _colliders.ForEach(c => Game.CollisionManager.DeregisterCollider(c));
             _colliders.Clear();
 
             OnDestroy();
@@ -200,14 +203,14 @@ namespace GameEngine.Game.Objects
         {
             AssertAlive();
             if (!_alive) return;
-            _game.SceneManager.GameObjects.RemoveEnqueue(_gameAddedNode);
+            Game.SceneManager.GameObjects.RemoveEnqueue(_gameAddedNode);
         }
 
         public void DestroyImmediate()
         {
             AssertAlive();
             if (!_alive) return;
-            _game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, self => { self.RunOnDestroy(); });
+            Game.SceneManager.GameObjects.RemoveImmediate(_gameAddedNode, self => { self.RunOnDestroy(); });
         }
 
         #endregion

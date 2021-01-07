@@ -7,7 +7,6 @@ namespace GameEngine.Game.Resources
 {
     public class Font : IGameResource
     {
-        private GamePlus _game;
 
         [ExtraData] public int Size;
 
@@ -15,7 +14,6 @@ namespace GameEngine.Game.Resources
 
         public Font(GamePlus game, Path path, int size)
         {
-            _game = game;
             Path = path;
             Size = size;
             Load(game.ResourceLoaderData);

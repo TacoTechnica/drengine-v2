@@ -142,7 +142,6 @@ namespace DREngine
 
         private static bool ContainsDelimeter(char[] text, int startIndex, int length)
         {
-            return false;
             for (var i = startIndex; i < startIndex + length; ++i)
                 if (text[i] == DELIMETER)
                     return true;
@@ -154,13 +153,13 @@ namespace DREngine
     public abstract class DRConnection : IDisposable
     {
         private readonly StreamReader _input;
-        protected PipeStream _inputPipe;
+        protected readonly PipeStream InputPipe;
 
         private readonly object _lock = new object();
 
         private Action _onPinged;
         private readonly StreamWriter _output;
-        protected PipeStream _outputPipe;
+        protected readonly PipeStream OutputPipe;
 
         private int _pingCounter;
 
@@ -172,11 +171,11 @@ namespace DREngine
 
         public DRConnection(PipeStream inputPipe, PipeStream outputPipe)
         {
-            _inputPipe = inputPipe;
-            _outputPipe = outputPipe;
-            if (_inputPipe != null) _input = new StreamReader(_inputPipe);
+            InputPipe = inputPipe;
+            OutputPipe = outputPipe;
+            if (InputPipe != null) _input = new StreamReader(InputPipe);
 
-            if (_outputPipe != null) _output = new StreamWriter(_outputPipe);
+            if (OutputPipe != null) _output = new StreamWriter(OutputPipe);
 
             _receiving = false;
         }
@@ -184,8 +183,8 @@ namespace DREngine
         public void Dispose()
         {
             StopReceiving();
-            _inputPipe?.Dispose();
-            _outputPipe?.Dispose();
+            InputPipe?.Dispose();
+            OutputPipe?.Dispose();
             _input?.Dispose();
             _output?.Dispose();
         }

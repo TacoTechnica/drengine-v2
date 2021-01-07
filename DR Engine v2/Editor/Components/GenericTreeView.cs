@@ -5,7 +5,7 @@ using System.Linq;
 using Gdk;
 using Gtk;
 
-namespace DREngine.Editor
+namespace DREngine.Editor.Components
 {
     public class GenericTreeView : VBox
     {
@@ -14,7 +14,7 @@ namespace DREngine.Editor
         private readonly TreeStore _store;
 
         private readonly TreeView _tree;
-        private readonly Icons Icons;
+        private readonly Icons _icons;
 
         public Action<string, string> OnFileOpened;
 
@@ -22,7 +22,7 @@ namespace DREngine.Editor
 
         public GenericTreeView(Icons icons)
         {
-            Icons = icons;
+            _icons = icons;
 
             _tree = new TreeView
             {
@@ -88,7 +88,7 @@ namespace DREngine.Editor
             _tree.ExpandAll();
         }
 
-        public void LoadDirectory(string fpath, Action<string> OnDirectroyLoad = null, Action<string> OnFileLoad = null)
+        public void LoadDirectory(string fpath, Action<string> onDirectroyLoad = null, Action<string> onFileLoad = null)
         {
             _fpath = fpath;
 
@@ -128,11 +128,11 @@ namespace DREngine.Editor
                     var name = System.IO.Path.GetFileName(dir);
 
                     if (root)
-                        _store.AppendValues(name, Icons.Folder);
+                        _store.AppendValues(name, _icons.Folder);
                     else
-                        _store.AppendValues(iter, name, Icons.Folder);
+                        _store.AppendValues(iter, name, _icons.Folder);
 
-                    OnDirectroyLoad?.Invoke(dir);
+                    onDirectroyLoad?.Invoke(dir);
                 }
 
                 // Add files
@@ -148,7 +148,7 @@ namespace DREngine.Editor
                     else
                         _store.AppendValues(iter, name, GetFileIcon(relativePath, file));
 
-                    OnFileLoad?.Invoke(file);
+                    onFileLoad?.Invoke(file);
                 }
             }
         }
@@ -194,16 +194,16 @@ namespace DREngine.Editor
                         if (root)
                         {
                             if (addLast)
-                                iter = _store.AppendValues(sub, Icons.Folder);
+                                iter = _store.AppendValues(sub, _icons.Folder);
                             else
-                                iter = _store.InsertWithValues(0, sub, Icons.Folder);
+                                iter = _store.InsertWithValues(0, sub, _icons.Folder);
                         }
                         else
                         {
                             if (addLast)
-                                iter = _store.AppendValues(iter, sub, Icons.Folder);
+                                iter = _store.AppendValues(iter, sub, _icons.Folder);
                             else
-                                iter = _store.InsertWithValues(iter, 0, sub, Icons.Folder);
+                                iter = _store.InsertWithValues(iter, 0, sub, _icons.Folder);
                         }
                     }
                     else
@@ -216,7 +216,7 @@ namespace DREngine.Editor
                 root = false;
             }
 
-            _store.SetValue(iter, 1, isFile ? GetFileIcon(path, splitted.Last()) : Icons.Folder);
+            _store.SetValue(iter, 1, isFile ? GetFileIcon(path, splitted.Last()) : _icons.Folder);
         }
 
         /// <summary>
@@ -374,12 +374,12 @@ namespace DREngine.Editor
 
         private Pixbuf GetFileIcon(string relativePath, string fullPath)
         {
-            if (relativePath == "project.json") return Icons.ProjectFile;
+            if (relativePath == "project.json") return _icons.ProjectFile;
 
             if (relativePath == "icon.png")
             {
                 var buf = new Pixbuf(fullPath);
-                var result = Icons.ScaleToRegularSize(buf);
+                var result = _icons.ScaleToRegularSize(buf);
                 buf.Dispose();
                 return result;
             }
@@ -390,17 +390,17 @@ namespace DREngine.Editor
             switch (extension)
             {
                 case "png":
-                    return Icons.ImageFile;
+                    return _icons.ImageFile;
                 case "wav":
-                    return Icons.AudioFile;
+                    return _icons.AudioFile;
                 case "ttf":
-                    return Icons.FontFile;
+                    return _icons.FontFile;
                 case "txt":
                 case "json":
-                    return Icons.TextFile;
+                    return _icons.TextFile;
             }
 
-            return Icons.UnknownFile;
+            return _icons.UnknownFile;
         }
     }
 }

@@ -1,6 +1,6 @@
 using Gtk;
 
-namespace DREngine.Editor
+namespace DREngine.Editor.Components
 {
     public class AreYouSureDialog : Dialog
     {

@@ -214,8 +214,6 @@ namespace GameEngine.Game.UI
                 {
                     int startB = lastDelim,
                         lengthB = i - lastDelim;
-                    var subB = result.ToString().Substring(startB, lengthB);
-                    //Debug.Log($"SUB: {subB} : {over}");
 
                     //bool isNull = c == '\0';
                     if (over)

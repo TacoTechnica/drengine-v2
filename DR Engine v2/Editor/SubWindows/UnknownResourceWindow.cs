@@ -1,3 +1,6 @@
+using DREngine.Editor.Components;
+using DREngine.ResourceLoading;
+
 namespace DREngine.Editor.SubWindows
 {
     public class UnknownResourceWindow : SubWindow

@@ -31,15 +31,14 @@ namespace GameEngine.Game.Resources
 
         public void Load(ResourceLoaderData loader)
         {
-            var targetOutput = loader.AudioOutput;
             switch (Type)
             {
                 case AudioClipType.Cached:
-                    _clip = new AudioStorageCached(targetOutput, Path);
+                    _clip = new AudioStorageCached(Path);
                     UsesSample = true;
                     break;
                 case AudioClipType.Streamed:
-                    _clip = new AudioStorageStreamed(targetOutput, Path);
+                    _clip = new AudioStorageStreamed(Path);
                     UsesSample = false;
                     break;
                 default:

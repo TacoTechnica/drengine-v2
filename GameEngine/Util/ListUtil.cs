@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace GameEngine.Util
 {
-    public struct Pair<T, V>
+    public struct Pair<T, TV>
     {
         public T First;
-        public V Second;
+        public TV Second;
 
-        public Pair(T first, V second)
+        public Pair(T first, TV second)
         {
             First = first;
             Second = second;

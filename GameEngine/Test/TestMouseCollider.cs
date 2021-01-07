@@ -3,6 +3,7 @@ using GameEngine.Game.Collision;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects.Rendering;
 using GameEngine.Game.Resources;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Test
@@ -10,8 +11,7 @@ namespace GameEngine.Test
     class Obama : SpriteRenderer
     {
         private static Path sprPath = new EnginePath("projects/test_project/Sprites/Obama.png");
-        public float RotationVelocity = 0f;
-        private ICollider collider;
+        public float RotationVelocity;
 
         public Obama(GamePlus game, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion)) :
             base(game, new Sprite(game, sprPath, Vector2.UnitX * 0.5f), position, rotation)
@@ -26,7 +26,7 @@ namespace GameEngine.Test
             Vector3 size = Vector3.Up * Sprite.Height * Sprite.Scale + Vector3.Right * Sprite.Width * Sprite.Scale +
                            Vector3.Forward * 1f;
             Vector3 min = Transform.Position - Vector3.UnitX * size.X / 2 - Vector3.UnitZ * size.Z / 2;
-            collider = new BoxCollider(this, min, min + size);
+            new BoxCollider(this, min, min + size);
         }
 
         public override void Update(float dt)
@@ -62,7 +62,7 @@ namespace GameEngine.Test
             // Create the obamas
             for (int i = 0; i < NumObamas; ++i)
             {
-                Vector3 pos = Util.Random.GetRange(min, max);
+                Vector3 pos = Random.GetRange(min, max);
                 new Obama(_game, pos);
             }
         }

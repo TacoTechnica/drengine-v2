@@ -1,13 +1,14 @@
 using System;
 using System.IO;
+using DREngine.Editor.Components;
 using DREngine.Editor.SubWindows;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game.Audio;
 using GameEngine.Game.Resources;
 using Gdk;
 using GLib;
 using Gtk;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Application = Gtk.Application;
 using Window = Gtk.Window;
@@ -83,7 +84,7 @@ namespace DREngine.Editor
                 if (Directory.Exists(fullPath)) return;
 
                 if (File.Exists(fullPath))
-                    OpenProjectFile(path, fullPath);
+                    OpenProjectFile(path);
                 else
                     Debug.LogWarning($"No file found at {fullPath} from project path {path}. This is a bug.");
             };
@@ -144,7 +145,7 @@ namespace DREngine.Editor
             EmptyProject();
         }
 
-        private void OpenProjectFile(string projectPath, string fullPath)
+        private void OpenProjectFile(string projectPath)
         {
             ResourceWindowManager.OpenResource(new ProjectPath(this, projectPath));
         }
@@ -221,25 +222,6 @@ namespace DREngine.Editor
         {
             Dispose();
         }
-
-        #region MonoGame Fix Stuff
-
-        private static void PreparePresentationParameters(PresentationParameters presentationParameters,
-            IntPtr windowHandle, int windowWidth, int windowHeight)
-        {
-            presentationParameters.BackBufferFormat = SurfaceFormat.Color;
-            presentationParameters.BackBufferWidth = windowWidth;
-            presentationParameters.BackBufferHeight = windowHeight;
-            presentationParameters.DepthStencilFormat = DepthFormat.Depth24;
-            presentationParameters.IsFullScreen = false;
-            presentationParameters.HardwareModeSwitch = false;
-            presentationParameters.PresentationInterval = PresentInterval.One;
-            presentationParameters.DisplayOrientation = DisplayOrientation.Default;
-            presentationParameters.DeviceWindowHandle = windowHandle;
-            presentationParameters.MultiSampleCount = 0; // 32 or some other higher number?
-        }
-
-        #endregion
 
         #region Disposable
 

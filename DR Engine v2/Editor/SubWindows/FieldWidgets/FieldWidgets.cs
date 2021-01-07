@@ -38,6 +38,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     public abstract class FieldWidget<T> : HBox, IFieldWidget
     {
         // Split into capital spaces.
+        // ReSharper disable once StaticMemberInGenericType
         private static readonly Regex SpaceRegex = new Regex(@"
                 (?<=[A-Z])(?=[A-Z][a-z]) |
                  (?<=[^A-Z])(?=[A-Z]) |

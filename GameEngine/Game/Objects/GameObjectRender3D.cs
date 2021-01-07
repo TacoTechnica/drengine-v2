@@ -22,17 +22,17 @@ namespace GameEngine.Game.Objects
 
         public override void PreDraw(GraphicsDevice g)
         {
-            _game.SceneManager.Cameras.LoopThroughAll(cam => { PreDraw(cam, g, Transform); });
+            Game.SceneManager.Cameras.LoopThroughAll(cam => { PreDraw(cam, g, Transform); });
         }
 
         public override void Draw(GraphicsDevice g)
         {
-            _game.SceneManager.Cameras.LoopThroughAll(cam => { Draw(cam, g, Transform); });
+            Game.SceneManager.Cameras.LoopThroughAll(cam => { Draw(cam, g, Transform); });
         }
 
         public override void PostDraw(GraphicsDevice g)
         {
-            _game.SceneManager.Cameras.LoopThroughAll(cam => { PostDraw(cam, g, Transform); });
+            Game.SceneManager.Cameras.LoopThroughAll(cam => { PostDraw(cam, g, Transform); });
         }
 
         protected override Tweener NewTweener(GamePlus game)

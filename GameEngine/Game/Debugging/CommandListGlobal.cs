@@ -1,6 +1,7 @@
 ﻿// ReSharper disable UnusedType.Global
 // ReSharper disable ArrangeTypeModifiers
 
+using System;
 using System.Collections.Generic;
 using GameEngine.Game.UI;
 
@@ -28,7 +29,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
                 Log("=========================");
                 var commands = new List<Command>(Commands.AllCommands);
                 var comparer = Comparer<Command>.Create(
-                    (c1, c2) => c1.Name.CompareTo(c2.Name));
+                    (c1, c2) => string.Compare(c1.Name, c2.Name, StringComparison.Ordinal));
                 commands.Sort(comparer);
                 foreach (var c in commands) Log($"    {c.Name.PadRight(10)} : {c.Description}");
                 Log("=========================");
@@ -80,6 +81,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
             //string[] extra = args.Get<string[]>(); // "Args" args.
         }
 
+        // ReSharper disable UnusedMember.Local
         private enum TempEnum
         {
             Level0,
@@ -133,7 +135,6 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
     class Scene : Command
     {
-        private static HashSet<string> scenesBuilt = null;
 
         public Scene() : base(
             "scene", "Switch scene or list all scenes.",
@@ -144,6 +145,7 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
 
         protected override void Call(GamePlus game, ArgParser parser)
         {
+            // ReSharper disable once UnusedVariable
             var scene = parser.Get<string>();
 
             LogError("Not implemented.");

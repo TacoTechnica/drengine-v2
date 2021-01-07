@@ -1,6 +1,7 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -17,7 +18,7 @@ namespace GameEngine.Test
         private Camera3D _cam;
         private TestObject2 _exampleObjRoot;
         private TestObject2 _exampleObj1;
-        private TestObject2 _exampleObj1_1;
+        private TestObject2 _exampleObj1A;
         private TestObject2 _exampleObj2;
 
         private GamePlus _game;
@@ -37,8 +38,8 @@ namespace GameEngine.Test
             _exampleObj2 = new TestObject2(game, new Vector3(0, 100, -140), Quaternion.Identity);
             _exampleObjRoot.AddChild(_exampleObj2);
 
-            _exampleObj1_1 = new TestObject2(game, new Vector3(-50, 50, -200), Quaternion.Identity );
-            _exampleObj1.AddChild(_exampleObj1_1);
+            _exampleObj1A = new TestObject2(game, new Vector3(-50, 50, -200), Quaternion.Identity );
+            _exampleObj1.AddChild(_exampleObj1A);
 
         }
 
@@ -79,8 +80,8 @@ namespace GameEngine.Test
             }
             if (RawInput.KeyPressed(Keys.NumPad7))
             {
-                Debug.Log($"SET 1_1 TO {!_exampleObj1_1.Active}");
-                if (_exampleObj1_1 != null) _exampleObj1_1.SetActive(!_exampleObj1_1.Active);
+                Debug.Log($"SET 1_1 TO {!_exampleObj1A.Active}");
+                if (_exampleObj1A != null) _exampleObj1A.SetActive(!_exampleObj1A.Active);
             }
 
             if (RawInput.KeyPressed(Keys.J))
@@ -97,7 +98,7 @@ namespace GameEngine.Test
             {
                 if (ren is TestObject2 obj)
                 {
-                    DebugDrawer.DrawText(_game, $"{obj.Active}, {obj._parentActive}, {obj._activeAsChild}", -obj.Transform.Position.X * 3,
+                    DebugDrawer.DrawText(_game, $"{obj.Active}, {obj.ParentActive}, {obj.ActiveAsChild}", -obj.Transform.Position.X * 3,
                         obj.Transform.Position.Y);
                 }
             }, true);

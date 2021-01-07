@@ -22,8 +22,8 @@ namespace DREngine.Editor
             OnMessage += OnGameMessage;
         }
 
-        private AnonymousPipeServerStream InputPipe => (AnonymousPipeServerStream) _inputPipe;
-        private AnonymousPipeServerStream OutputPipe => (AnonymousPipeServerStream) _outputPipe;
+        private new AnonymousPipeServerStream InputPipe => (AnonymousPipeServerStream) base.InputPipe;
+        private new AnonymousPipeServerStream OutputPipe => (AnonymousPipeServerStream) base.OutputPipe;
 
         public bool Running => _gameProcess != null;
 
@@ -63,7 +63,7 @@ namespace DREngine.Editor
             return true;
         }
 
-        private void GameProcessOnExited(object? sender, EventArgs e)
+        private void GameProcessOnExited(object sender, EventArgs e)
         {
             OnGameClose();
         }

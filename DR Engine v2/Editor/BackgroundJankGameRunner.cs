@@ -19,7 +19,7 @@ namespace DREngine.Editor
             // In initialize: new SpriteBatch(GraphicsDevice);?
         }
 
-        public GraphicsDevice GraphicsDevice => _graphics.GraphicsDevice;
+        public new GraphicsDevice GraphicsDevice => _graphics.GraphicsDevice;
 
         protected override void Initialize()
         {

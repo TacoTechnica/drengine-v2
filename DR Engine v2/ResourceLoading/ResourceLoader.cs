@@ -5,7 +5,7 @@ using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Resources;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     /// <summary>
     ///     The "Content Loader" that loads project resources.
@@ -73,7 +73,6 @@ namespace DREngine
         {
             if (_resources.ContainsKey(path.ToString()))
             {
-                var resource = _resources[path.ToString()];
                 return _resources[path.ToString()];
             }
 
@@ -95,7 +94,7 @@ namespace DREngine
                 {
                     newResource = Activator.CreateInstance(t, parameters);
                 }
-                catch (MissingMethodException e)
+                catch (MissingMethodException)
                 {
                     throw new MissingMethodException(
                         $"{t} NEEDS TO HAVE AN EMPTY CONSTRUCTOR SO IT CAN BE DESERIALIZED!");

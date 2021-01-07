@@ -10,7 +10,7 @@ namespace GameEngine.Util
     {
         private List<Action> _events = new List<Action>();
 
-        private bool _unsubscribeOnInvoke = false;
+        private bool _unsubscribeOnInvoke;
 
         public EventManager(bool unsubscribeOnInvoke = false)
         {

@@ -1,4 +1,5 @@
 using System;
+using DREngine.ResourceLoading;
 using GameEngine.Game;
 using GameEngine.Util;
 using Gtk;
@@ -26,7 +27,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _text.Buffer.Changed += BufferOnChanged;
         }
 
-        private void BufferOnChanged(object? sender, EventArgs e)
+        private void BufferOnChanged(object sender, EventArgs e)
         {
             // When we load, this event will be triggered. Ignore that first time.
             if (_loadFlag)

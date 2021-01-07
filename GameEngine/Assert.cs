@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameEngine.Game;
 
 namespace GameEngine
 {
@@ -38,7 +37,7 @@ namespace GameEngine
         {
             return IsTrue(obj != null, "Passed object is not null.");
         }
-        public static bool ContainsKey<K, V>(Dictionary<K, V> dict, K key)
+        public static bool ContainsKey<TK, TV>(Dictionary<TK, TV> dict, TK key)
         {
             return IsTrue(dict.ContainsKey(key), $"Dictionary {dict} does not contain key {key}");
         }

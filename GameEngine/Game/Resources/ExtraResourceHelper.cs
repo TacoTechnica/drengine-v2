@@ -38,6 +38,11 @@ namespace GameEngine.Game.Resources
                 new JsonSerializerSettings
                     {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
 
+            if (toLoad == null)
+            {
+                throw new InvalidOperationException($"Extra data loaded is null at {path}. Make sure the data here is valid!");
+            }
+
             foreach (var name in toLoad.Keys)
             {
                 var targetField = typeof(T).GetField(name);

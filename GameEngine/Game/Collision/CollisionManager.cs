@@ -35,7 +35,6 @@ namespace GameEngine.Game.Collision
         /// </summary>
         public ICollider ScreenCollisionCheckNearest(Camera3D cam, Vector2 mousePos)
         {
-            var minDistSq = float.PositiveInfinity;
             return ScreenCollisionCheckAll(cam, mousePos).GetMinOrDefault(collider =>
                 (collider.GetRoughCenterPosition() - cam.Position).LengthSquared()
             ).First;
@@ -52,9 +51,9 @@ namespace GameEngine.Game.Collision
             _colliders.Clear();
         }
 
-        public void DrawDebugColliders(GamePlus _game, Camera3D cam)
+        public void DrawDebugColliders(GamePlus game, Camera3D cam)
         {
-            foreach (var c in _colliders) c.DrawDebug(_game, cam);
+            foreach (var c in _colliders) c.DrawDebug(game, cam);
         }
     }
 }

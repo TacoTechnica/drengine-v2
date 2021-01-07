@@ -7,34 +7,34 @@ namespace GameEngine.Game.UI
     public abstract class UIComponent : UIComponentBase
     {
         private ObjectContainerNode<UIComponent> _addedNode;
-        protected UIComponentBase _parent;
+        protected UIComponentBase Parent;
 
         /// <summary>
         ///     General component constructor with a parent
         /// </summary>
         public UIComponent(GamePlus game, UIComponent parent = null) : base(game)
         {
-            _parent = parent;
+            Parent = parent;
 
-            if (parent != null) _parent.AddChild(this);
+            if (parent != null) Parent.AddChild(this);
         }
 
         internal void ReceiveParent(UIComponentBase parent, ObjectContainerNode<UIComponent> node)
         {
-            _parent?.RemoveEnqueueChild(_addedNode);
-            _parent = parent;
+            Parent?.RemoveEnqueueChild(_addedNode);
+            Parent = parent;
             _addedNode = node;
         }
 
         public override void DestroyImmediate()
         {
-            _parent?.RemoveEnqueueChild(_addedNode);
+            Parent?.RemoveEnqueueChild(_addedNode);
             base.DestroyImmediate();
         }
 
-        public UIComponent CopyLayoutFrom(UIComponentBase toCopy)
+        public new UIComponent CopyLayoutFrom(UIComponentBase toCopy)
         {
-            _copyLayoutFrom = toCopy;
+            base.CopyLayoutFrom = toCopy;
             return this;
         }
 
@@ -71,11 +71,11 @@ namespace GameEngine.Game.UI
 
         public UIComponent AddToRoot(bool forceBase = false)
         {
-            if (_parent != null)
+            if (Parent != null)
                 throw new InvalidOperationException(
                     "Tried to set our UI parent to root when we already have a parent!");
 
-            _game.UiScreen.AddRootChild(this, forceBase);
+            Game.UiScreen.AddRootChild(this, forceBase);
 
             return this;
         }
@@ -87,7 +87,7 @@ namespace GameEngine.Game.UI
 
         protected override Rect GetParentRect()
         {
-            return _parent.LayoutRect;
+            return Parent.LayoutRect;
         }
     }
 

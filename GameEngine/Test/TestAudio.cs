@@ -3,13 +3,13 @@ using GameEngine.Game.Audio;
 using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable InconsistentNaming
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace GameEngine.Test
 {
     public class TestAudio : IGameRunner
     {
-        private GamePlus _game;
-
         private AudioMixer BGM;
         private AudioMixer SFX;
 
@@ -20,8 +20,6 @@ namespace GameEngine.Test
 
         public void Initialize(GamePlus game)
         {
-            _game = game;
-
             BGM = new AudioMixer(game.AudioOutput);
             SFX = new AudioMixer(game.AudioOutput);
 

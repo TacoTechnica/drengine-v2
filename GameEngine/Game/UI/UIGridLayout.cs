@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.UI
 {

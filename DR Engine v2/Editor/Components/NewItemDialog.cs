@@ -1,14 +1,11 @@
 using System.IO;
-using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.Components
 {
     public abstract class NewItemDialog : EasyDialog
     {
-        private StringTextFieldWidget _input;
-        private Text _label;
-
         private readonly ProjectPath _parentDirectory;
 
         // ReSharper disable once UnassignedField.Global

@@ -4,6 +4,7 @@ using GameEngine.Game.Coroutine;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -15,7 +16,7 @@ namespace GameEngine.Test
 
         private GameObjectRender3D _testObj;
 
-        private Coroutine _spinRoutine = null;
+        private Coroutine _spinRoutine;
         public void Initialize(GamePlus game)
         {
             _game = game;
@@ -74,7 +75,7 @@ namespace GameEngine.Test
             Debug.Log("1...");
             yield return new WaitForSeconds(_game, 1);//Coroutine.WaitForSeconds(_game, 1f);
             Debug.Log("2...");
-            yield return new WaitForSeconds(_game, 1);;
+            yield return new WaitForSeconds(_game, 1);
             Debug.Log("3!");
         }
 
@@ -88,6 +89,7 @@ namespace GameEngine.Test
                 _testObj.Transform.Rotation = Math.FromEuler(e);
                 yield return new WaitUntilCondition(_game, () => RawInput.KeyPressed(Keys.W));
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         private IEnumerator StressTest()
@@ -97,6 +99,7 @@ namespace GameEngine.Test
             {
                 yield return new WaitUntilCondition(_game, () => true);
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         public void Draw()

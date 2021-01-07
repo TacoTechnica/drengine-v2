@@ -10,10 +10,7 @@ namespace DREngine.Editor.Components
     {
         private string _failureString;
 
-
-        private readonly FieldBox _fields;
-
-        protected Text _post;
+        protected readonly Text Post;
 
         [FieldIgnore] public bool UseSubmitShortcut = true;
 
@@ -26,18 +23,18 @@ namespace DREngine.Editor.Components
         public EasyDialog(DREditor editor, Window parent, string title = "New Project", params object[] buttondata) :
             base(title, parent, DialogFlags.DestroyWithParent, buttondata)
         {
-            _fields = new FieldBox(editor, GetType(), true);
-            _post = new Text("");
+            var fields = new FieldBox(editor, GetType(), true);
+            Post = new Text("");
 
-            ContentArea.PackStart(_fields, true, true, 16);
+            ContentArea.PackStart(fields, true, true, 16);
 
-            _fields.Modified += OnModified;
+            fields.Modified += OnModified;
 
-            ContentArea.PackEnd(_post, false, false, 16);
+            ContentArea.PackEnd(Post, false, false, 16);
 
-            _fields.Show();
-            _post.Show();
-            _fields.LoadTarget(this);
+            fields.Show();
+            Post.Show();
+            fields.LoadTarget(this);
 
             KeyReleaseEvent += (o, args) =>
             {
@@ -49,7 +46,7 @@ namespace DREngine.Editor.Components
                     if (ctrl && key == Key.Return)
                     {
                         // ? Is this working, I think not.
-                        _fields.UnsetFocusChain();
+                        fields.UnsetFocusChain();
                         // Attempt to submit if we press ctrl+enter.
                         Respond(ResponseType.Accept);
                     }
@@ -91,21 +88,21 @@ namespace DREngine.Editor.Components
 
         protected void SetFailure(string message)
         {
-            _post.Text = message;
-            _post.SetMode(Text.Warning);
+            Post.Text = message;
+            Post.SetMode(Text.LabelType.Warning);
             _failureString = message;
         }
 
         protected void ResetFailure()
         {
-            _post.SetMode(Text.Normal);
+            Post.SetMode(Text.LabelType.Normal);
             _failureString = null;
         }
 
         protected void SetPostText(string text)
         {
-            _post.SetMode(Text.Normal);
-            _post.Text = text;
+            Post.SetMode(Text.LabelType.Normal);
+            Post.Text = text;
             _failureString = null;
         }
 

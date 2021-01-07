@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Util;
+using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI
 {
@@ -101,48 +102,10 @@ namespace GameEngine.Game.UI
             if (AutoHideSlider) slider.Active = slider.StartValue < slider.EndValue;
         }
 
-        private float GetViewPosFromSliderPercent(float sliderPercent, float viewMin, float viewMax, float contentMin,
-            float contentMax)
-        {
-            var viewSize = viewMax - viewMin;
-            var contentSize = contentMax - contentMin;
-            if (viewSize >= contentSize) return viewMin + (viewSize / 2f - contentSize / 2f);
-
-            var contentRange = contentSize - viewSize;
-            return viewMin - contentRange * sliderPercent;
-        }
-
         private float GetViewPercent(float viewMin, float viewMax, float contentMin,
             float contentMax)
         {
             return Math.Clamp01((viewMax - viewMin) / (contentMax - contentMin));
-        }
-
-        private static Vector2 GetTargetMin(Rect targetRect, Rect contentRect)
-        {
-            Vector2 cmin = contentRect.Min,
-                cmax = contentRect.Max;
-            var csize = contentRect.Size;
-            Vector2 min = targetRect.Min,
-                max = targetRect.Max;
-            bool smallX = csize.X < targetRect.Width,
-                smallY = csize.Y < targetRect.Height;
-            var targetMin = cmin;
-            var center = (targetRect.Min + targetRect.Max) / 2f;
-            // Position X
-            if (smallX)
-                targetMin.X = center.X - csize.X / 2f;
-            else if (cmin.X > min.X)
-                targetMin.X = min.X;
-            else if (cmax.X < max.X) targetMin.X = max.X - csize.X;
-            // Position Y
-            if (smallY)
-                targetMin.Y = center.Y - csize.Y / 2f;
-            else if (cmin.Y > min.Y)
-                targetMin.Y = min.Y;
-            else if (cmax.Y < max.Y) targetMin.Y = max.Y - csize.Y;
-
-            return targetMin;
         }
 
         public UIScrollView WithContentLayout(Layout layout)

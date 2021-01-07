@@ -6,7 +6,7 @@ namespace DREngine.Editor
 {
     public class Icons
     {
-        public const int IconSize = 24;
+        public const int ICON_SIZE = 24;
         public readonly Pixbuf AudioFile;
         public readonly Pixbuf Export;
 
@@ -58,7 +58,7 @@ namespace DREngine.Editor
             ProjectFile = LoadThemeIcon("text-editor-symbolic");
         }
 
-        public Pixbuf ScaleToRegularSize(Pixbuf buf, int targetSize = IconSize)
+        public Pixbuf ScaleToRegularSize(Pixbuf buf, int targetSize = ICON_SIZE)
         {
             var interp = InterpType.Bilinear;
             // This part here is kinda silly but whatever
@@ -73,7 +73,7 @@ namespace DREngine.Editor
             return buf.ScaleSimple((int) (buf.Width * factor), (int) (buf.Height * factor), interp);
         }
 
-        private Pixbuf LoadThemeIcon(string icon, int size = IconSize)
+        private Pixbuf LoadThemeIcon(string icon, int size = ICON_SIZE)
         {
             if (IconTheme.Default.HasIcon(icon))
                 return IconTheme.Default.LoadIcon(icon, size, 0);

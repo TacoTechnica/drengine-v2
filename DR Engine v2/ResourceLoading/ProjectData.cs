@@ -7,7 +7,7 @@ using GameEngine.Game.Resources;
 using Newtonsoft.Json;
 using Path = GameEngine.Game.Path;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     /// <summary>
     ///     Represents a project data file. (project.json)
@@ -16,7 +16,7 @@ namespace DREngine
     {
         private const string PROJECT_DATA_FILE_NAME = "project.json";
 
-        private const string CommentHeader =
+        private const string COMMENT_HEADER =
             "This file is auto generated. IT WILL BE OVERWRITTEN! Expect all changes to be lost.";
 
         private string _fullProjectPath;
@@ -24,7 +24,6 @@ namespace DREngine
         /// <summary>
         ///     Loads a project from a file.
         /// </summary>
-        /// <param name="g"></param>
         /// <param name="fpath"></param>
         /// <param name="fullLoad">
         ///     If false, it will NOT do any extra project loading. Use this for quick surface level project
@@ -34,23 +33,17 @@ namespace DREngine
         /// <exception cref="JsonException"></exception>
         public static ProjectData LoadFromFile(Path fpath, bool fullLoad = true)
         {
-            try
-            {
-                // We might be given a relative directory, so try that first.
-                if (!File.Exists(fpath) && !Directory.Exists(fpath))
-                    fpath = System.IO.Path.Combine(Environment.CurrentDirectory, fpath);
-                //Debug.Log($"RELATIVE PATH: {fpath}");
-                // We might be given the project directory, so try to find the project file within it.
-                if (Directory.Exists(fpath)) fpath += "/" + PROJECT_DATA_FILE_NAME;
-                var result = JsonHelper.LoadFromJson<ProjectData>(null, fpath);
-                result._fullProjectPath = fpath;
+            // We might be given a relative directory, so try that first.
+            if (!File.Exists(fpath) && !Directory.Exists(fpath))
+                fpath = System.IO.Path.Combine(Environment.CurrentDirectory, fpath);
+            //Debug.Log($"RELATIVE PATH: {fpath}");
+            // We might be given the project directory, so try to find the project file within it.
+            if (Directory.Exists(fpath)) fpath += "/" + PROJECT_DATA_FILE_NAME;
+            // throws JsonException
+            var result = JsonHelper.LoadFromJson<ProjectData>(null, fpath);
+            result._fullProjectPath = fpath;
 
-                return result;
-            }
-            catch (JsonSerializationException e)
-            {
-                throw e;
-            }
+            return result;
         }
 
         public static void WriteToFile(string fpath, ProjectData data)
@@ -76,8 +69,8 @@ namespace DREngine
             }
             else if (path is EnginePath ep)
             {
-                throw new NotImplementedException();
                 relativePath = ep.RelativePath;
+                throw new NotImplementedException();
             }
             else
             {

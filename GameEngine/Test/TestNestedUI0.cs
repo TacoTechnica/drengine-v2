@@ -2,8 +2,8 @@
 using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
@@ -16,7 +16,7 @@ namespace GameEngine.Test
         private UIComponent _rotater;
         private UIComponent _rotater2;
 
-        private Font _textFont => ((TestGame)_game).TestFont;
+        private Font TextFont => ((TestGame)_game).TestFont;
         public void Initialize(GamePlus game)
         {
             _game = game;
@@ -32,7 +32,7 @@ namespace GameEngine.Test
                         .OffsetBy(-4, -4),
                     new UIBoxPanel(_game, Color.Yellow, Color.LightYellow)
                         .WithLayout(Layout.SideStretchLayout(Layout.Top, 100, 4))
-                        .WithChild(new UIText(_game, _textFont, "Hello there!")
+                        .WithChild(new UIText(_game, TextFont, "Hello there!")
                         {
                             TextHAlign = UIText.TextHAlignMode.Right,
                             TextVAlign = UIText.TextVAlignMode.Bottom

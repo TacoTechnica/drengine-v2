@@ -7,9 +7,6 @@ namespace GameEngine.Game.Collision
     public class BoxCollider : ICollider
     {
         private BoundingBox _box;
-        private Rectangle _cachedScreenRect = Rectangle.Empty;
-
-        private bool _needsToUpdateScreen = false;
 
         public BoxCollider(GameObject obj, BoundingBox b)
         {
@@ -34,7 +31,7 @@ namespace GameEngine.Game.Collision
             set => _box.Max = value;
         }
 
-        public GameObject? GameObject { get; }
+        public GameObject GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 screenPoint)
         {
@@ -47,9 +44,9 @@ namespace GameEngine.Game.Collision
             return (Max - Min) / 2f;
         }
 
-        public void DrawDebug(GamePlus _game, Camera3D cam)
+        public void DrawDebug(GamePlus game, Camera3D cam)
         {
-            DebugDrawer.DrawAABB(_game, cam, _box);
+            DebugDrawer.DrawAABB(game, cam, _box);
         }
     }
 }

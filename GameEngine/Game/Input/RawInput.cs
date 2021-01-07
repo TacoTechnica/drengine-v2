@@ -16,8 +16,8 @@ namespace GameEngine.Game.Input
     {
         X,
         Y,
-        DX,
-        DY
+        Dx,
+        Dy
     }
 
     public enum GamepadAxis
@@ -43,7 +43,7 @@ namespace GameEngine.Game.Input
 
         public static Action<Keys[]> OnKeysPressed;
 
-        private static readonly HashSet<Keys> _pressedKeys = new HashSet<Keys>();
+        private static readonly HashSet<Keys> PressedKeys = new HashSet<Keys>();
 
         private static bool _mouseLocked;
 
@@ -171,27 +171,27 @@ namespace GameEngine.Game.Input
         /// <summary>
         ///     Converts a key to a char.
         /// </summary>
-        /// <param name="Key">They key to convert.</param>
-        /// <param name="Shift">Whether or not shift is pressed.</param>
+        /// <param name="key">They key to convert.</param>
+        /// <param name="shift">Whether or not shift is pressed.</param>
         /// <returns>The key in a char.</returns>
-        public static char ToChar(this Keys Key, bool Shift = false)
+        public static char ToChar(this Keys key, bool shift = false)
         {
             /* It's the space key. */
-            if (Key == Keys.Space) return ' ';
+            if (key == Keys.Space) return ' ';
 
-            var String = Key.ToString();
+            var str = key.ToString();
 
             /* It's a letter. */
-            if (String.Length == 1)
+            if (str.Length == 1)
             {
-                var Character = char.Parse(String);
-                var Byte = Convert.ToByte(Character);
+                var character = char.Parse(str);
+                var cByte = Convert.ToByte(character);
 
                 if (
-                    Byte >= 65 && Byte <= 90 ||
-                    Byte >= 97 && Byte <= 122
+                    cByte >= 65 && cByte <= 90 ||
+                    cByte >= 97 && cByte <= 122
                 )
-                    return (!Shift ? Character.ToString().ToLower() : Character.ToString())[0];
+                    return (!shift ? character.ToString().ToLower() : character.ToString())[0];
             }
 
             /*
@@ -203,55 +203,55 @@ namespace GameEngine.Game.Input
 
             #region Credits :  http: //roy-t.nl/2010/02/11/code-snippet-converting-keyboard-input-to-text-in-xna.html for saving my time.
 
-            switch (Key)
+            switch (key)
             {
                 case Keys.D0:
-                    if (Shift)
+                    if (shift)
                         return ')';
                     else
                         return '0';
                 case Keys.D1:
-                    if (Shift)
+                    if (shift)
                         return '!';
                     else
                         return '1';
                 case Keys.D2:
-                    if (Shift)
+                    if (shift)
                         return '@';
                     else
                         return '2';
                 case Keys.D3:
-                    if (Shift)
+                    if (shift)
                         return '#';
                     else
                         return '3';
                 case Keys.D4:
-                    if (Shift)
+                    if (shift)
                         return '$';
                     else
                         return '4';
                 case Keys.D5:
-                    if (Shift)
+                    if (shift)
                         return '%';
                     else
                         return '5';
                 case Keys.D6:
-                    if (Shift)
+                    if (shift)
                         return '^';
                     else
                         return '6';
                 case Keys.D7:
-                    if (Shift)
+                    if (shift)
                         return '&';
                     else
                         return '7';
                 case Keys.D8:
-                    if (Shift)
+                    if (shift)
                         return '*';
                     else
                         return '8';
                 case Keys.D9:
-                    if (Shift)
+                    if (shift)
                         return '(';
                     else
                         return '9';
@@ -265,62 +265,61 @@ namespace GameEngine.Game.Input
                 case Keys.NumPad6: return '6';
                 case Keys.NumPad7:
                     return '7';
-                    ;
                 case Keys.NumPad8: return '8';
                 case Keys.NumPad9: return '9';
 
                 case Keys.OemTilde:
-                    if (Shift)
+                    if (shift)
                         return '~';
                     else
                         return '`';
                 case Keys.OemSemicolon:
-                    if (Shift)
+                    if (shift)
                         return ':';
                     else
                         return ';';
                 case Keys.OemQuotes:
-                    if (Shift)
+                    if (shift)
                         return '"';
                     else
                         return '\'';
                 case Keys.OemQuestion:
-                    if (Shift)
+                    if (shift)
                         return '?';
                     else
                         return '/';
                 case Keys.OemPlus:
-                    if (Shift)
+                    if (shift)
                         return '+';
                     else
                         return '=';
                 case Keys.OemPipe:
-                    if (Shift)
+                    if (shift)
                         return '|';
                     else
                         return '\\';
                 case Keys.OemPeriod:
-                    if (Shift)
+                    if (shift)
                         return '>';
                     else
                         return '.';
                 case Keys.OemOpenBrackets:
-                    if (Shift)
+                    if (shift)
                         return '{';
                     else
                         return '[';
                 case Keys.OemCloseBrackets:
-                    if (Shift)
+                    if (shift)
                         return '}';
                     else
                         return ']';
                 case Keys.OemMinus:
-                    if (Shift)
+                    if (shift)
                         return '_';
                     else
                         return '-';
                 case Keys.OemComma:
-                    if (Shift)
+                    if (shift)
                         return '<';
                     else
                         return ',';
@@ -355,18 +354,18 @@ namespace GameEngine.Game.Input
             {
                 var newKeys = new List<Keys>();
                 foreach (var key in currentKeys)
-                    if (!_pressedKeys.Contains(key))
+                    if (!PressedKeys.Contains(key))
                         // This is new!
                         newKeys.Add(key);
                 // Now we only have new keys here.
                 OnKeysPressed?.Invoke(newKeys.ToArray());
-                _pressedKeys.Clear();
+                PressedKeys.Clear();
                 // Pressed keys now contains all keys pressed
-                foreach (var key in currentKeys) _pressedKeys.Add(key);
+                foreach (var key in currentKeys) PressedKeys.Add(key);
             }
             else
             {
-                _pressedKeys.Clear();
+                PressedKeys.Clear();
             }
         }
 

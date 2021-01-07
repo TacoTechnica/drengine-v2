@@ -1,7 +1,6 @@
-﻿using System;
-using Gdk;
+﻿using Gdk;
 using Gtk;
-using Math = GameEngine.Math;
+using Math = GameEngine.Util.Math;
 using Window = Gtk.Window;
 using WindowType = Gtk.WindowType;
 
@@ -9,8 +8,6 @@ namespace DREngine.Editor.SubWindows
 {
     public abstract class SubWindow : Window
     {
-        private DREditor _editor;
-
         public SubWindow(DREditor editor, string title = "") : base(WindowType.Toplevel)
         {
             //Parent = DREditor.Instance.Window;
@@ -19,8 +16,6 @@ namespace DREngine.Editor.SubWindows
             AttachedTo = editor.Window;
             TypeHint = WindowTypeHint.Dialog;
             SkipTaskbarHint = true;
-
-            _editor = editor;
 
             IsOpen = false;
         }
@@ -84,19 +79,5 @@ namespace DREngine.Editor.SubWindows
 
         protected abstract void OnInitialize();
 
-
-        #region Garbage
-
-        public SubWindow(int nothing) : base("none")
-        {
-            throw new InvalidOperationException();
-        }
-
-        public SubWindow(IntPtr raw) : base(raw)
-        {
-            throw new InvalidOperationException();
-        }
-
-        #endregion
     }
 }

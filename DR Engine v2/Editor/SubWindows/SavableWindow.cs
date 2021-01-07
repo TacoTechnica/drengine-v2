@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using DREngine.Editor.Components;
+using DREngine.ResourceLoading;
 using GameEngine;
 using Gdk;
 using Gtk;

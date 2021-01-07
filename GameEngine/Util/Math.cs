@@ -1,8 +1,7 @@
-
 using System;
 using Microsoft.Xna.Framework;
 
-namespace GameEngine
+namespace GameEngine.Util
 {
 
     /// <summary>
@@ -163,9 +162,9 @@ namespace GameEngine
                 return NormalizeAngle (v * Rad2Deg);
             }
             Quaternion q = new Quaternion (q1.W, q1.Z, q1.X, q1.Y);
-            v.Y = (float)MathF.Atan2 (2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (q.Z * q.Z + q.W * q.W));    // Yaw
-            v.X = (float)MathF.Asin (2f * (q.X * q.Z - q.W * q.Y));                                             // Pitch
-            v.Z = (float)MathF.Atan2 (2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (q.Y * q.Y + q.Z * q.Z));    // Roll
+            v.Y = MathF.Atan2 (2f * q.X * q.W + 2f * q.Y * q.Z, 1 - 2f * (q.Z * q.Z + q.W * q.W));    // Yaw
+            v.X = MathF.Asin (2f * (q.X * q.Z - q.W * q.Y));                                             // Pitch
+            v.Z = MathF.Atan2 (2f * q.X * q.Y + 2f * q.Z * q.W, 1 - 2f * (q.Y * q.Y + q.Z * q.Z));    // Roll
             return NormalizeAngle (v * Rad2Deg);
         }
 
@@ -189,22 +188,22 @@ namespace GameEngine
                      + 2.0f * s * Vector3.Cross(u, vec);
         }
 
-        public static Vector2 ClampMagnitude(Vector2 vec, float MaxMag)
+        public static Vector2 ClampMagnitude(Vector2 vec, float maxMag)
         {
-            if (vec.LengthSquared() > MaxMag * MaxMag)
+            if (vec.LengthSquared() > maxMag * maxMag)
             {
                 vec.Normalize();
-                return vec * MaxMag;
+                return vec * maxMag;
             }
             return vec;
         }
 
-        public static Vector3 ClampMagnitude(Vector3 vec, float MaxMag)
+        public static Vector3 ClampMagnitude(Vector3 vec, float maxMag)
         {
-            if (vec.LengthSquared() > MaxMag * MaxMag)
+            if (vec.LengthSquared() > maxMag * maxMag)
             {
                 vec.Normalize();
-                return vec * MaxMag;
+                return vec * maxMag;
             }
             return vec;
         }
@@ -264,7 +263,7 @@ namespace GameEngine
             return (int) Ceil(x);
         }
 
-        public static Color FromHSV(float h, float s, float v)
+        public static Color FromHsv(float h, float s, float v)
         {
             // Convert from 0-360 to 0-1.
             h *= 360f;

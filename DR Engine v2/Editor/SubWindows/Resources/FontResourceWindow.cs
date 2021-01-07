@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.ResourceLoading;
 using GameEngine.Game.Resources;
 using Gtk;
 
@@ -8,8 +9,6 @@ namespace DREngine.Editor.SubWindows.Resources
 {
     public class FontResourceWindow : ResourceWindow<Font>
     {
-        private const string DefaultTestString = "The Quick Brown Fox Jumped over the Lazy Dog";
-
         private readonly DREditor _editor;
         private FieldBox _fields;
 

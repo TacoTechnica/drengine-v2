@@ -10,27 +10,27 @@ namespace GameEngine
         public static bool PrintDebug = true;
         public static bool PrintTrace = true;
         public static bool ShortenPath = true;
-        public static int padding = 20;
+        public const int PADDING = 20;
 
         public static Action<string> OnLogPrint;
         public static Action<string> OnLogDebug;
         public static Action<string, string> OnLogError;
         public static Action<string> OnLogWarning;
 
-        private static string RootDirectory = "";
+        private static string _rootDirectory = "";
 
         private static object _lock = new object();
 
         public static void InitRootDirectory()
         {
             string thisFile = new StackTrace(true).GetFrame(0).GetFileName().Replace('\\', '/');
-            int lastDir = thisFile.LastIndexOf("/");
+            int lastDir = thisFile.LastIndexOf("/", StringComparison.Ordinal);
             if (lastDir != -1)
             {
                 thisFile = thisFile.Substring(0, lastDir);
             }
 
-            RootDirectory = thisFile;
+            _rootDirectory = thisFile;
         }
 
         private static string GetPrint(string log, int traceOffs)
@@ -41,14 +41,14 @@ namespace GameEngine
                 StackFrame sf = strace.GetFrame(0);
                 if (sf != null && sf.GetFileName() != null)
                 {
-                    string path = sf.GetFileName().Substring(RootDirectory.Length + 1).Replace('\\', '/');
+                    string path = sf.GetFileName().Substring(_rootDirectory.Length + 1).Replace('\\', '/');
                     if (ShortenPath)
                     {
                         path = string.Join("/", GetShortenedStackPath(path.Split("/")));
                     }
 
                     path = $"{path}:{sf.GetFileLineNumber()}";
-                    return $"{path.PadRight(padding)} {log}";
+                    return $"{path.PadRight(PADDING)} {log}";
                 }
                 return $"??:{log}";
             }

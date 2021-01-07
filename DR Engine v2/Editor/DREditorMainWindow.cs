@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using DREngine.Editor.Components;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Resources;
@@ -181,7 +182,7 @@ namespace DREngine.Editor
             _resourceView.Clear();
         }
 
-        public void LoadProject(ProjectData data, string fullPath, Action<string> OnFileLoad = null)
+        public void LoadProject(ProjectData data, string fullPath, Action<string> onFileLoad = null)
         {
             if (fullPath.EndsWith("project.json"))
                 fullPath = fullPath.Substring(0, fullPath.Length - "project.json".Length);
@@ -195,7 +196,7 @@ namespace DREngine.Editor
                 file =>
                 {
                     var relative = System.IO.Path.GetRelativePath(fullPath, file);
-                    OnFileLoad?.Invoke(relative);
+                    onFileLoad?.Invoke(relative);
                 }
             );
         }
@@ -364,12 +365,12 @@ namespace DREngine.Editor
             AlertProblem("This feature is not implemented yet. Sorry!");
         }
 
-        private Button NewButton(string name, Pixbuf icon, Action OnPress = null)
+        private Button NewButton(string name, Pixbuf icon, Action onPress = null)
         {
             var result = new Button();
             result.TooltipText = name;
 
-            result.Pressed += (sender, args) => { OnPress?.Invoke(); };
+            result.Pressed += (sender, args) => { onPress?.Invoke(); };
             //file.Label = "F";
             if (icon == null)
                 result.Label = name;
@@ -377,19 +378,6 @@ namespace DREngine.Editor
                 result.Image = new Image(icon);
 
             return result;
-        }
-
-
-        /// <summary>
-        ///     Contains the content windows.
-        /// </summary>
-        private Widget MakeContentView()
-        {
-            Box b = new HBox();
-            var button = new Button {Label = "Right side"};
-            b.PackStart(button, false, false, 0);
-            button.Show();
-            return b;
         }
 
         private bool EnsureNobodyDirty()
@@ -417,7 +405,7 @@ namespace DREngine.Editor
             Debug.LogError("Invalid constructor.");
         }
 
-        public DREditorMainWindow(int nothing) : base("Invalid")
+        public DREditorMainWindow() : base("Invalid")
         {
             Debug.LogError("Invalid constructor.");
         }

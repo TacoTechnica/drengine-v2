@@ -3,7 +3,7 @@ using GameEngine.Game;
 using GameEngine.Util;
 using Newtonsoft.Json;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     public class JsonHelper
     {

@@ -10,7 +10,6 @@ namespace GameEngine.Game.Resources
     ///
     public class Sprite : IGameResource
     {
-        private readonly GamePlus _game;
         private Texture2D _texture;
 
         [ExtraData]
@@ -28,17 +27,16 @@ namespace GameEngine.Game.Resources
         }
         */
 
-        public Sprite(GamePlus game, Path path, Vector2 Pivot, float Scale = 0.01f)
+        public Sprite(GamePlus game, Path path, Vector2 pivot, float scale = 0.01f)
         {
-            _game = game;
-            this.Pivot = Pivot;
-            this.Scale = Scale;
+            Pivot = pivot;
+            Scale = scale;
             Path = path;
 
             Loaded = false;
-            _game.LoadWhenSafe(() =>
+            game.LoadWhenSafe(() =>
             {
-                Load(_game.ResourceLoaderData);
+                Load(game.ResourceLoaderData);
             });
         }
 

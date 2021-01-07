@@ -16,9 +16,12 @@ namespace DREngine
         private static void SetRootDirectory()
         {
             // Set the root directory
-            var thisFile = new StackTrace(true).GetFrame(0).GetFileName().Replace('\\', '/');
-            var lastDir = thisFile.LastIndexOf("/");
-            if (lastDir != -1) thisFile = thisFile.Substring(0, lastDir);
+            var thisFile = new StackTrace(true).GetFrame(0)?.GetFileName()?.Replace('\\', '/');
+            if (thisFile != null)
+            {
+                var lastDir = thisFile.LastIndexOf("/", StringComparison.Ordinal);
+                if (lastDir != -1) thisFile = thisFile.Substring(0, lastDir);
+            }
 
             RootDirectory = thisFile;
         }

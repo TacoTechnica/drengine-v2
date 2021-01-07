@@ -5,11 +5,11 @@ namespace GameEngine.Game.Coroutine
 {
     public class CoroutineRunner
     {
-        private readonly List<Game.Coroutine.Coroutine> _routines = new List<Game.Coroutine.Coroutine>();
+        private readonly List<Coroutine> _routines = new List<Coroutine>();
 
-        public Game.Coroutine.Coroutine Run(IEnumerator enumerator)
+        public Coroutine Run(IEnumerator enumerator)
         {
-            var c = new Game.Coroutine.Coroutine(enumerator);
+            var c = new Coroutine(enumerator);
             _routines.Add(c);
             return c;
         }
@@ -19,7 +19,7 @@ namespace GameEngine.Game.Coroutine
             _routines.Clear();
         }
 
-        public void Stop(Game.Coroutine.Coroutine c)
+        public void Stop(Coroutine c)
         {
             _routines.Remove(c);
         }

@@ -52,6 +52,7 @@ namespace DREngine.Editor
             return path.ToLower().Contains(search.ToLower());
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static Type GetType(string path, string extension)
         {
             switch (extension)

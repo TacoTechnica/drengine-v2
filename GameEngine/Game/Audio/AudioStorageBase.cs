@@ -6,15 +6,11 @@ namespace GameEngine.Game.Audio
     public abstract class AudioStorageBase
     {
         private readonly Path _fpath;
-        private GamePlus _game;
 
-        protected AudioOutput _output;
-
-        public AudioStorageBase(AudioOutput targetOutput, Path audioFile)
+        public AudioStorageBase(Path audioFile)
         {
             if (!File.Exists(audioFile)) throw new FileNotFoundException($"Audio File does Not Exist: {audioFile}");
             _fpath = audioFile;
-            _output = targetOutput;
         }
 
         public void Load()
@@ -42,9 +38,9 @@ namespace GameEngine.Game.Audio
     {
         private Path _path;
 
-        private int _sample = -1;
+        private int _sample;
 
-        public AudioStorageCached(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
+        public AudioStorageCached(Path audioFile) : base(audioFile)
         {
             _sample = -1;
         }
@@ -54,7 +50,7 @@ namespace GameEngine.Game.Audio
             _path = path;
             if (_sample != -1) Unload();
 
-            _sample = Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerMatrix | BassFlags.Decode);
+            _sample = Bass.SampleLoad(_path, 0, 0, 1000, BassFlags.MixerChanMatrix | BassFlags.Decode);
             if (_sample == 0) Debug.LogError($"Failed to load sample: {Bass.LastError}");
         }
 
@@ -82,7 +78,7 @@ namespace GameEngine.Game.Audio
     {
         private Path _path;
 
-        public AudioStorageStreamed(AudioOutput targetOutput, Path audioFile) : base(targetOutput, audioFile)
+        public AudioStorageStreamed(Path audioFile) : base(audioFile)
         {
         }
 

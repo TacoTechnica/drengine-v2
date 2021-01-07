@@ -9,7 +9,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public class Vector2Widget : FieldWidget<Vector2>
     {
-        private bool _modifiedX, _modifiedY = false;
         private FloatView _x;
         private FloatView _y;
 
@@ -57,7 +56,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                     {
                         return float.Parse(Buffer.Text);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         return _prevValue;
                     }

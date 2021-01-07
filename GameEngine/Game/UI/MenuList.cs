@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GameEngine.Game.Input;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.UI
 {
@@ -52,7 +53,7 @@ namespace GameEngine.Game.UI
         {
         }
 
-        private IMenuItem _selected
+        private IMenuItem Selected
         {
             get
             {
@@ -154,16 +155,16 @@ namespace GameEngine.Game.UI
 
         private void OnSelectionPressKeyboard(InputActionButton obj)
         {
-            if (_pressed != _selected) _pressed?.OnMenuDepress(false);
-            _selected?.OnMenuPress(false);
-            _pressed = _selected;
+            if (_pressed != Selected) _pressed?.OnMenuDepress(false);
+            Selected?.OnMenuPress(false);
+            _pressed = Selected;
         }
 
         private void OnSelectionPressMouse(InputActionButton obj)
         {
-            if (_pressed != _selected) _pressed?.OnMenuDepress(false);
-            _selected?.OnMenuPress(true);
-            _pressed = _selected;
+            if (_pressed != Selected) _pressed?.OnMenuDepress(false);
+            Selected?.OnMenuPress(true);
+            _pressed = Selected;
         }
 
         private void OnPressedNext(InputActionButton obj)

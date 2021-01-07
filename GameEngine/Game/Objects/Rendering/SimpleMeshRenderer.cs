@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace GameEngine.Game.Objects.Rendering
 {
-    public class SimpleMeshRenderer<VType> : BaseMeshRenderer<VType> where VType : struct, IVertexType
+    public class SimpleMeshRenderer<TVertex> : BaseMeshRenderer<TVertex> where TVertex : struct, IVertexType
     {
         private RasterizerState _cachedOgRasterizerState;
 
@@ -20,8 +20,8 @@ namespace GameEngine.Game.Objects.Rendering
             {
                 if (_effect == null)
                 {
-                    Assert.IsNotNull(_game.GraphicsDevice);
-                    _effect = new BasicEffect(_game.GraphicsDevice)
+                    Assert.IsNotNull(Game.GraphicsDevice);
+                    _effect = new BasicEffect(Game.GraphicsDevice)
                     {
                         Alpha = 1.0f,
                         VertexColorEnabled = true,

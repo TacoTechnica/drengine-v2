@@ -8,7 +8,7 @@ namespace GameEngine.Test
 {
     public class TestInputSystem : IGameRunner
     {
-        protected GamePlus _game;
+        protected GamePlus Game;
 
         private ExampleControls _controls;
 
@@ -16,17 +16,17 @@ namespace GameEngine.Test
 
         public void Initialize(GamePlus game)
         {
-            _game = game;
-            _controls = new ExampleControls(_game);
+            Game = game;
+            _controls = new ExampleControls(Game);
 
             _controls.Explode.Pressed += OnExplodePressed;
             _controls.Read.Held += OnReadingHeld;
             _controls.Read.Released += OnReadingReleased;
 
-            _game.CurrentCursor.SetOverride(_controls.Movement, 100);
+            Game.CurrentCursor.SetOverride(_controls.Movement, 100);
 
-            _triangle = new ExampleTriangleObject(_game, Vector3.Zero, Quaternion.Identity);
-            new Camera3D(_game, Vector3.Backward * 20);
+            _triangle = new ExampleTriangleObject(Game, Vector3.Zero, Quaternion.Identity);
+            new Camera3D(Game, Vector3.Backward * 20);
 
             Debug.Log("Input System Test #0: Starto!");
         }
@@ -78,7 +78,7 @@ namespace GameEngine.Test
             public InputActionAxis1D Twiddler;
             public InputActionAxis2D Movement;
 
-            public ExampleControls(GamePlus _game) : base(_game)
+            public ExampleControls(GamePlus game) : base(game)
             {
                 // Buttons are pretty easy, just a list of possible buttons.
                 Explode = new InputActionButton(this, Keys.A, Keys.Space, MouseButton.Left);

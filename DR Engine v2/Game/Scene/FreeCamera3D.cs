@@ -1,7 +1,7 @@
-﻿using GameEngine;
-using GameEngine.Game;
+﻿using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -117,7 +117,7 @@ namespace DREngine.Game.Scene
                 ForwardBack = new InputActionAxis1D(this, Keys.S, Keys.W);
                 RightLeft = new InputActionAxis1D(this, Keys.A, Keys.D);
                 UpDown = new InputActionAxis1D(this, Keys.Q, Keys.E);
-                MouseLook = new InputActionAxis2D(this, MouseAxis.DY, MouseAxis.DX);
+                MouseLook = new InputActionAxis2D(this, MouseAxis.Dy, MouseAxis.Dx);
 
                 Focus = new InputActionButton(this, MouseButton.Left);
                 UnFocus = new InputActionButton(this, Keys.Escape);

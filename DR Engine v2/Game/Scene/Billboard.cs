@@ -21,7 +21,7 @@ namespace DREngine.Game.Scene
         {
         }
 
-        [JsonIgnore] public DRGame Game { get; set; }
+        [JsonIgnore] public new DRGame Game { get; set; }
 
         public string Type { get; set; } = "Billboard";
 

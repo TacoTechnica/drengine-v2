@@ -2,6 +2,7 @@
 using DREngine.Game.Controls;
 using DREngine.Game.CoreScenes;
 using DREngine.Game.VN;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Input;
@@ -23,7 +24,7 @@ namespace DREngine.Game
         {
             _editorConnection = new EditorConnection(connectToDebugEditor, editorPipeReadHandle, editorPipeWriteHandle);
 
-            _graphics.SynchronizeWithVerticalRetrace = true;
+            Graphics.SynchronizeWithVerticalRetrace = true;
             // Fixed timestep causes framerate issues, not sure why. Most likely will not set to true
             //this.IsFixedTimeStep = false;
 
@@ -36,7 +37,7 @@ namespace DREngine.Game
             MenuControls = new MenuControls(this);
 
             // Init Core Scenes
-            SplashScene = new SplashScene(this, PROJECTS_DIRECTORY);
+            _splashScene = new SplashScene(this, PROJECTS_DIRECTORY);
             _projectMainMenuScene = new ProjectMainMenuScene(this);
 
             ResourceLoader = new ResourceLoader(ResourceLoaderData);
@@ -56,6 +57,7 @@ namespace DREngine.Game
                 Debug.LogDebug($"Loading Project at {path}");
                 GameProjectData = ProjectData.LoadFromFile(path);
                 SceneManager.LoadScene(_projectMainMenuScene);
+                ProjectPath = path;
                 return true;
             }
             catch (Exception e)
@@ -88,7 +90,7 @@ namespace DREngine.Game
 
         private readonly EditorConnection _editorConnection;
 
-        private readonly SplashScene SplashScene;
+        private readonly SplashScene _splashScene;
         private readonly ProjectMainMenuScene _projectMainMenuScene;
 
         #endregion
@@ -127,7 +129,7 @@ namespace DREngine.Game
         /// </summary>
         private void LoadSplash()
         {
-            SceneManager.LoadScene(SplashScene);
+            SceneManager.LoadScene(_splashScene);
         }
 
         /// <summary>
@@ -147,11 +149,6 @@ namespace DREngine.Game
                 //SceneManager.LoadScene(new EditorConnectionScene(this));
                 onPing?.Invoke();
             }
-        }
-
-        protected override void LoadContent()
-        {
-            base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)

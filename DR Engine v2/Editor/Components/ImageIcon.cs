@@ -1,7 +1,7 @@
 using Gdk;
 using Gtk;
 
-namespace DREngine.Editor
+namespace DREngine.Editor.Components
 {
     public class ImageIcon : Image
     {

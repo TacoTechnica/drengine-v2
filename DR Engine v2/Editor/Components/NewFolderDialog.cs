@@ -1,3 +1,4 @@
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.Components

@@ -2,7 +2,7 @@
 
 namespace GameEngine.Game.Objects
 {
-    public abstract class GameObjectRender : GameObject, IGameObject
+    public abstract class GameObjectRender : GameObject
     {
         private ObjectContainerNode<GameObjectRender> _renderAddedNode;
 
@@ -41,19 +41,19 @@ namespace GameEngine.Game.Objects
         /// </summary>
         internal override void RunOnDestroy()
         {
-            _renderAddedNode = _game.SceneManager.GameRenderObjects.RemoveImmediate(_renderAddedNode);
+            _renderAddedNode = Game.SceneManager.GameRenderObjects.RemoveImmediate(_renderAddedNode);
             base.RunOnDestroy();
         }
 
         internal override void RunOnDisable(ObjectContainerNode<GameObject> newNode)
         {
-            _renderAddedNode = _game.SceneManager.GameRenderObjects.DisableImmediate(_renderAddedNode);
+            _renderAddedNode = Game.SceneManager.GameRenderObjects.DisableImmediate(_renderAddedNode);
             base.RunOnDisable(newNode);
         }
 
         internal override void RunOnEnable(ObjectContainerNode<GameObject> newNode)
         {
-            _renderAddedNode = _game.SceneManager.GameRenderObjects.EnableImmediate(_renderAddedNode);
+            _renderAddedNode = Game.SceneManager.GameRenderObjects.EnableImmediate(_renderAddedNode);
             base.RunOnEnable(newNode);
         }
 

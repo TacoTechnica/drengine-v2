@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace GameEngine.Game.Tween
 {
@@ -9,13 +10,13 @@ namespace GameEngine.Game.Tween
   /// </summary>
   public static class Interpolation
     {
-        private const float constantA = 1.70158f;
-        private const float constantB = constantA * 1.525f;
-        private const float constantC = constantA + 1f;
-        private const float constantD = 2f * MathF.PI / 3f;
-        private const float constantE = 2f * MathF.PI / 4.5f;
-        private const float constantF = 7.5625f;
-        private const float constantG = 2.75f;
+        private const float CONSTANT_A = 1.70158f;
+        private const float CONSTANT_B = CONSTANT_A * 1.525f;
+        private const float CONSTANT_C = CONSTANT_A + 1f;
+        private const float CONSTANT_D = 2f * MathF.PI / 3f;
+        private const float CONSTANT_E = 2f * MathF.PI / 4.5f;
+        private const float CONSTANT_F = 7.5625f;
+        private const float CONSTANT_G = 2.75f;
 
         public static float Apply(EaseType ease, float time)
         {
@@ -204,39 +205,39 @@ namespace GameEngine.Game.Tween
 
         private static float BackIn(float time)
         {
-            return constantC * time * time * time - constantA * time * time;
+            return CONSTANT_C * time * time * time - CONSTANT_A * time * time;
         }
 
         private static float BackOut(float time)
         {
-            return 1f + constantC * MathF.Pow(time - 1, 3) + constantA * MathF.Pow(time - 1, 2);
+            return 1f + CONSTANT_C * MathF.Pow(time - 1, 3) + CONSTANT_A * MathF.Pow(time - 1, 2);
         }
 
         private static float BackInOut(float time)
         {
             return time < 0.5
-                ? MathF.Pow(2 * time, 2) * ((constantB + 1) * 2 * time - constantB) / 2
-                : (MathF.Pow(2 * time - 2, 2) * ((constantB + 1) * (time * 2 - 2) + constantB) + 2) / 2;
+                ? MathF.Pow(2 * time, 2) * ((CONSTANT_B + 1) * 2 * time - CONSTANT_B) / 2
+                : (MathF.Pow(2 * time - 2, 2) * ((CONSTANT_B + 1) * (time * 2 - 2) + CONSTANT_B) + 2) / 2;
         }
 
         private static float ElasticIn(float time)
         {
             return time == 0 ? 0 :
-                time == 1 ? 1 : -MathF.Pow(2, 10 * time - 10) * MathF.Sin((time * 10f - 10.75f) * constantD);
+                time == 1 ? 1 : -MathF.Pow(2, 10 * time - 10) * MathF.Sin((time * 10f - 10.75f) * CONSTANT_D);
         }
 
         private static float ElasticOut(float time)
         {
             return time == 0 ? 0 :
-                time == 1 ? 1 : MathF.Pow(2, -10 * time) * MathF.Sin((time * 10 - 0.75f) * constantD) + 1;
+                time == 1 ? 1 : MathF.Pow(2, -10 * time) * MathF.Sin((time * 10 - 0.75f) * CONSTANT_D) + 1;
         }
 
         private static float ElasticInOut(float time)
         {
             return time == 0 ? 0 :
                 time == 1 ? 1 :
-                time < 0.5 ? -(MathF.Pow(2, 20 * time - 10) * MathF.Sin((20 * time - 11.125f) * constantE)) / 2 :
-                MathF.Pow(2, -20 * time + 10) * MathF.Sin((20 * time - 11.125f) * constantE) / 2 + 1;
+                time < 0.5 ? -(MathF.Pow(2, 20 * time - 10) * MathF.Sin((20 * time - 11.125f) * CONSTANT_E)) / 2 :
+                MathF.Pow(2, -20 * time + 10) * MathF.Sin((20 * time - 11.125f) * CONSTANT_E) / 2 + 1;
         }
 
         private static float BounceIn(float time)
@@ -246,13 +247,13 @@ namespace GameEngine.Game.Tween
 
         private static float BounceOut(float time)
         {
-            if (time < 1 / constantG)
-                return constantF * time * time;
-            if (time < 2 / constantG)
-                return constantF * (time -= 1.5f / constantG) * time + 0.75f;
-            if (time < 2.5f / constantG)
-                return constantF * (time -= 2.25f / constantG) * time + 0.9375f;
-            return constantF * (time -= 2.625f / constantG) * time + 0.984375f;
+            if (time < 1 / CONSTANT_G)
+                return CONSTANT_F * time * time;
+            if (time < 2 / CONSTANT_G)
+                return CONSTANT_F * (time -= 1.5f / CONSTANT_G) * time + 0.75f;
+            if (time < 2.5f / CONSTANT_G)
+                return CONSTANT_F * (time -= 2.25f / CONSTANT_G) * time + 0.9375f;
+            return CONSTANT_F * (time -= 2.625f / CONSTANT_G) * time + 0.984375f;
         }
 
         private static float BounceInOut(float time)

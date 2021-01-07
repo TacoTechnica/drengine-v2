@@ -8,12 +8,10 @@ namespace DREngine.Editor.Components
 {
     public class NewProjectDialog : EasyDialog
     {
-        //[EngineDirectoryField("projects", "Choose Project Parent Directory")]
-        //public string ProjectParentDirectory = null;
 
+        // ReSharper disable once NotAccessedField.Local
         private DREditor _editor;
 
-        private FieldBox _fields;
         public string Author = "Me";
 
         [EngineFileField("projects", "Choose Icon", "*.png", "Image")]
@@ -26,7 +24,7 @@ namespace DREngine.Editor.Components
         {
             _editor = editor;
 
-            _post.Text =
+            Post.Text =
                 "Will create a new folder in the projects directory.\nYou can always change the project name later.\nIcon is optional.";
         }
 

@@ -1,15 +1,15 @@
 ﻿using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable NotAccessedField.Local
 
 namespace GameEngine.Test
 {
     public class TestDeletion : IGameRunner
     {
-        private GraphicsDevice _graphics;
 
         private Camera3D _cam;
         private ExampleTriangleObject _exampleObj;
@@ -20,7 +20,6 @@ namespace GameEngine.Test
         public void Initialize(GamePlus game)
         {
             _game = game;
-            _graphics = game.GraphicsDevice;
             Debug.LogDebug("TestGame Initialize()");
 
             _cam = new Camera3D(game);

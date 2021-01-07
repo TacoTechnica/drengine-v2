@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using DREngine.Editor.Components;
+using DREngine.ResourceLoading;
 using GameEngine.Game;
 using Gtk;
 
@@ -41,7 +43,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _button.Label = "(not loaded)";
             _button.Image = null;
 
-            _chooser = new ChooserWindow<T>(_editor, this, _type, "Choose Resource");
+            _chooser = new ChooserWindow<T>(_editor, this, _type);
             _chooser.DeleteEvent += (o, args) => { Window.Focus(0); };
             _chooser.PathSelected += s =>
             {
@@ -76,12 +78,12 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected abstract bool AcceptPath(ProjectPath path);
 
-        private class ChooserWindow<T> : SavableWindow
+        private class ChooserWindow<TV> : SavableWindow
         {
             private readonly DREditor _editor;
 
             // hmmm this is only here for one extra function.
-            private readonly AbstractFieldGameResource<T> _parent;
+            private readonly AbstractFieldGameResource<TV> _parent;
 
             private TextView _searchBar;
 
@@ -91,7 +93,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
             public Action<string> PathSelected;
 
-            public ChooserWindow(DREditor editor, AbstractFieldGameResource<T> parent, Type type, string title = "") :
+            public ChooserWindow(DREditor editor, AbstractFieldGameResource<TV> parent, Type type) :
                 base(editor, null, false)
             {
                 _editor = editor;

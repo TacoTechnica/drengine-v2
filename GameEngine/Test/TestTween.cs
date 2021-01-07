@@ -4,6 +4,7 @@ using GameEngine.Game.Objects.Rendering;
 using GameEngine.Game.Tween;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable NotAccessedField.Local
 
 namespace GameEngine.Test
 {

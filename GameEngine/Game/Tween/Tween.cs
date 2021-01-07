@@ -1,4 +1,5 @@
 ﻿using System;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.Tween
 {
@@ -17,7 +18,6 @@ namespace GameEngine.Game.Tween
         private float _duration;
 
         private EaseType _ease;
-        private T _end;
         private bool _finished;
         private Action _onCancel;
 
@@ -27,7 +27,6 @@ namespace GameEngine.Game.Tween
 
         private readonly Tweener _parent;
 
-        private T _start;
         private bool _started;
 
         private float _startTime;
@@ -36,11 +35,9 @@ namespace GameEngine.Game.Tween
         private bool _useOvershooting;
         private bool _useUnscaledTime;
 
-        internal Tween(Tweener parent, T start, T end, float duration, Action<T> onTween, Func<float, T> tweenFunction)
+        internal Tween(Tweener parent, float duration, Action<T> onTween, Func<float, T> tweenFunction)
         {
             _parent = parent;
-            _start = start;
-            _end = end;
             _duration = duration;
             _tweenFunction = tweenFunction;
             _onTween = onTween;
@@ -79,7 +76,6 @@ namespace GameEngine.Game.Tween
                 }
                 else
                 {
-                    var prev = progress;
                     progress = Interpolation.Apply(_ease, progress);
                 }
 
@@ -137,8 +133,7 @@ namespace GameEngine.Game.Tween
 
         public Tween<T> SetFrom(T start)
         {
-            _start = start;
-            return this;
+            throw new NotImplementedException("This tween not implemented, investigate tween library.");
         }
 
         public Tween<T> SetOnComplete(Action onComplete)

@@ -1,8 +1,10 @@
 using System;
 using System.Reflection;
+using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.ResourceLoading;
 using Microsoft.Xna.Framework;
 
-namespace DREngine.Editor.SubWindows.FieldWidgets
+namespace DREngine.Editor.SubWindows
 {
     public static class FieldWidgetFactory
     {
@@ -58,6 +60,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             return type.IsAssignableFrom(typeToCheck);
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static bool IsTypeGeneric(Type typeToCheck, Type generic)
         {
             try

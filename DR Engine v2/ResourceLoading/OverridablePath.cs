@@ -3,7 +3,7 @@ using DREngine.Game;
 using GameEngine.Game;
 using Newtonsoft.Json;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     /// <summary>
     ///     A path to an "Overridable Default Resource" that is global for all projects, but CAN be overriden.

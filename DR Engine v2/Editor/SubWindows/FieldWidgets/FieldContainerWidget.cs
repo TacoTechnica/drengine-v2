@@ -9,7 +9,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     /// </summary>
     public class FieldContainerWidget : FieldWidget<object>
     {
-        private object _data;
         private readonly DREditor _editor;
 
         private FieldBox _subBox;

@@ -5,7 +5,7 @@ using GameEngine.Game.Debugging;
 using GameEngine.Game.Resources;
 using Newtonsoft.Json;
 
-namespace DREngine
+namespace DREngine.ResourceLoading
 {
     /// <summary>
     ///     Append this to ALL serializable fields that use a project resource.
@@ -26,7 +26,7 @@ namespace DREngine
             _currentGame = game;
         }
 
-        public override void WriteJson(JsonWriter writer, object? o, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object o, JsonSerializer serializer)
         {
             var value = (IGameResource) o;
             //Debug.Log($"!!!!!!!!!!!!!!GOT RESOURCE: {value.Path}");
@@ -46,7 +46,7 @@ namespace DREngine
                         storedPath =
                             $"{RESOURCE_PATH_PREFIX}{_currentGame.GameProjectData.GetRelativeProjectPath(value.Path)}";
                 }
-                catch (InvalidArgumentsException e)
+                catch (InvalidArgumentsException)
                 {
                     // Get path relative to program path, so we have something to work with.
                     var dir = Program.RootDirectory;
@@ -58,7 +58,7 @@ namespace DREngine
             writer.WriteValue(storedPath);
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? value,
+        public override object ReadJson(JsonReader reader, Type objectType, object value,
             JsonSerializer jsonSerializer)
         {
             var data = (string) reader.Value;

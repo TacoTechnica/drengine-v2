@@ -9,7 +9,7 @@ namespace GameEngine.Game.Objects
     /// </summary>
     public class BaseSceneLoader : ISceneLoader
     {
-        protected GamePlus _game;
+        protected GamePlus Game;
         private readonly string[] _names;
         private readonly Action<GamePlus> _onLoad;
 
@@ -18,7 +18,7 @@ namespace GameEngine.Game.Objects
             // If _game is null, we are dealing with serialization.
             if (game != null)
             {
-                _game = game;
+                Game = game;
                 _names = names;
                 _onLoad = onLoad;
 
@@ -41,12 +41,12 @@ namespace GameEngine.Game.Objects
 
         public virtual void LoadScene()
         {
-            _onLoad?.Invoke(_game);
+            _onLoad?.Invoke(Game);
         }
 
         public void Deregister()
         {
-            _game.SceneManager.DeregisterSceneLoader(this);
+            Game.SceneManager.DeregisterSceneLoader(this);
         }
     }
 }

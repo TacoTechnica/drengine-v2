@@ -16,28 +16,28 @@ namespace GameEngine.Game.Debugging
 
         public virtual bool IsArray => false;
 
-        protected V GetConverted<V>(object ob)
+        protected TV GetConverted<TV>(object ob)
         {
             try
             {
-                return (V) Convert.ChangeType(ob, typeof(V));
+                return (TV) Convert.ChangeType(ob, typeof(TV));
             }
             catch (Exception)
             {
                 throw new InvalidArgumentsException(
-                    $"Tried to convert the following object to type {typeof(V)} and failed: {ob}. This is probably an internal problem, contact the dev!");
+                    $"Tried to convert the following object to type {typeof(TV)} and failed: {ob}. This is probably an internal problem, contact the dev!");
                 //return default(T);
             }
         }
 
         public abstract object ParseUnit(string unit, string[] unitPlusRemainder);
 
-        public V ParseUnit<V>(string unit, string[] unitPlusRemainder)
+        public TV ParseUnit<TV>(string unit, string[] unitPlusRemainder)
         {
-            return GetConverted<V>(ParseUnit(unit, unitPlusRemainder));
+            return GetConverted<TV>(ParseUnit(unit, unitPlusRemainder));
         }
 
-        public abstract V GetDefault<V>();
+        public abstract TV GetDefault<TV>();
 
         public abstract string GetHelpRepresentation();
     }
@@ -49,7 +49,7 @@ namespace GameEngine.Game.Debugging
     {
         private readonly Dictionary<string, T> _enumValues;
 
-        private readonly string _name = "";
+        private readonly string _name;
 
         private readonly bool _showDefault;
 
@@ -64,7 +64,7 @@ namespace GameEngine.Game.Debugging
             if (IsInstanceOf<T>(typeof(Enum)))
             {
                 _enumValues = new Dictionary<string, T>();
-                foreach (T v in Enum.GetValues(typeof(T))) _enumValues.Add(v.ToString().ToLower(), v);
+                foreach (T v in Enum.GetValues(typeof(T))) _enumValues.Add(v.ToString()?.ToLower() ?? throw new InvalidOperationException("How did we get here?"), v);
             }
             else
             {
@@ -88,15 +88,12 @@ namespace GameEngine.Game.Debugging
 
         // This is important cause if it is, it will stop parsing further variables and end here as it is a params.
         public override bool IsArray => IsInstanceOf<T>(typeof(Array));
-        private bool _isEnum => _enumValues != null;
+        private bool IsEnum => _enumValues != null;
 
         /// <summary>
         ///     Return the "help" command representation of this argument.
         ///     For instance, in a "dialogue" command it looks like this:
         ///     dialogue
-        ///     <name = "">
-        ///         [text]
-        ///         name is optional and defaults to "", while text is non optional.
         /// </summary>
         public override string GetHelpRepresentation()
         {
@@ -109,19 +106,20 @@ namespace GameEngine.Game.Debugging
             return "[" + _name + "]";
         }
 
-        private bool IsInstanceOf<V>(Type t)
+        private bool IsInstanceOf<TV>(Type t)
         {
-            return typeof(V) == t || typeof(V).IsSubclassOf(t);
+            return typeof(TV) == t || typeof(TV).IsSubclassOf(t);
         }
 
-        private bool IsInstancesOf<V>(params Type[] types)
+        private bool IsInstancesOf<TV>(params Type[] types)
         {
             foreach (var t in types)
-                if (IsInstanceOf<V>(t))
+                if (IsInstanceOf<TV>(t))
                     return true;
             return false;
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private void ParseErrorCheck(bool good, object value, string type)
         {
             if (!good)
@@ -129,10 +127,10 @@ namespace GameEngine.Game.Debugging
                     $"Failed to parse the following argument into type {type}: {value}.");
         }
 
-        private V ParseUnitUtil<V>(string unit, string[] unitPlusRemainder)
+        private TV ParseUnitUtil<TV>(string unit, string[] unitPlusRemainder)
         {
             // If enum, check from our cached enum dictionary.
-            if (_isEnum)
+            if (IsEnum)
             {
                 unit = unit.ToLower();
                 if (!_enumValues.ContainsKey(unit))
@@ -148,49 +146,49 @@ namespace GameEngine.Game.Debugging
                     throw new InvalidArgumentsException($"Invalid argument found: {unit}. Accepted values are: {res}");
                 }
 
-                return GetConverted<V>(_enumValues[unit]);
+                return GetConverted<TV>(_enumValues[unit]);
             }
 
             // Do number parsing.
-            if (IsInstanceOf<V>(typeof(float)))
+            if (IsInstanceOf<TV>(typeof(float)))
             {
                 ParseErrorCheck(float.TryParse(unit, out _), unit, "float");
-                return GetConverted<V>(float.Parse(unit));
+                return GetConverted<TV>(float.Parse(unit));
             }
 
-            if (IsInstanceOf<V>(typeof(double)))
+            if (IsInstanceOf<TV>(typeof(double)))
             {
                 ParseErrorCheck(double.TryParse(unit, out _), unit, "double");
-                return GetConverted<V>(double.Parse(unit));
+                return GetConverted<TV>(double.Parse(unit));
             }
 
-            if (IsInstanceOf<V>(typeof(int)))
+            if (IsInstanceOf<TV>(typeof(int)))
             {
                 ParseErrorCheck(int.TryParse(unit, out _), unit, "int");
-                return GetConverted<V>(int.Parse(unit));
+                return GetConverted<TV>(int.Parse(unit));
             }
 
-            if (IsInstanceOf<V>(typeof(long)))
+            if (IsInstanceOf<TV>(typeof(long)))
             {
                 ParseErrorCheck(long.TryParse(unit, out _), unit, "long");
-                return GetConverted<V>(long.Parse(unit));
+                return GetConverted<TV>(long.Parse(unit));
             }
 
             // Now do string parsing.
-            if (IsInstanceOf<V>(typeof(string)))
+            if (IsInstanceOf<TV>(typeof(string)))
             {
                 // Remove quotes
                 if (unit.Length >= 2)
                     if (unit[0] == '\"' && unit[unit.Length - 1] == '\"')
                         unit = unit.Substring(1, unit.Length - 2);
-                return GetConverted<V>(unit);
+                return GetConverted<TV>(unit);
             }
 
             // For arrays, parse them uh individually.
-            if (IsInstanceOf<V>(typeof(Array)))
+            if (IsInstanceOf<TV>(typeof(Array)))
             {
                 // Get the type of the individual array generic by creating a dummy. Not a smart idea but whatever.
-                var dummy = GetConverted<Array>(Activator.CreateInstance<V>());
+                var dummy = GetConverted<Array>(Activator.CreateInstance<TV>());
                 var subType = dummy.GetType().GetElementType();
 
                 // Call the generic method with reflection. TODO: This is kinda bad but whatever.
@@ -225,7 +223,7 @@ namespace GameEngine.Game.Debugging
                     remainingUnits = copy;
                 }
 
-                return GetConverted<V>(result.ToArray());
+                return GetConverted<TV>(result.ToArray());
             }
 
             throw new InvalidSetupException(
@@ -243,9 +241,9 @@ namespace GameEngine.Game.Debugging
             return true;
         }
 
-        public override V GetDefault<V>()
+        public override TV GetDefault<TV>()
         {
-            return GetConverted<V>(Default);
+            return GetConverted<TV>(Default);
         }
     }
 
@@ -255,15 +253,15 @@ namespace GameEngine.Game.Debugging
     /// </summary>
     public class ArgParser
     {
-        private int argCounter;
-        private string[] argUnits;
-        private int unitCounter;
+        private int _argCounter;
+        private string[] _argUnits;
+        private int _unitCounter;
 
         public ArgParser(params ArgBase[] args)
         {
             Args = args;
-            argCounter = 0;
-            unitCounter = 0;
+            _argCounter = 0;
+            _unitCounter = 0;
         }
 
         public ArgBase[] Args { get; }
@@ -273,39 +271,39 @@ namespace GameEngine.Game.Debugging
             var units = SplitLineIntoKeywords(line);
             // Discard the first element since, well, it will always be the name of the command.
             if (units.Count != 0) units.RemoveAt(0);
-            argUnits = units.ToArray();
-            argCounter = 0;
-            unitCounter = 0;
+            _argUnits = units.ToArray();
+            _argCounter = 0;
+            _unitCounter = 0;
         }
 
         // Get the next argument.
         public T Get<T>()
         {
-            if (argCounter >= Args.Length)
+            if (_argCounter >= Args.Length)
                 throw new InvalidSetupException("You tried grabbing more arguments than you had... Bad move.");
-            if (argUnits.Length > Args.Length)
+            if (_argUnits.Length > Args.Length)
                 throw new InvalidArgumentsException(
-                    $"Too many arguments provided ({argUnits.Length})! The maximum is {Args.Length}.");
+                    $"Too many arguments provided ({_argUnits.Length})! The maximum is {Args.Length}.");
 
             // Current values from arrays
-            var arg = Args[argCounter];
-            ++argCounter;
-            if (arg.IsArray) argCounter = Args.Length;
+            var arg = Args[_argCounter];
+            ++_argCounter;
+            if (arg.IsArray) _argCounter = Args.Length;
 
             // If this can be default and we don't have enough (unit) args provided to use this arg, use the default value instead of reading from our arg list.
-            var givenArgs = argUnits.Length;
+            var givenArgs = _argUnits.Length;
             if (arg.HasDefault && arg.MinArgCountToUseDefault >= givenArgs) return arg.GetDefault<T>();
 
 
-            if (unitCounter >= argUnits.Length)
-                throw new InvalidArgumentsException($"Not enough arguments supplied: You supplied {argUnits.Length}");
+            if (_unitCounter >= _argUnits.Length)
+                throw new InvalidArgumentsException($"Not enough arguments supplied: You supplied {_argUnits.Length}");
 
-            var unit = argUnits[unitCounter];
-            var unitPlusRemaining = new string[argUnits.Length - unitCounter];
-            Array.Copy(argUnits, unitCounter, unitPlusRemaining, 0, unitPlusRemaining.Length);
+            var unit = _argUnits[_unitCounter];
+            var unitPlusRemaining = new string[_argUnits.Length - _unitCounter];
+            Array.Copy(_argUnits, _unitCounter, unitPlusRemaining, 0, unitPlusRemaining.Length);
             //argUnits.CopyTo(unitPlusRemaining, unitCounter);
 
-            ++unitCounter;
+            ++_unitCounter;
 
             // If our type is not valid, try um handling the defaults.
 
@@ -317,17 +315,17 @@ namespace GameEngine.Game.Debugging
         {
             var result = new List<string>();
             // By default, it's just spaces. But sometimes we want to count quotes. So do it manually.
-            var last_kword = "";
-            var open_quote = false;
-            var prev_char = '\0';
+            var lastKword = "";
+            var openQuote = false;
+            var prevChar = '\0';
             foreach (var c in line)
             {
                 // We found a quote, update our "quote" state.
-                if (c == '\"') open_quote = !open_quote;
-                if (prev_char == '\\')
+                if (c == '\"') openQuote = !openQuote;
+                if (prevChar == '\\')
                 {
                     if (c == '#' || c == '"') // We escaped this pound sign, so ignore the escaping backslash
-                        last_kword = last_kword.Substring(0, last_kword.Length - 1);
+                        lastKword = lastKword.Substring(0, lastKword.Length - 1);
                 }
                 else
                 {
@@ -335,23 +333,23 @@ namespace GameEngine.Game.Debugging
                         break;
                 }
 
-                if (c == ' ' && !open_quote)
+                if (c == ' ' && !openQuote)
                 {
                     // If it's empty, just ignore.
-                    if (last_kword.Length != 0) // Remove trailing whitespace
-                        result.Add(last_kword.Trim());
-                    last_kword = "";
+                    if (lastKword.Length != 0) // Remove trailing whitespace
+                        result.Add(lastKword.Trim());
+                    lastKword = "";
                 }
                 else
                 {
-                    last_kword += c;
+                    lastKword += c;
                 }
 
-                prev_char = c;
+                prevChar = c;
             }
 
             // Add the remainder
-            if (last_kword.Length != 0) result.Add(last_kword.Trim());
+            if (lastKword.Length != 0) result.Add(lastKword.Trim());
             return result;
         }
     }
@@ -363,13 +361,13 @@ namespace GameEngine.Game.Debugging
     public abstract class Command
     {
         private GamePlus _game;
-        private readonly ArgParser parser;
+        private readonly ArgParser _parser;
 
         public Command(string name, string description, params ArgBase[] args)
         {
             Name = name;
             Description = description;
-            parser = new ArgParser(args);
+            _parser = new ArgParser(args);
         }
 
         public string Name { get; }
@@ -380,14 +378,14 @@ namespace GameEngine.Game.Debugging
         public void Run(GamePlus game, string line)
         {
             _game = game;
-            parser.LoadArgs(line);
-            Call(game, parser);
+            _parser.LoadArgs(line);
+            Call(game, _parser);
         }
 
         public string GetHelpRepresentation()
         {
             var sb = new StringBuilder(Name);
-            foreach (var arg in parser.Args)
+            foreach (var arg in _parser.Args)
             {
                 sb.Append(" ");
                 sb.Append(arg.GetHelpRepresentation());
@@ -415,13 +413,13 @@ namespace GameEngine.Game.Debugging
 
     public static class Commands
     {
-        private static Dictionary<string, Command> commandSheet;
+        private static Dictionary<string, Command> _commandSheet;
 
         public static IEnumerable<Command> AllCommands
         {
             get
             {
-                foreach (var c in commandSheet.Values) yield return c;
+                foreach (var c in _commandSheet.Values) yield return c;
             }
         }
 
@@ -429,9 +427,9 @@ namespace GameEngine.Game.Debugging
         {
             var namespaces = new HashSet<string>(commandListNamespaces);
             // We already initialized, so ignore so we don't do more work.
-            if (commandSheet != null) return;
+            if (_commandSheet != null) return;
 
-            commandSheet = new Dictionary<string, Command>();
+            _commandSheet = new Dictionary<string, Command>();
 
             var typeList = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in typeList)
@@ -441,9 +439,9 @@ namespace GameEngine.Game.Debugging
                 {
                     if (!type.IsSubclassOf(typeof(Command))) continue;
                     var command = (Command) Activator.CreateInstance(type);
-                    if (commandSheet.ContainsKey(command.Name))
+                    if (_commandSheet.ContainsKey(command.Name))
                         throw new InvalidSetupException($"Duplicate commands of name {command.Name} found!");
-                    commandSheet[command.Name] = command;
+                    _commandSheet[command.Name] = command;
                 }
                 catch (MissingMethodException)
                 {
@@ -472,13 +470,12 @@ namespace GameEngine.Game.Debugging
                 catch (InvalidArgumentsException ae)
                 {
                     throw new InvalidArgumentsException($"{ae.Message}\nUsage: {c.GetHelpRepresentation()}", ae);
-                    ;
                 }
         }
 
         private static Command GetCommand(string line)
         {
-            if (commandSheet == null)
+            if (_commandSheet == null)
                 throw new InvalidSetupException(
                     "You forgot to initialize the command catalogue thing! Call Commands.Init() somewhere at the start of the game to initialize this.");
 
@@ -488,10 +485,10 @@ namespace GameEngine.Game.Debugging
                 var firstSpace = line.IndexOf(' ');
                 if (firstSpace != -1) command = line.Substring(0, firstSpace);
 
-                if (!commandSheet.ContainsKey(command))
+                if (!_commandSheet.ContainsKey(command))
                     throw new InvalidArgumentsException($"Command {command} does not exist.");
 
-                return commandSheet[command];
+                return _commandSheet[command];
             }
 
             return null;
@@ -499,7 +496,7 @@ namespace GameEngine.Game.Debugging
 
         public static Command Get(string name)
         {
-            return commandSheet.ContainsKey(name) ? commandSheet[name] : null;
+            return _commandSheet.ContainsKey(name) ? _commandSheet[name] : null;
         }
     }
 

@@ -3,8 +3,8 @@ using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable RedundantArgumentDefaultValue
 
 namespace GameEngine.Test
 {
@@ -15,7 +15,7 @@ namespace GameEngine.Test
 
         private TestGame _game;
 
-        private Font _textFont => _game.TestFont;
+        private Font TextFont => _game.TestFont;
 
         public void Initialize(GamePlus game)
         {
@@ -24,7 +24,7 @@ namespace GameEngine.Test
             // Make sure stuff renders behind the mask
             new UIColoredRect(game, Color.OrangeRed)
                 .WithLayout(Layout.SideStretchLayout(Layout.Top, 59, 0))
-                .WithChild(new UIText(game, _textFont, "This part is not cropped and it will mind its own damn business."))
+                .WithChild(new UIText(game, TextFont, "This part is not cropped and it will mind its own damn business."))
                 .AddToRoot();
 
             // LEFT MASK
@@ -33,7 +33,7 @@ namespace GameEngine.Test
                 .AddToRoot()
                 .WithChild(new UIColoredRect(game, Color.Chartreuse, true).WithLayout(Layout.FullscreenLayout(1, 1, 1, 1)));
             leftMask.AddChild(
-                new UIText(game, _textFont, "This should be cropped partially as this keeps going yadayadayadayada sads adsa dsad sada sdas dsa dasd ")
+                new UIText(game, TextFont, "This should be cropped partially as this keeps going yadayadayadayada sads adsa dsad sada sdas dsa dasd ")
                     .WithoutWordWrap()
                     .OffsetBy(-100, 0)
             );
@@ -41,7 +41,7 @@ namespace GameEngine.Test
             // mover (within LEFT MASK)
             _mover = new UIColoredRect(game, Color.Red, Color.Aqua, Color.DarkOliveGreen, Color.Coral)
                 .WithLayout(Layout.CenteredLayout(50, 50))
-                .WithChild(new UIText(game, _textFont, "Hello I should crop too"));
+                .WithChild(new UIText(game, TextFont, "Hello I should crop too"));
             leftMask.AddChild(_mover);
 
 
@@ -51,7 +51,7 @@ namespace GameEngine.Test
                 .AddToRoot()
                 .WithChild(new UIColoredRect(game, Color.Gold, true).WithLayout(Layout.FullscreenLayout(1, 1, 1, 1)));
             rightMask.AddChild(
-                new UIText(game, _textFont, "AAAAAAAAAAAAAAAAAAAA This should ALSO be cropped TWICE WILL REPEAT: This should ALSO be cropped")
+                new UIText(game, TextFont, "AAAAAAAAAAAAAAAAAAAA This should ALSO be cropped TWICE WILL REPEAT: This should ALSO be cropped")
                     .WithoutWordWrap()
                     .OffsetBy(-250, 150)
                 );

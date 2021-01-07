@@ -1,6 +1,7 @@
 ﻿using System;
 using GameEngine.Game.Input;
 using Microsoft.Xna.Framework;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.UI
 {
@@ -134,7 +135,7 @@ namespace GameEngine.Game.UI
             if (_handle.CursorSelected) return;
 
             // Now, we must move our percent to where our mouse is.
-            var mousePos = _game.CurrentCursor.Position;
+            var mousePos = Game.CurrentCursor.Position;
             float targetPos;
             float minRectPos;
             float maxRectPos;
@@ -228,9 +229,9 @@ namespace GameEngine.Game.UI
             {
             }
 
-            private UISlider _parentSlider => (UISlider) _parent;
+            private UISlider ParentSlider => (UISlider) Parent;
 
-            private Vector2 mousePos => _game.CurrentCursor.Position;
+            private Vector2 MousePos => Game.CurrentCursor.Position;
             private bool mousePressing => RawInput.MousePressing(MouseButton.Left);
 
             protected override void Draw(UIScreen screen, Rect targetRect)
@@ -242,7 +243,7 @@ namespace GameEngine.Game.UI
                         if (CursorSelected && !_dragging)
                         {
                             _dragging = true;
-                            _dragMousePrev = mousePos;
+                            _dragMousePrev = MousePos;
                         }
                     }
                     else // mouse NOT pressing
@@ -254,9 +255,9 @@ namespace GameEngine.Game.UI
 
                     if (_dragging)
                     {
-                        _parentSlider?.ChangeSliderPosition(mousePos - _dragMousePrev);
+                        ParentSlider?.ChangeSliderPosition(MousePos - _dragMousePrev);
 
-                        _dragMousePrev = mousePos;
+                        _dragMousePrev = MousePos;
                     }
                 }
 

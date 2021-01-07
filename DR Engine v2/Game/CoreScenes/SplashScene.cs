@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Objects;
@@ -187,7 +188,6 @@ namespace DREngine.Game.CoreScenes
             private readonly MenuList _menu;
 
             private readonly UIScrollView _scrollView;
-            public Action<string> OnProjectPick = null;
 
             public UIProjectList(DRGame game, Font font, float childHeight, float spacing) : base(game)
             {
@@ -247,14 +247,14 @@ namespace DREngine.Game.CoreScenes
                 }
             }
 
-            public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action OnPress)
+            public void AddProjectOption(string projectName, string projectAuthor, Sprite icon, Action onPress)
             {
                 var button =
-                    new UIProjectOptionButton(_game, _font, projectName, projectAuthor, icon, _layout.ChildCount);
+                    new UIProjectOptionButton(Game, _font, projectName, projectAuthor, icon, _layout.ChildCount);
                 _layout.AddChild(button);
                 _menu.AddChild(button);
 
-                button.Pressed += OnPress;
+                button.Pressed += onPress;
             }
 
             protected override void Draw(UIScreen screen, Rect targetRect)

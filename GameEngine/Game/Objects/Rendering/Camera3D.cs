@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameEngine.Util;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game.Objects.Rendering
@@ -31,7 +32,7 @@ namespace GameEngine.Game.Objects.Rendering
             Fov = fov;
 
             Debug.Log("ADDED CAMERA");
-            _camListReference = _game.SceneManager.Cameras.Add(this);
+            _camListReference = Game.SceneManager.Cameras.Add(this);
         }
 
         public Camera3D(GamePlus game, Vector3 pos = default) : this(game, pos, Math.FromEuler(0, 0, 0))
@@ -43,7 +44,7 @@ namespace GameEngine.Game.Objects.Rendering
             get => _fov;
             set
             {
-                if (value != _fov) _needToUpdateProjection = true;
+                if (System.Math.Abs(value - _fov) > 0.1f) _needToUpdateProjection = true;
                 _fov = value;
             }
         }
@@ -55,14 +56,14 @@ namespace GameEngine.Game.Objects.Rendering
         public Vector2 WorldCoordToScreenCoord(Vector3 worldCoord)
         {
             var screen =
-                _game.GraphicsDevice.Viewport.Project(worldCoord, ProjectionMatrix, ViewMatrix, Matrix.Identity);
+                Game.GraphicsDevice.Viewport.Project(worldCoord, ProjectionMatrix, ViewMatrix, Matrix.Identity);
             return new Vector2(screen.X, screen.Y);
         }
 
         public Vector3 ScreenCoordToWorldCoord(Vector2 screenCord, float distanceFromCamera)
         {
             var screenPos = new Vector3(screenCord.X, screenCord.Y, distanceFromCamera);
-            return _game.GraphicsDevice.Viewport.Unproject(screenPos, ProjectionMatrix, ViewMatrix, Matrix.Identity);
+            return Game.GraphicsDevice.Viewport.Unproject(screenPos, ProjectionMatrix, ViewMatrix, Matrix.Identity);
         }
 
         public Ray GetScreenRay(Vector2 screenPos)
@@ -89,7 +90,7 @@ namespace GameEngine.Game.Objects.Rendering
             {
                 ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                     MathHelper.ToRadians(Fov),
-                    _game.GraphicsDevice.Viewport.AspectRatio,
+                    Game.GraphicsDevice.Viewport.AspectRatio,
                     1f, 1000f
                 );
                 _needToUpdateProjection = false;
@@ -105,25 +106,25 @@ namespace GameEngine.Game.Objects.Rendering
         public override void OnDestroy()
         {
             Debug.Log("deleted CAMERA");
-            _camListReference = _game.SceneManager.Cameras.RemoveImmediate(_camListReference);
+            _camListReference = Game.SceneManager.Cameras.RemoveImmediate(_camListReference);
         }
 
         internal override void RunOnDisable(ObjectContainerNode<GameObject> newNode)
         {
-            _camListReference = _game.SceneManager.Cameras.DisableImmediate(_camListReference);
+            _camListReference = Game.SceneManager.Cameras.DisableImmediate(_camListReference);
             base.RunOnDisable(newNode);
         }
 
         internal override void RunOnEnable(ObjectContainerNode<GameObject> newNode)
         {
-            _camListReference = _game.SceneManager.Cameras.EnableImmediate(_camListReference);
+            _camListReference = Game.SceneManager.Cameras.EnableImmediate(_camListReference);
             base.RunOnEnable(newNode);
         }
 
         public override void Draw(GraphicsDevice g)
         {
             // If we're in debug mode, render colliders from this camera.
-            if (_game.DebugDrawColliders) _game.CollisionManager.DrawDebugColliders(_game, this);
+            if (Game.DebugDrawColliders) Game.CollisionManager.DrawDebugColliders(Game, this);
         }
     }
 }

@@ -40,14 +40,14 @@ namespace GameEngine.Game.UI
 
         public void Initialize()
         {
-            GraphicsDevice = _game.GraphicsDevice;
+            GraphicsDevice = Game.GraphicsDevice;
             DrawEffect = new BasicEffect(GraphicsDevice);
             DrawEffectAlpha = new AlphaTestEffect(GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             DrawEffect.VertexColorEnabled = true;
 
-            AddChild(_rootNode = new UIRootNode(_game));
+            AddChild(_rootNode = new UIRootNode(Game));
         }
 
         public void Draw()

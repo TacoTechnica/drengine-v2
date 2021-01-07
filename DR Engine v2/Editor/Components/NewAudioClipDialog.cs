@@ -1,5 +1,6 @@
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.ResourceLoading;
 using GameEngine.Game.Resources;
 using Gtk;
 

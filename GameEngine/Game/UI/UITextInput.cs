@@ -2,6 +2,7 @@
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using TextCopy;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.UI
 {

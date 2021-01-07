@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;

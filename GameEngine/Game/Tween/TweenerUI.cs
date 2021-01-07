@@ -1,6 +1,7 @@
 ﻿using System;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.Tween
 {

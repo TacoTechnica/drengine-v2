@@ -16,7 +16,7 @@ namespace DREngine.Game.Controls
 
         public InputActionButton Select;
 
-        public MenuControls(GamePlus _game) : base(_game)
+        public MenuControls(GamePlus game) : base(game)
         {
             MoveUp = new InputActionButton(this, Keys.Up, Buttons.DPadUp, Buttons.LeftThumbstickUp);
             MoveDown = new InputActionButton(this, Keys.Down, Buttons.DPadDown, Buttons.LeftThumbstickDown);

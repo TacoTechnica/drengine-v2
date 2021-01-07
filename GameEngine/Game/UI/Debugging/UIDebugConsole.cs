@@ -1,4 +1,5 @@
 ﻿using GameEngine.Game.Resources;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 
 namespace GameEngine.Game.UI.Debugging
@@ -30,7 +31,6 @@ namespace GameEngine.Game.UI.Debugging
             _input = (UITextInput) new UITextInput(game, font, Color.White)
                 .WithLayout(Layout.FullscreenLayout());
 
-            var textBackground =
                 new UIMaskRect(game, Color.Black, this) // new UIColoredRect(game, Color.Black, false, this) //
                     .WithLayout(Layout.SideStretchLayout(Layout.Bottom, inputHeight, padding))
                     .WithChild(_input);

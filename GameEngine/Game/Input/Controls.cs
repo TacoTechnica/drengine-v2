@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.Input
 {
@@ -13,19 +14,19 @@ namespace GameEngine.Game.Input
     {
         private readonly List<InputAction> _actions = new List<InputAction>();
 
-        protected GamePlus _game;
+        protected GamePlus Game;
 
         public bool Enabled = true;
 
         public Controls(GamePlus game)
         {
-            _game = game;
-            _game.AddControls(this);
+            Game = game;
+            Game.AddControls(this);
         }
 
         ~Controls()
         {
-            _game.RemoveControls(this);
+            Game.RemoveControls(this);
         }
 
         public void DoUpdate()
@@ -106,9 +107,9 @@ namespace GameEngine.Game.Input
                             return RawInput.GetMousePosition().X;
                         case MouseAxis.Y:
                             return RawInput.GetMousePosition().Y;
-                        case MouseAxis.DX:
+                        case MouseAxis.Dx:
                             return RawInput.GetMouseDelta().X;
-                        case MouseAxis.DY:
+                        case MouseAxis.Dy:
                             return RawInput.GetMouseDelta().Y;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -262,7 +263,7 @@ namespace GameEngine.Game.Input
             Sum
         }
 
-        protected AxisMode _axisMode;
+        protected AxisMode AxisSumMode;
 
         public float Scale = 1f;
 
@@ -270,9 +271,9 @@ namespace GameEngine.Game.Input
 
         public T Value;
 
-        public InputActionAxis(Controls controls, AxisMode axisMode = AxisMode.Sum) : base(controls)
+        public InputActionAxis(Controls controls, AxisMode axisSumMode = AxisMode.Sum) : base(controls)
         {
-            _axisMode = axisMode;
+            AxisSumMode = axisSumMode;
         }
     }
 
@@ -282,7 +283,7 @@ namespace GameEngine.Game.Input
         private readonly List<InputAxis> _positive;
 
         public InputActionAxis1D(Controls controls, InputAxis[] negative, InputAxis[] positive,
-            AxisMode mode = AxisMode.Sum) : base(controls, mode)
+            AxisMode sumMode = AxisMode.Sum) : base(controls, sumMode)
         {
             _positive = new List<InputAxis>(positive);
             _negative = new List<InputAxis>(negative);
@@ -297,9 +298,9 @@ namespace GameEngine.Game.Input
         }
 
         public InputActionAxis1D(Controls controls, InputAxis negative, InputAxis positive,
-            AxisMode mode = AxisMode.Sum) : this(
+            AxisMode sumMode = AxisMode.Sum) : this(
             controls,
-            new[] {negative}, new[] {positive}, mode)
+            new[] {negative}, new[] {positive}, sumMode)
         {
         }
 
@@ -315,7 +316,7 @@ namespace GameEngine.Game.Input
             foreach (var p in _positive)
             {
                 var val = p.ReadCurrentAxis();
-                switch (_axisMode)
+                switch (AxisSumMode)
                 {
                     case AxisMode.MaxMagnitude:
                         if (Math.Abs(val) > value) value = val;
@@ -331,7 +332,7 @@ namespace GameEngine.Game.Input
             foreach (var p in _negative)
             {
                 var val = p.ReadCurrentAxis();
-                switch (_axisMode)
+                switch (AxisSumMode)
                 {
                     case AxisMode.MaxMagnitude:
                         if (Math.Abs(val) > value) value = val;
@@ -382,7 +383,7 @@ namespace GameEngine.Game.Input
         ///     Default Constructor, all inputs specified.
         /// </summary>
         public InputActionAxis2D(Controls controls, InputAxis[] up, InputAxis[] down, InputAxis[] left,
-            InputAxis[] right, AxisMode mode = AxisMode.Sum) : base(controls, mode)
+            InputAxis[] right, AxisMode sumMode = AxisMode.Sum) : base(controls, sumMode)
         {
             _up = new List<InputAxis>(up);
             _down = new List<InputAxis>(down);
@@ -416,9 +417,9 @@ namespace GameEngine.Game.Input
         ///     Single mapping constructor
         /// </summary>
         public InputActionAxis2D(Controls controls, InputAxis up, InputAxis down, InputAxis left, InputAxis right,
-            AxisMode mode = AxisMode.Sum) : this(
+            AxisMode sumMode = AxisMode.Sum) : this(
             controls,
-            new[] {up}, new[] {down}, new[] {left}, new[] {right}, mode)
+            new[] {up}, new[] {down}, new[] {left}, new[] {right}, sumMode)
         {
         }
 
@@ -429,7 +430,7 @@ namespace GameEngine.Game.Input
                     - Apply(_down, Vector2.UnitY)
                     - Apply(_left, Vector2.UnitX)
                     + Apply(_right, Vector2.UnitX);
-            switch (_axisMode)
+            switch (AxisSumMode)
             {
                 case AxisMode.Sum:
                     break;
@@ -455,7 +456,7 @@ namespace GameEngine.Game.Input
             {
                 var val = p.ReadCurrentAxis();
                 var pInput = Math.Threshold(val, Threshold) * sideDirection;
-                switch (_axisMode)
+                switch (AxisSumMode)
                 {
                     case AxisMode.MaxMagnitude:
                         if (pInput.LengthSquared() > max.LengthSquared()) max = pInput;
@@ -468,7 +469,7 @@ namespace GameEngine.Game.Input
                 }
             }
 
-            switch (_axisMode)
+            switch (AxisSumMode)
             {
                 case AxisMode.MaxMagnitude:
                     return max;

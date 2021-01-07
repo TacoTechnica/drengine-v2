@@ -1,33 +1,33 @@
 using System;
 using Gtk;
 
-namespace DREngine.Editor
+namespace DREngine.Editor.Components
 {
     public class Text : Label
     {
-        public const int Normal = 0,
-            Warning = 1,
-            Error = 2;
-
-        private string _text;
+        public enum LabelType
+        {
+            Normal,
+            Warning,
+            Error
+        }
 
         public Text(string text) : base(text)
         {
-            _text = text;
             Wrap = true;
         }
 
-        public void SetMode(int mode)
+        public void SetMode(LabelType mode)
         {
             switch (mode)
             {
-                case Normal:
+                case LabelType.Normal:
                     ResetColor();
                     break;
-                case Warning:
+                case LabelType.Warning:
                     SetStyle("#FFDD11");
                     break;
-                case Error:
+                case LabelType.Error:
                     SetStyle("#FF2210", "bold", "ultrabold");
                     break;
                 default:

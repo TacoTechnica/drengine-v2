@@ -6,11 +6,11 @@ namespace GameEngine.Game.Collision
 {
     public interface ICollider
     {
-        public GameObject? GameObject { get; }
+        public GameObject GameObject { get; }
         bool ContainsScreen(Camera3D cam, Vector2 screenPoint);
 
         Vector3 GetRoughCenterPosition();
 
-        void DrawDebug(GamePlus _game, Camera3D cam);
+        void DrawDebug(GamePlus game, Camera3D cam);
     }
 }

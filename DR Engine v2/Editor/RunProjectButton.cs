@@ -9,6 +9,7 @@ namespace DREngine.Editor
 
         public RunProjectButton(DREditor editor)
         {
+            _editor = editor;
             SetIcon("Run Project", editor.Window.Icons.Play);
             editor.ProjectRunner.OnRun += OnGameRun;
             editor.ProjectRunner.OnStop += OnGameStop;

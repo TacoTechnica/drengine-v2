@@ -40,9 +40,9 @@ namespace DREngine.Game.CoreScenes
                 var foreground = Color.White;
 
                 // Background with Prompt text
-                _root = new UIColoredRect(_game, background).AddToRoot();
+                _root = new UIColoredRect(Game, background).AddToRoot();
                 _root.AddChild(
-                    new UIText(_game, font,
+                    new UIText(Game, font,
                             "Waiting to connect to editor...\nThis must be run from the editor, else it will wait forever.",
                             foreground)
                         .WithHAlign(UIText.TextHAlignMode.Center)

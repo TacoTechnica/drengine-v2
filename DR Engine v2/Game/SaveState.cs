@@ -1,5 +1,6 @@
 ﻿using System;
 using DREngine.Game.VN;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using Newtonsoft.Json;

@@ -2,9 +2,11 @@
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable NotAccessedField.Local
 
 namespace GameEngine.Test
 {
@@ -22,17 +24,17 @@ namespace GameEngine.Test
             _graphics = game.GraphicsDevice;
             Debug.LogDebug("TestGame Initialize()");
 
-            _scene0 = new BaseSceneLoader(game, "scene0", (game) =>
+            _scene0 = new BaseSceneLoader(game, "scene0", (g) =>
             {
-                new Camera3D(game);
-                new ExampleTriangleObject(game, new Vector3(0, 0, -90), Quaternion.Identity);
-                new ExampleTriangleObject(game, new Vector3(10, 10, -100), Quaternion.Identity);
+                new Camera3D(g);
+                new ExampleTriangleObject(g, new Vector3(0, 0, -90), Quaternion.Identity);
+                new ExampleTriangleObject(g, new Vector3(10, 10, -100), Quaternion.Identity);
             });
-            _scene1 = new BaseSceneLoader(game, "scene1", (game) =>
+            _scene1 = new BaseSceneLoader(game, "scene1", (g) =>
             {
-                new Camera3D(game, Vector3.Backward * 100, Math.FromEuler(0, 0, 45));
-                new ExampleTriangleObject(game, new Vector3(0, 0, 0), Math.FromEuler(10, 10, -45));
-                new ExampleTriangleObject(game, new Vector3(0, 40, -20), Math.FromEuler(0, -10, 0));
+                new Camera3D(g, Vector3.Backward * 100, Math.FromEuler(0, 0, 45));
+                new ExampleTriangleObject(g, new Vector3(0, 0, 0), Math.FromEuler(10, 10, -45));
+                new ExampleTriangleObject(g, new Vector3(0, 40, -20), Math.FromEuler(0, -10, 0));
             });
         }
 

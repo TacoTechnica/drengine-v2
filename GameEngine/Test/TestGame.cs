@@ -3,7 +3,6 @@ using GameEngine.Game;
 using GameEngine.Game.Input;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test

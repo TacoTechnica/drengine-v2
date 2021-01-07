@@ -9,7 +9,7 @@ namespace GameEngine.Game.Debugging
         public InputActionButton ConsoleOpen;
         public InputActionButton ConsoleSubmit;
 
-        public DebugControls(GamePlus _game) : base(_game)
+        public DebugControls(GamePlus game) : base(game)
         {
             ConsoleOpen = new InputActionButton(this, Keys.OemTilde);
             ConsoleClose = new InputActionButton(this, Keys.Escape);
