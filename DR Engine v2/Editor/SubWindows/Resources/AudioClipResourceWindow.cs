@@ -47,7 +47,13 @@ namespace DREngine.Editor.SubWindows.Resources
                 }
                 else
                 {
-                    _editor.GlobalAudioSource.Play(CurrentResource, () => { _playButton.Image = _playImage; });
+                    _editor.GlobalAudioSource.Play(CurrentResource, () =>
+                    {
+                        Application.Invoke((obj,evt) =>
+                        {
+                            _playButton.Image = _playImage;
+                        });
+                    });
                     _playButton.Image = _stopImage;
                 }
             };

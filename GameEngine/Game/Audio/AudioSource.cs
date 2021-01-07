@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using GameEngine.Game.Resources;
 using ManagedBass;
 
@@ -40,9 +41,15 @@ namespace GameEngine.Game.Audio
             _mixer.PlayChannel(_channel);
 
             if (onStop != null)
-                new Thread(() =>
+                new Task(() =>
                 {
-                    while (Playing) Thread.SpinWait(5);
+                    Debug.Log("PLAY");
+                    while (Playing)
+                    {
+                        Thread.Yield(); // This shouldn't be necessary??
+                        //Thread.Sleep(500);
+                    }
+                    Debug.Log("STOP!");
                     onStop.Invoke();
                 }).Start();
         }
