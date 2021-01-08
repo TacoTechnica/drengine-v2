@@ -193,6 +193,10 @@ namespace GameEngine.Game.Debugging
 
                 // Call the generic method with reflection. TODO: This is kinda bad but whatever.
                 var thisMethod = typeof(Arg<T>).GetMethod("ParseUnitUtil");
+                if (thisMethod == null || subType == null)
+                {
+                    throw new InvalidOperationException($"Failed to get command for array type: {typeof(T)}");
+                }
                 var thisMethodRef = thisMethod.MakeGenericMethod(subType);
 
                 var result = new List<object>();
@@ -413,7 +417,7 @@ namespace GameEngine.Game.Debugging
 
     public static class Commands
     {
-        private static Dictionary<string, Command> _commandSheet;
+        private static Dictionary<string, Command> _commandSheet = new Dictionary<string, Command>();
 
         public static IEnumerable<Command> AllCommands
         {
@@ -423,13 +427,9 @@ namespace GameEngine.Game.Debugging
             }
         }
 
-        public static void Init(params string[] commandListNamespaces)
+        public static void AddCommandsFromNamespace(params string[] commandListNamespaces)
         {
             var namespaces = new HashSet<string>(commandListNamespaces);
-            // We already initialized, so ignore so we don't do more work.
-            if (_commandSheet != null) return;
-
-            _commandSheet = new Dictionary<string, Command>();
 
             var typeList = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in typeList)
@@ -439,9 +439,11 @@ namespace GameEngine.Game.Debugging
                 {
                     if (!type.IsSubclassOf(typeof(Command))) continue;
                     var command = (Command) Activator.CreateInstance(type);
-                    if (_commandSheet.ContainsKey(command.Name))
-                        throw new InvalidSetupException($"Duplicate commands of name {command.Name} found!");
-                    _commandSheet[command.Name] = command;
+                    if (command == null)
+                    {
+                        throw new InvalidOperationException($"Command {type} initialized to null. Oof.");
+                    }
+                    AddCommand(command);
                 }
                 catch (MissingMethodException)
                 {
@@ -450,13 +452,20 @@ namespace GameEngine.Game.Debugging
             }
         }
 
+        public static void AddCommand(Command command)
+        {
+            if (_commandSheet.ContainsKey(command.Name))
+                throw new InvalidSetupException($"Duplicate commands of name {command.Name} found!");
+            _commandSheet[command.Name] = command;
+        }
+
         /// <summary>
         ///     Init but you pass it classes instead of namespaces by string. Makes it more type-safe.
         /// </summary>
-        public static void Init(params Type[] oneTypeFromEachNamespaces)
+        public static void AddCommandsFromNamespace(params Type[] oneTypeFromEachNamespaces)
         {
             var namespaces = oneTypeFromEachNamespaces.ToList().ConvertAll(type => type.Namespace).ToArray();
-            Init(namespaces);
+            AddCommandsFromNamespace(namespaces);
         }
 
         public static void Run(GamePlus game, string line)

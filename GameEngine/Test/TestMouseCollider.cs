@@ -44,7 +44,7 @@ namespace GameEngine.Test
         }
     }
 
-    public class TestMouseCollider : IGameRunner
+    public class TestMouseCollider : IGameTester
     {
         private GamePlus _game;
         private Camera3D _cam;

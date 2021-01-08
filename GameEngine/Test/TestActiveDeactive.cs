@@ -13,7 +13,7 @@ namespace GameEngine.Test
     ///     Tests disabling system. Use numpad 0, 1, 2 and 7 to disable/enable the nodes along with their children.
     ///     The behaviour here should be completely succinct.
     /// </summary>
-    public class TestActiveDeactive : IGameRunner
+    public class TestActiveDeactive : IGameTester
     {
         private Camera3D _cam;
         private TestObject2 _exampleObjRoot;

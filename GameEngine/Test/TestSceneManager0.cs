@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestSceneManager0 : IGameRunner
+    public class TestSceneManager0 : IGameTester
     {
         private BaseSceneLoader _scene0;
         private BaseSceneLoader _scene1;

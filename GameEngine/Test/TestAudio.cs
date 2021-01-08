@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestAudio : IGameRunner
+    public class TestAudio : IGameTester
     {
         private AudioMixer BGM;
         private AudioMixer SFX;

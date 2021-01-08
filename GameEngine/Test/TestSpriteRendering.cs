@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestSpriteRendering : IGameRunner
+    public class TestSpriteRendering : IGameTester
     {
         private GamePlus _game;
 

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestNestedUI0 : IGameRunner
+    public class TestNestedUI0 : IGameTester
     {
         private GamePlus _game;
 

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestTween : IGameRunner
+    public class TestTween : IGameTester
     {
 
         private ExampleTriangleObject _t1;

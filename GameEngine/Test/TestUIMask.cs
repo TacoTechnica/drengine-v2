@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 namespace GameEngine.Test
 {
 
-    public class TestUIMask : IGameRunner
+    public class TestUIMask : IGameTester
     {
         private UIComponent _mover;
 

@@ -13,7 +13,7 @@ namespace GameEngine.Test
     ///     Use the arrow keys to adjust spacing
     ///     Hold shift while pressing numpad keys to adjust padding instead.
     /// </summary>
-    public class TestLayout : IGameRunner
+    public class TestLayout : IGameTester
     {
         private string[] tileNames = new[]
         {

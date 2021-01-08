@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestInputSystem : IGameRunner
+    public class TestInputSystem : IGameTester
     {
         protected GamePlus Game;
 

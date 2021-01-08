@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestCoroutine : IGameRunner
+    public class TestCoroutine : IGameTester
     {
         private GamePlus _game;
 

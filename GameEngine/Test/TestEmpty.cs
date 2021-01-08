@@ -2,7 +2,7 @@
 
 namespace GameEngine.Test
 {
-    public class TestEmpty : IGameRunner
+    public class TestEmpty : IGameTester
     {
         public void Initialize(GamePlus game)
         {

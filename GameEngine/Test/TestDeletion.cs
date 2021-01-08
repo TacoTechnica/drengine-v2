@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestDeletion : IGameRunner
+    public class TestDeletion : IGameTester
     {
 
         private Camera3D _cam;

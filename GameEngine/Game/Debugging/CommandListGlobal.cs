@@ -152,35 +152,6 @@ namespace GameEngine.Game.Debugging.CommandListGlobal
         }
     }
 
-    class Reload : Command
-    {
-        public Reload() : base(
-            "reload", "Reloads the current scene."
-        )
-        {
-        }
-
-        protected override void Call(GamePlus game, ArgParser parser)
-        {
-            LogError("Not implemented.");
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-    }
-
-    class Restart : Command
-    {
-        public Restart() : base(
-            "restart", "Restarts the game."
-        )
-        {
-        }
-
-        protected override void Call(GamePlus game, ArgParser parser)
-        {
-            LogError("Not implemented.");
-        }
-    }
-
     class TreeUI : Command
     {
         public TreeUI() : base(

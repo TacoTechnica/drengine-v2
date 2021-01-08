@@ -24,11 +24,9 @@ namespace GameEngine.Game
     /// </summary>
     public class GamePlus : Microsoft.Xna.Framework.Game
     {
-        public GamePlus(string windowTitle = "Untitled Game", string contentPath = "Content", bool debug = true,
-            IGameRunner gameRunner = null)
+        public GamePlus(string windowTitle = "Untitled Game", string contentPath = "Content", bool debug = true)
         {
             WindowTitle = windowTitle;
-            _runner = gameRunner;
             _debug = debug;
 
             IsFixedTimeStep = true;
@@ -61,7 +59,7 @@ namespace GameEngine.Game
                 _debugTimer.AutoReset = true;
                 _debugControls = new DebugControls(this);
                 // Initialize commands
-                Commands.Init(typeof(Help));
+                Commands.AddCommandsFromNamespace(typeof(Help));
             }
 
             ResourceLoaderData = new ResourceLoaderData();
@@ -83,8 +81,6 @@ namespace GameEngine.Game
         #region Util variables & Debug
 
         protected readonly GraphicsDeviceManager Graphics;
-
-        private readonly IGameRunner _runner;
 
         /// Debug stuff
         private readonly bool _debug;
@@ -179,8 +175,6 @@ namespace GameEngine.Game
 
             _whenSafeToLoad.InvokeAll();
             _safeToLoad = true;
-
-            _runner?.Initialize(this);
         }
 
         private void InitializeDebug()
@@ -285,7 +279,6 @@ namespace GameEngine.Game
 
             // Standard Update goes here.
             base.Update(gameTime);
-            _runner?.Update(DeltaTime);
 
             // If any objects were disabled this frame, make sure our list reflects that.
             SceneManager.GameObjects.DisableAllQueuedImmediate((obj, node) => { obj.RunOnDisable(node); });
@@ -306,7 +299,6 @@ namespace GameEngine.Game
 
             // Draw
             base.Draw(gameTime);
-            _runner?.Draw();
 
 
             // Draw UI

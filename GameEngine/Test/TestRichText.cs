@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameEngine.Test
 {
-    public class TestRichText : IGameRunner
+    public class TestRichText : IGameTester
     {
         private UIColoredRect _rect;
         private UIText _text;

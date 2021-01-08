@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestButtonSelection : IGameRunner
+    public class TestButtonSelection : IGameTester
     {
         private GamePlus _game;
         private ExampleMenuControls _menuControls;

@@ -1,5 +1,8 @@
-﻿using DREngine.Game.Scene;
+﻿using System.Collections.Generic;
+using DREngine.Game.Scene;
+using DREngine.Game.VN;
 using DREngine.ResourceLoading;
+using GameEngine;
 using GameEngine.Game.Objects;
 
 namespace DREngine.Game.CoreScenes
@@ -10,15 +13,31 @@ namespace DREngine.Game.CoreScenes
 
         private readonly DRScene _testScene;
 
+        private DRGame _game;
+
         public ProjectMainMenuScene(DRGame game) : base(game, SCENE_NAME)
         {
+            _game = game;
             // Load a DR Scene as a test. We will change this to be our menu scene later.
-            _testScene = new DRScene(game, "TestScene", new ProjectPath(game, "TEST_SCENE.scene"));
+            //_testScene = new DRScene(game, "TestScene", new ProjectPath(game, "TEST_SCENE.scene"));
         }
 
         public override void LoadScene()
         {
-            _testScene.LoadScene();
+            var script = new VNScript(_game);
+
+            script.Commands = new List<VNCommand>(new VNCommand[]
+            {
+                new LabelCommand {Label = "STARTO"},
+                new PrintCommand {Text = "1 poopity scoop"},
+                new PrintCommand {Text = "2 scoopity poop"},
+                new LabelCommand {Label = "ENDO"}
+            });
+
+            Debug.Log("STARTING NEW SCRIPT");
+            _game.VNRunner.CallScript(script);
+            
+            //_testScene.LoadScene();
         }
     }
 }

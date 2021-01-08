@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameEngine.Test
 {
-    public class TestScroll : IGameRunner
+    public class TestScroll : IGameTester
     {
         private UISlider _slider;
         private UIText _text;

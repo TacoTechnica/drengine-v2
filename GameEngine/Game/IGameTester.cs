@@ -1,6 +1,6 @@
 ﻿namespace GameEngine.Game
 {
-    public interface IGameRunner
+    public interface IGameTester
     {
         public void Initialize(GamePlus game);
         public void Update(float deltaTime);

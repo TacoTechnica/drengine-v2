@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameEngine.Test
 {
-    public class TestTextInput : IGameRunner
+    public class TestTextInput : IGameTester
     {
 
         private TestGame _game;
