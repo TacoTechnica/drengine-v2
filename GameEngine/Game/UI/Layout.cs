@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace GameEngine.Game.UI
 {
@@ -284,6 +285,7 @@ namespace GameEngine.Game.UI
         {
         }
 
+        [JsonIgnore]
         public Vector2 Min
         {
             get => new Vector2(Left, Top);
@@ -294,6 +296,7 @@ namespace GameEngine.Game.UI
             }
         }
 
+        [JsonIgnore]
         public Vector2 Max
         {
             get => new Vector2(Right, Bottom);

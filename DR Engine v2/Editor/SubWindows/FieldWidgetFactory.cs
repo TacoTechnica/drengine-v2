@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using DREngine.ResourceLoading;
+using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 
 namespace DREngine.Editor.SubWindows
@@ -39,6 +40,10 @@ namespace DREngine.Editor.SubWindows
 
             // Vector2
             if (IsType(type, typeof(Vector2))) return new Vector2Widget();
+
+            // Misc simple types
+            if (IsType(type, typeof(Rect))) return new RectFieldWidget();
+            if (IsType(type, typeof(Margin))) return new MarginFieldWidget(editor);
 
             // MISC
             if (IsType(type, typeof(OverridablePath)))

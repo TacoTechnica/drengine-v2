@@ -1,4 +1,5 @@
 ﻿using System;
+using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,7 +17,10 @@ namespace GameEngine.Game.Resources
         public Vector2 Pivot;
 
         [ExtraData]
-        public float Scale;
+        public float Scale = 1;
+
+        [ExtraData]
+        public Margin ScaleMargin = new Margin();
 
         /*
         public Sprite(GamePlus game, Texture2D texture)

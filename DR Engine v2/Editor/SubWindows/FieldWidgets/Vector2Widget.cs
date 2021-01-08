@@ -35,39 +35,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _y.Modified += OnModify;
         }
 
-        private class FloatView : TextView
-        {
-            private float _prevValue;
-
-#pragma warning disable 649
-            public Action Modified;
-#pragma warning restore 649
-
-            public FloatView()
-            {
-                Buffer.Changed += (sender, args) => { Modified.Invoke(); };
-            }
-
-            public float Value
-            {
-                get
-                {
-                    try
-                    {
-                        return float.Parse(Buffer.Text);
-                    }
-                    catch (Exception)
-                    {
-                        return _prevValue;
-                    }
-                }
-                set
-                {
-                    _prevValue = value;
-                    Buffer.Text = value.ToString(CultureInfo.InvariantCulture);
-                    Modified?.Invoke();
-                }
-            }
-        }
+        
     }
 }

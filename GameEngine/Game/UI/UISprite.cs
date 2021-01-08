@@ -1,5 +1,6 @@
 ﻿using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game.UI
 {
@@ -40,15 +41,60 @@ namespace GameEngine.Game.UI
                     (int) targetWidth,
                     (int) targetHeight
                 );
-                screen.SpriteBatch.Draw(Sprite.Texture, preservedTarget, Color);
+                DrawSpriteTo(screen.SpriteBatch, Sprite, preservedTarget, Color);
             }
             else
             {
                 // Stretch
-                screen.SpriteBatch.Draw(Sprite.Texture, targetRect, Color);
+                DrawSpriteTo(screen.SpriteBatch, Sprite, targetRect, Color);
             }
 
             screen.SpriteBatchEnd();
+        }
+
+        private void DrawSpriteTo(SpriteBatch batch, Sprite sprite, Rectangle destRect, Color col)
+        {
+            Margin m = sprite.ScaleMargin;
+            // Game Maker draw 9 tile sprite vibes. Ah those were good times.
+            int ox = destRect.Top,
+                oy = destRect.Left;
+            int w = destRect.Width,
+                h = destRect.Height;
+
+            // Variable length sizes: Destination
+            float lw = destRect.Width - m.Left - m.Right,
+                  lh = destRect.Height - m.Top - m.Bottom;
+            // Variable length sizes: Sprite
+            float slw = sprite.Width - m.Left - m.Right,
+                  slh = sprite.Height - m.Top - m.Bottom;
+
+            // Upper left corner
+            Section(ox, oy, m.Left, m.Top, 0, 0, m.Left, m.Top);
+            // Top
+            Section(ox + m.Left, oy, lw, m.Top, m.Left, 0, slw, m.Top );
+            // Top right corner
+            Section(ox + m.Left + lw, oy, m.Right, m.Top, m.Left + slw, 0, m.Right, m.Top );
+            // Left
+            Section(ox, oy + m.Top, m.Left, lh, 0, m.Top, m.Left, slh );
+            // Right
+            Section(ox + m.Left + lw, oy + m.Top, m.Right, lh, m.Left + slw, m.Top, m.Right, slh );
+            // Bottom left corner
+            Section(ox, oy + m.Top + lh, m.Left, m.Bottom, 0, m.Top + slh, m.Left, m.Bottom);
+            // Bottom
+            Section(ox + m.Left, oy + m.Top + lh, lw, m.Bottom, m.Left, m.Top + slh, slw, m.Bottom );
+            // Bottom right corner
+            Section(ox + m.Left + lw, oy + m.Top + lh, m.Right, m.Bottom, m.Left + slw, m.Top + slh, m.Right, m.Bottom );
+
+            // Middle
+            Section(ox + m.Left, oy + m.Top, lw, lh, m.Left, m.Top, slw, slh);
+
+            void Section(float x, float y, float width, float height, float sprX, float sprY, float sprW, float sprH)
+            {
+                Rectangle dest = new Rectangle((int)x, (int)y, (int)width, (int)height);
+                Rectangle source = new Rectangle((int)sprX, (int)sprY, (int)sprW,(int) sprH);
+                if (dest.Width <= 0 || dest.Height <= 0) return;
+                batch.Draw(Sprite.Texture, dest, source, Color);
+            }
         }
     }
 }
