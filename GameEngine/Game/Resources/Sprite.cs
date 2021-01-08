@@ -13,8 +13,9 @@ namespace GameEngine.Game.Resources
     {
         private Texture2D _texture;
 
+        // TODO: This is a DR Specific feature. Maybe have a DRSprite with a default value?
         [ExtraData]
-        public Vector2 Pivot;
+        public Vector2 Pivot = new Vector2(0.5f, 1);
 
         [ExtraData]
         public float Scale = 1;
