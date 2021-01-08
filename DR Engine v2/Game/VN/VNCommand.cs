@@ -10,9 +10,18 @@ namespace DREngine.Game.VN
 {
     public abstract class VNCommand
     {
+        /// <summary>
+        ///     A pointer to where we are in the script.
+        /// </summary>
+        [JsonIgnore] public int CommandIndex;
+
+        public abstract string Type { get; set; }
+
+        public abstract IEnumerator Run(DRGame game);
+
         #region Global Command List
 
-        private static List<Type> _commandTypes = null;
+        private static List<Type> _commandTypes;
 
         public static List<Type> CommandTypes
         {
@@ -31,43 +40,31 @@ namespace DREngine.Game.VN
         private static void LoadCommandTypeList(List<Type> commands)
         {
             // ReSharper disable once PossibleNullReferenceException
-            foreach (Type type in
+            foreach (var type in
                 Assembly.GetAssembly(typeof(VNCommand)).GetTypes()
                     .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(VNCommand))))
-            {
                 commands.Add(type);
-            }
         }
 
-        #endregion
-
-        /// <summary>
-        /// A pointer to where we are in the script.
-        /// </summary>
-        [JsonIgnore] public int CommandIndex;
-        public abstract string Type { get; set; }
-
-        public abstract IEnumerator Run(DRGame game);
+        #endregion Management
     }
 
     public class PrintCommand : VNCommand
     {
-        public override string Type { get; set; } = "Print";
-
         public string Text;
+        public override string Type { get; set; } = "Print";
 
         public override IEnumerator Run(DRGame game)
         {
-            Debug.Log(Text);
+            Debug.Log($"VN PRINT: {Text}");
             yield break;
         }
     }
 
     public class LabelCommand : VNCommand
     {
-        public override string Type { get; set; } = "Label";
-
         public string Label;
+        public override string Type { get; set; } = "Label";
 
         public override IEnumerator Run(DRGame game)
         {

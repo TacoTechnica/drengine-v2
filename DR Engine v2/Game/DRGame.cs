@@ -179,6 +179,9 @@ namespace DREngine.Game
             }
 
 
+            // Run VN Script system
+            VNRunner.OnTick();
+
             // Update
             base.Update(gameTime);
 
