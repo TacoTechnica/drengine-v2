@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using DREngine.Editor.Components;
+using DREngine.Game.Resources;
 using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
@@ -116,7 +117,7 @@ namespace DREngine.Editor
             {
                 if (!AssertProjectLoaded()) return;
 
-                if (type == typeof(Sprite))
+                if (type == typeof(DRSprite))
                 {
                     using var dialog = new NewSpriteDialog(_editor, this, new ProjectPath(_editor, projectDir));
                     if (dialog.RunUntilAccept())

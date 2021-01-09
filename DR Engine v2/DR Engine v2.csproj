@@ -26,10 +26,16 @@
       <None Update="$(ProjectDir)default_resources/**">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="default_resources\CREDITS.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="GtkSharp" Version="3.22.25.128" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="default_resources\Sprites\UI" />
     </ItemGroup>
 
 </Project>

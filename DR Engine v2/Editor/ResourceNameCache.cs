@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DREngine.Game.Resources;
 using DREngine.Game.Scene;
 using GameEngine.Game.Resources;
 
@@ -58,7 +59,7 @@ namespace DREngine.Editor
             switch (extension)
             {
                 case "png":
-                    return typeof(Sprite);
+                    return typeof(DRSprite);
                 case "wav":
                     return typeof(AudioClip);
                 case "scene":

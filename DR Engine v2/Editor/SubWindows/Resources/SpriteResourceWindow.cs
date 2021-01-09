@@ -2,6 +2,7 @@ using System;
 using Cairo;
 using DREngine.Editor.Components;
 using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.Game.Resources;
 using DREngine.ResourceLoading;
 using GameEngine.Game.Resources;
 using Gdk;
@@ -10,7 +11,7 @@ using Color = Cairo.Color;
 
 namespace DREngine.Editor.SubWindows.Resources
 {
-    public class SpriteResourceWindow : ResourceWindow<Sprite>
+    public class SpriteResourceWindow : ResourceWindow<DRSprite>
     {
         private readonly DREditor _editor;
 
@@ -34,7 +35,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _image.Ypad = 16;
             scroll.Add(_image);
             _label = new Text("Nothing loaded");
-            _fields = new ExtraDataFieldBox(_editor, typeof(Sprite), true);
+            _fields = new ExtraDataFieldBox(_editor, typeof(DRSprite), true);
 
             container.PackStart(scroll, true, true, 16);
             //container.PackStart(_image, true, true, 4);
@@ -47,7 +48,7 @@ namespace DREngine.Editor.SubWindows.Resources
 
             _image.Drawn += (o, args) => {
                 // Draw border around image and allocation
-                Sprite spr = CurrentResource;
+                DRSprite spr = CurrentResource;
                 // AllocatedWidth and Height is the TOTAL SIZE of the widget (counting all padding)
                 float realWidth = _image.Pixbuf.Width,
                     realHeight = _image.Pixbuf.Height;
@@ -137,7 +138,7 @@ namespace DREngine.Editor.SubWindows.Resources
             MarkDirty();
         }
 
-        protected override void OnOpen(Sprite resource, Box container)
+        protected override void OnOpen(DRSprite resource, Box container)
         {
             // Load sprite
             _image.File = resource.Path;
