@@ -33,7 +33,7 @@ namespace DREngine.Game
         {
             Debug.LogDebug($"SAVING GAME to {file}");
             TimeSaved = DateTime.Now;
-            ProjectName = Game.GameProjectData.Name;
+            ProjectName = Game.GameData.Name;
 
             JsonHelper.SaveToJson(this, file);
         }
@@ -43,7 +43,7 @@ namespace DREngine.Game
             Debug.LogDebug($"LOADING GAME from {file}");
             var copy = JsonHelper.LoadFromJson<SaveState>(Game, file);
 
-            var currentProject = Game.GameProjectData.Name;
+            var currentProject = Game.GameData.Name;
             if (copy.ProjectName != currentProject)
             {
                 var noProject = currentProject == "";

@@ -1,6 +1,7 @@
 ﻿using System;
 using DREngine.Game.Controls;
 using DREngine.Game.CoreScenes;
+using DREngine.Game.UI;
 using DREngine.Game.VN;
 using DREngine.ResourceLoading;
 using GameEngine;
@@ -17,6 +18,14 @@ namespace DREngine.Game
 
         private const string PROJECTS_DIRECTORY = "projects";
 
+        #endregion
+
+        #region Static Hookups (For Modding!)
+        public static Action<DRGame> GamePreInitialized; // Core stuff you want to initialize AT THE START
+        public static Action<DRGame> GamePostInitialized; // Static systems that don't change per project. You can ignore this one if you want.
+        public static Action<DRGame> GamePreUpdate;
+        public static Action<DRGame> GamePostUpdate;
+        public static Action<DRGame> GameProjectLoaded; // All UI overrides go here. ALl other overrides can go here also.
         #endregion
 
         public DRGame(string projectPath = null, bool connectToDebugEditor = false, string editorPipeReadHandle = "",
@@ -54,10 +63,11 @@ namespace DREngine.Game
         {
             try
             {
-                Debug.LogDebug($"Loading Project at {path}");
-                GameProjectData = ProjectData.LoadFromFile(path);
-                SceneManager.LoadScene(_projectMainMenuScene);
+                GameData = ProjectData.LoadFromFile(path);
+
                 ProjectPath = path;
+                OnProjectInit();
+                GameProjectLoaded?.Invoke(this);
                 return true;
             }
             catch (Exception e)
@@ -73,14 +83,14 @@ namespace DREngine.Game
 
         public MenuControls MenuControls { get; }
 
-        public ProjectData GameProjectData = new ProjectData();
+        public ProjectData GameData = new ProjectData();
         public ResourceLoader ResourceLoader;
 
         public VNRunner VNRunner;
 
-        public SaveState SaveState;
+        public DRGameUI UI;
 
-        public Action OnPostUpdate;
+        public SaveState SaveState;
 
         #endregion
 
@@ -95,14 +105,26 @@ namespace DREngine.Game
 
         #endregion
 
+        #region Misc Util
+
+        private void OnProjectInit()
+        {
+            // Some of these depend on game project data.
+            UI = new DRGameUI(this);
+            SceneManager.LoadScene(_projectMainMenuScene);
+
+        }
+        #endregion
+        
         #region Universal Game Loop
 
         protected override void Initialize()
         {
+            GamePreInitialized?.Invoke(this);
             // Init data that should be available at the start.
             base.Initialize();
 
-            //GameProjectData.LoadDefaults();
+            //GameData.LoadDefaults();
 
             // Wait for editor if we need to.
             WaitForEditorConnection(() =>
@@ -122,6 +144,7 @@ namespace DREngine.Game
                     }
                 });
             });
+            GamePostInitialized?.Invoke(this);
         }
 
         /// <summary>
@@ -153,6 +176,8 @@ namespace DREngine.Game
 
         protected override void Update(GameTime gameTime)
         {
+            GamePreUpdate?.Invoke(this);
+
             /*
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -168,13 +193,13 @@ namespace DREngine.Game
             if (RawInput.KeyPressed(Keys.H))
             {
                 Debug.Log("SAVING");
-                ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameProjectData);
+                ProjectData.WriteToFile(new ProjectPath(this, "project.json"), GameData);
                 //SaveState.Save(new ProjectPath(this, "TEST.save"));
             }
             else if (RawInput.KeyPressed(Keys.J))
             {
                 Debug.Log("LOADING");
-                GameProjectData = ProjectData.LoadFromFile(new ProjectPath(this, "project.json"));
+                GameData = ProjectData.LoadFromFile(new ProjectPath(this, "project.json"));
                 //SaveState.Load(new ProjectPath(this, "TEST.save"));
             }
 
@@ -185,7 +210,7 @@ namespace DREngine.Game
             // Update
             base.Update(gameTime);
 
-            OnPostUpdate?.Invoke();
+            GamePostUpdate?.Invoke(this);
         }
 
         protected override void Draw(GameTime gameTime)

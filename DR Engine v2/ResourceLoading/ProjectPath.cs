@@ -30,7 +30,7 @@ namespace DREngine.ResourceLoading
         public override string ToString()
         {
             return _game != null
-                ? _game.GameProjectData.GetFullProjectPath(RelativePath)
+                ? _game.GameData.GetFullProjectPath(RelativePath)
                 : _editor.ProjectData.GetFullProjectPath(RelativePath);
         }
 

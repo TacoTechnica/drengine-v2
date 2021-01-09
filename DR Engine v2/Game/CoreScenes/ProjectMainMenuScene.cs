@@ -29,7 +29,9 @@ namespace DREngine.Game.CoreScenes
             script.Commands = new List<VNCommand>(new VNCommand[]
             {
                 new LabelCommand {Label = "STARTO"},
+                new DialogCommand {Name = "Arin", Text = "At age 6 I was born without a face."},
                 new PrintCommand {Text = "1 poopity scoop"},
+                new DialogCommand {Name = "Obama", Text = "Hello. I am 44th president of the United States Barack Obama."},
                 new PrintCommand {Text = "2 scoopity poop"},
                 new LabelCommand {Label = "ENDO"}
             });

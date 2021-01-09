@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DREngine.Game;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Resources;
@@ -28,6 +29,11 @@ namespace DREngine.ResourceLoading
             AddResourceDependent(path);
 
             return GetCachedResource<T>(path);
+        }
+
+        public T GetResource<T>(OverridablePath path, DRGame game) where T : IGameResource
+        {
+            return GetResource<T>(path.GetFullPath(game));
         }
 
         // Non generic version

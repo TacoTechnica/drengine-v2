@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
 using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.Game.Resources;
+using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Debugging;
 using GameEngine.Game.Resources;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Path = GameEngine.Game.Path;
 
@@ -125,17 +128,28 @@ namespace DREngine.ResourceLoading
         public class OverrideableResourceList
         {
             [ResourceType(typeof(Font))]
-            public OverridablePath DialogueFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+            public OverridablePath DialogFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 
             [ResourceType(typeof(Font))]
             public OverridablePath MenuFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Regular.ttf");
 
             [ResourceType(typeof(Font))]
             public OverridablePath TitleFont = new OverridablePath("Fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+
+            [ResourceType(typeof(DRSprite))]
+            public OverridablePath DialogueBackground = new OverridablePath("Sprites/UI/DialogBox.png");
+
+            [ResourceType(typeof(DRSprite))]
+            public OverridablePath DialogueNameplate = new OverridablePath("Sprites/UI/DialogBoxNameplate.png");
+        }
+
+        public class SettingsList
+        {
+            public Color DialogueTextColor = Color.White;
         }
 
         [FieldContainer] public OverrideableResourceList OverridableResources = new OverrideableResourceList();
-
+        [FieldContainer] public SettingsList Settings = new SettingsList();
         /// <summary>
         ///     Default directories of our resources.
         ///     THESE ARE NOT ENFORCED! They only serve as suggestions.

@@ -99,6 +99,7 @@ namespace GameEngine.Game.UI
         {
             //screen.DrawRectOutline(targetRect, Color.Lavender);
 
+            if (!Active) return;
             if (Font == null || Font.SpriteFont == null) return;
             if (Text == null) return;
 

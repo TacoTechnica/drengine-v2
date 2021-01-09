@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GameEngine;
 using Gdk;
 using Gtk;
 
@@ -378,10 +379,17 @@ namespace DREngine.Editor.Components
 
             if (relativePath == "icon.png")
             {
-                var buf = new Pixbuf(fullPath);
-                var result = _icons.ScaleToRegularSize(buf);
-                buf.Dispose();
-                return result;
+                try
+                {
+                    var buf = new Pixbuf(fullPath);
+                    var result = _icons.ScaleToRegularSize(buf);
+                    buf.Dispose();
+                    return result;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Failed displaying sprite at full path {fullPath}");
+                }
             }
 
             var extension = System.IO.Path.GetExtension(fullPath);

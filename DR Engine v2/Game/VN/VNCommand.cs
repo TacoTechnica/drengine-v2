@@ -49,6 +49,17 @@ namespace DREngine.Game.VN
         #endregion Management
     }
 
+    public class DialogCommand : VNCommand
+    {
+        public string Name;
+        public string Text;
+        public override string Type { get; set; } = "Dialog";
+        public override IEnumerator Run(DRGame game)
+        {
+            yield return game.UI.VNDialogueBox.RunDialog(Name, Text);
+        }
+    }
+    
     public class PrintCommand : VNCommand
     {
         public string Text;

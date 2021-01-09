@@ -17,11 +17,11 @@ namespace DREngine.ResourceLoading
             DefaultResourcePath = defaultResourcePath;
         }
 
-        public string DefaultResourcePath { get; }
+        public string DefaultResourcePath;
 
         [JsonIgnore] public bool Overrided => OverrideProjectPath != null;
 
-        public string GetFullPath(DRGame game)
+        public Path GetFullPath(DRGame game)
         {
             if (Overrided) return new ProjectPath(game, OverrideProjectPath);
             return new DefaultResourcePath(DefaultResourcePath);

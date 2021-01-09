@@ -38,13 +38,13 @@ namespace DREngine.ResourceLoading
             else
                 try
                 {
-                    if (_currentGame.GameProjectData.IsDefaultResourcePath(value.Path))
+                    if (_currentGame.GameData.IsDefaultResourcePath(value.Path))
                         storedPath =
-                            $"{DEFAULT_RESOURCE_PATH_PREFIX}{_currentGame.GameProjectData.GetRelativeDefaultResourcePath(value.Path)}";
+                            $"{DEFAULT_RESOURCE_PATH_PREFIX}{_currentGame.GameData.GetRelativeDefaultResourcePath(value.Path)}";
                     else
                         // Project path
                         storedPath =
-                            $"{RESOURCE_PATH_PREFIX}{_currentGame.GameProjectData.GetRelativeProjectPath(value.Path)}";
+                            $"{RESOURCE_PATH_PREFIX}{_currentGame.GameData.GetRelativeProjectPath(value.Path)}";
                 }
                 catch (InvalidArgumentsException)
                 {

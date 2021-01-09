@@ -1,0 +1,16 @@
+{
+  "Pins": {
+    "$type": "System.Collections.Generic.Dictionary`2[[DREngine.Game.Resources.DRSprite+PinType, DR Engine],[Microsoft.Xna.Framework.Vector2, MonoGame.Framework]], System.Private.CoreLib",
+    "DialogueTextStart": "120, 83",
+    "DialogueTextEnd": "883, 167"
+  },
+  "Pivot": "0.5, 1",
+  "Scale": 1.0,
+  "ScaleMargin": {
+    "$type": "GameEngine.Game.UI.Margin, GameEngine",
+    "Bottom": 20.0,
+    "Left": 140.0,
+    "Right": 150.0,
+    "Top": 80.0
+  }
+}

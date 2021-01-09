@@ -20,6 +20,8 @@ namespace GameEngine.Game.UI
         {
             if (Sprite == null) return;
 
+            //screen.DrawRectOutline(targetRect, Color.Red);
+
             screen.SpriteBatchBegin();
             if (PreserveAspect)
             {
@@ -56,10 +58,8 @@ namespace GameEngine.Game.UI
         {
             Margin m = sprite.ScaleMargin;
             // Game Maker draw 9 tile sprite vibes. Ah those were good times.
-            int ox = destRect.Top,
-                oy = destRect.Left;
-            int w = destRect.Width,
-                h = destRect.Height;
+            int ox = destRect.Left,
+                oy = destRect.Top;
 
             // Variable length sizes: Destination
             float lw = destRect.Width - m.Left - m.Right,
@@ -88,12 +88,14 @@ namespace GameEngine.Game.UI
             // Middle
             Section(ox + m.Left, oy + m.Top, lw, lh, m.Left, m.Top, slw, slh);
 
+            //batch.Draw(Sprite.Texture, destRect, new Rectangle(0, 0, (int)sprite.Width, (int)sprite.Height), col);
+
             void Section(float x, float y, float width, float height, float sprX, float sprY, float sprW, float sprH)
             {
                 Rectangle dest = new Rectangle((int)x, (int)y, (int)width, (int)height);
                 Rectangle source = new Rectangle((int)sprX, (int)sprY, (int)sprW,(int) sprH);
                 if (dest.Width <= 0 || dest.Height <= 0) return;
-                batch.Draw(Sprite.Texture, dest, source, Color);
+                batch.Draw(Sprite.Texture, dest, source, col);
             }
         }
     }

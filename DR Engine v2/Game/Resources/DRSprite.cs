@@ -40,6 +40,8 @@ namespace DREngine.Game.Resources
         public enum PinType
         {
             DialogueNameplatePosition,
+            DialogueTextStart,
+            DialogueTextEnd,
             CharacterFace
         }
     }

@@ -28,12 +28,12 @@ namespace DREngine.ResourceLoading
         /*
         public static void SaveToProjectJson<T>(DRGame game, T obj, Path filepath)
         {
-            SaveToJson(obj, game.GameProjectData.GetFullProjectPath(filepath));
+            SaveToJson(obj, game.GameData.GetFullProjectPath(filepath));
         }
 
         public static T LoadFromProjectJson<T>(DRGame game, Path filepath)
         {
-            return LoadFromJson<T>(game, game.GameProjectData.GetFullProjectPath(filepath));
+            return LoadFromJson<T>(game, game.GameData.GetFullProjectPath(filepath));
         }
         */
     }
