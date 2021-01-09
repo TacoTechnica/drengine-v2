@@ -72,6 +72,12 @@ namespace DREngine.Editor.SubWindows.Resources
                 // Draw Pivot
                 DrawPivot(spr.Pivot.X, spr.Pivot.Y);
 
+                // Draw pins
+                foreach (DRSprite.PinType pinType in spr.Pins.Keys)
+                {
+                    DrawPin(pinType, spr.Pins[pinType].X, spr.Pins[pinType].Y);
+                }
+
                 // Draw image outline
                 Rect(0, 0, spr.Width, spr.Height, new Color(0.5, 1, 0.5, 0.6), 2, false );
 
@@ -79,9 +85,33 @@ namespace DREngine.Editor.SubWindows.Resources
                 RectDoubleDashed(spr.ScaleMargin.Left, spr.ScaleMargin.Top, spr.Width - (spr.ScaleMargin.Right + spr.ScaleMargin.Left),(spr.Height - (spr.ScaleMargin.Top + spr.ScaleMargin.Bottom)),
                     new Color(1, 0, 1), new Color(0.2, 0.6, 0.2), 1);
 
-                
+                void DrawPin(DRSprite.PinType type, float x, float y)
+                {
+                    //int index = (int) type;
+                    float length = 10;
+                    float px = realX + realWidth * (x / spr.Width),
+                        py = realY + realHeight * (y / spr.Height);
+                    Color c1 = new Color(1, 0, 0, 1);
+                    Color c2 = new Color(0.2, 0, 0.5, 1);
+                    Do(c1, 0, 0);
+                    Do(c2, 5, 1);
+
+                    void Do(Color color, float offsetDash, float offsetText)
+                    {
+                        g.SetSourceColor(color);
+                        g.SetDash(new []{5.0, 5.0}, _dt * 4 + offsetDash );
+                        g.Arc(px, py, length, 0, Math.PI * 4);
+                        g.Stroke();
+                        g.MoveTo(px + offsetText, py + offsetText);
+                        g.SetFontSize(16);
+                        g.ShowText(type.ToString());
+                        g.Stroke();
+                    }
+                }
+
                 void DrawPivot(float x, float y)
                 {
+                    if (_dt % 4 >= 2) return; // Draw every other half second
                     float px = realX + realWidth * x,
                         py = realY + realHeight * y;
                     float length = 10;

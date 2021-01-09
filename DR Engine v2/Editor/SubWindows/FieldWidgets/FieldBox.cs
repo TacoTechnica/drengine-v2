@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;
 using Action = System.Action;
@@ -15,7 +16,31 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public FieldBox(DREditor editor, Type type, bool autoApply = false)
         {
-            foreach (var f in type.GetFields())
+            List<FieldInfo> fields = new List<FieldInfo>(type.GetFields());
+            // put BASE fields up top and NEWER fields lower
+            fields.Sort((left, right) =>
+            {
+                //Debug.Log($"{left.Name}: {GetDepth(left)} vs {right.Name}: {GetDepth(right)}");
+                return GetDepth(right) - GetDepth(left);
+                // How "deep" the field is declared in its sub types.
+                int GetDepth(FieldInfo field)
+                {
+                    int depth = 0;
+                    Type check = type;
+                    while (check != null && !TypeHasField(check, field))
+                    {
+                        check = check.BaseType;
+                        depth++;
+                    }
+
+                    bool TypeHasField(Type type, FieldInfo field)
+                    {
+                        return field.DeclaringType == type;
+                    }
+                    return depth;
+                }
+            });
+            foreach (var f in fields)
             {
                 if (!f.IsPublic || f.IsStatic) continue;
                 // ReSharper disable once VirtualMemberCallInConstructor
@@ -45,6 +70,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
+        
         public object Target { get; private set; }
 
         public void LoadTarget(object target)

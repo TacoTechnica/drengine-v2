@@ -26,6 +26,9 @@ namespace DREngine.Editor
         public readonly Pixbuf TextFile;
         public readonly Pixbuf UnknownFile;
 
+        public readonly Pixbuf Add;
+        public readonly Pixbuf Remove;
+
         public Icons()
         {
             /*
@@ -56,6 +59,9 @@ namespace DREngine.Editor
             FontFile = LoadThemeIcon("font-x-generic-symbolic");
             UnknownFile = LoadThemeIcon("dialog-question-symbolic");
             ProjectFile = LoadThemeIcon("text-editor-symbolic");
+
+            Add = LoadThemeIcon("list-add-symbolic");
+            Remove = LoadThemeIcon("list-remove-symbolic");
         }
 
         public Pixbuf ScaleToRegularSize(Pixbuf buf, int targetSize = ICON_SIZE)

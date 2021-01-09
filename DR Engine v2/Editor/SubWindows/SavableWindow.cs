@@ -48,7 +48,7 @@ namespace DREngine.Editor.SubWindows
                 args.RetVal = true;
                 var message = "Unsaved changes, close anyway and discard changes?";
 
-                if (AreYouSureDialog.Run(this, "Unsaved Changes", message, "Close and Discard Changes"))
+                if (AreYouSureDialog.Run(this, "Unsaved Changes", message, "Close and Discard Changes", "Cancel"))
                 {
                     // Don't Intercept close
                     args.RetVal = false;

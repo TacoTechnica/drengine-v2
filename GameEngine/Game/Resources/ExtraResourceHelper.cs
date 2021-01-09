@@ -9,11 +9,11 @@ namespace GameEngine.Game.Resources
 {
     public class ExtraResourceHelper
     {
-        public static void SaveExtraData<T>(T target, string path)
+        public static void SaveExtraData(object target, string path)
         {
             var toSave = new Dictionary<string, object>();
 
-            foreach (var field in typeof(T).GetFields())
+            foreach (var field in target.GetType().GetFields())
             {
                 var fieldIsExtra = field.GetCustomAttribute<ExtraDataAttribute>() != null;
                 if (fieldIsExtra) toSave[field.Name] = field.GetValue(target);
@@ -28,7 +28,7 @@ namespace GameEngine.Game.Resources
             }
         }
 
-        public static void LoadExtraData<T>(T target, Path path)
+        public static void LoadExtraData(object target, Path path)
         {
             var extraPath = ToExtra(path);
             if (!File.Exists(extraPath)) return; // No loading needed.
@@ -45,11 +45,11 @@ namespace GameEngine.Game.Resources
 
             foreach (var name in toLoad.Keys)
             {
-                var targetField = typeof(T).GetField(name);
+                var targetField = target.GetType().GetField(name);
                 if (targetField == null)
                 {
                     Debug.LogWarning(
-                        $"[Extra Resource] Field {name} in class {typeof(T).Name} can't be found! Will skip.");
+                        $"[Extra Resource] Field {name} in class {target.GetType().Name} can't be found! Will skip.");
                     continue;
                 }
 

@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using DREngine.ResourceLoading;
+using GameEngine;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
 

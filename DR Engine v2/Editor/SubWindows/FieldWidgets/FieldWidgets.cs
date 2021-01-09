@@ -84,6 +84,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set => Data = (T) value;
         }
 
+        protected object GetFieldParent()
+        {
+            return _target;
+        }
+
         protected abstract void Initialize(FieldInfo field, HBox content);
 
         protected void OnModify()

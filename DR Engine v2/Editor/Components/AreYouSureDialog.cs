@@ -23,5 +23,10 @@ namespace DREngine.Editor.Components
             //    ButtonsType.OkCancel, false, message);
             return (ResponseType) dialogue.Run() == ResponseType.Accept;
         }
+
+        public static bool Run(Window parent, string message, string accept = "Yes", string cancel = "Cancel")
+        {
+            return Run(parent, "Are you Sure?", message, accept, cancel);
+        }
     }
 }
