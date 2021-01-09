@@ -387,11 +387,7 @@ namespace DREngine.Editor
             {
                 var message = "Some open resources have unsaved changes, Load anyway and discard changes?";
 
-                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Load and Discard Changes");
-                //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
-                //    ButtonsType.OkCancel, false, message);
-                var ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
-                return ok;
+                return AreYouSureDialog.Run(this, "Unsaved Changes", message, "Load and Discard Changes");
             }
 
             return true;

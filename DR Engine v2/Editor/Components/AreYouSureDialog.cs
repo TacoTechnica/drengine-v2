@@ -15,5 +15,13 @@ namespace DREngine.Editor.Components
             ContentArea.Add(label);
             label.Show();
         }
+
+        public static bool Run(Window parent, string title, string message, string accept="Yes", string cancel="Cancel")
+        {
+            using Dialog dialogue = new AreYouSureDialog(parent, title, message, accept, cancel);
+            //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
+            //    ButtonsType.OkCancel, false, message);
+            return (ResponseType) dialogue.Run() == ResponseType.Accept;
+        }
     }
 }

@@ -48,14 +48,7 @@ namespace DREngine.Editor.SubWindows
                 args.RetVal = true;
                 var message = "Unsaved changes, close anyway and discard changes?";
 
-                Dialog dialogue = new AreYouSureDialog(this, "Unsaved Changes", message, "Close and Discard Changes");
-
-                //MessageDialog dialogue = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question,
-                //    ButtonsType.OkCancel, false, message);
-                var ok = (ResponseType) dialogue.Run() == ResponseType.Accept;
-
-                dialogue.Dispose();
-                if (ok)
+                if (AreYouSureDialog.Run(this, "Unsaved Changes", message, "Close and Discard Changes"))
                 {
                     // Don't Intercept close
                     args.RetVal = false;
