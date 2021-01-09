@@ -1,4 +1,5 @@
 using System;
+using System.Timers;
 using Cairo;
 using DREngine.Editor.Components;
 using DREngine.Editor.SubWindows.FieldWidgets;
@@ -19,6 +20,9 @@ namespace DREngine.Editor.SubWindows.Resources
 
         private Image _image;
         private Text _label;
+
+        private Timer _renderTimer;
+        private float _dt;
 
         public SpriteResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
@@ -45,6 +49,15 @@ namespace DREngine.Editor.SubWindows.Resources
             _image.Show();
             _label.Show();
             _fields.Show();
+
+            _renderTimer = new Timer();
+            _renderTimer.Interval = 250; // milliseconds
+            _renderTimer.Elapsed += (sender, args) =>
+            {
+                _dt++;
+                _image.QueueDraw();
+            };
+            _renderTimer.Start();
 
             _image.Drawn += (o, args) => {
                 // Draw border around image and allocation
@@ -106,13 +119,14 @@ namespace DREngine.Editor.SubWindows.Resources
                     {
                         double onLength = 10,
                                offLength = 5;
+                        double offset = _dt * 7;
                         if (dashOffs)
                         {
-                            g.SetDash(new[] {onLength, offLength}, 0);
+                            g.SetDash(new[] {onLength, offLength}, offset);
                         }
                         else
                         {
-                            g.SetDash(new[] {offLength, onLength}, offLength);
+                            g.SetDash(new[] {offLength, onLength}, offset + offLength);
                         }
                     }
 
@@ -162,6 +176,11 @@ namespace DREngine.Editor.SubWindows.Resources
         protected override void OnClose()
         {
             if (Dirty) CurrentResource?.Load(_editor.ResourceLoaderData);
+            if (_renderTimer != null)
+            {
+                _renderTimer.Dispose();
+                _renderTimer = null;
+            }
         }
     }
 }
