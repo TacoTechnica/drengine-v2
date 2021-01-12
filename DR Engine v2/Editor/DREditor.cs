@@ -18,8 +18,6 @@ namespace DREngine.Editor
 {
     public class DREditor : IDisposable
     {
-        // TODO: Make this set to nothing or a custom/licensed theme.
-        private const string STARTING_THEME = "themes/Material-Black-Lime/gtk-3.0/gtk.css";
         private bool _disposed;
         private AudioMixer _globalMixer;
         private string _projectPath;
@@ -62,7 +60,7 @@ namespace DREngine.Editor
         public void Run()
         {
             Debug.LogDebug("Editor Run()");
-            ExceptionManager.UnhandledException += OnHandleExceptionEvent;
+            //ExceptionManager.UnhandledException += OnHandleExceptionEvent;
             // Init app
             Application.Init();
 
@@ -100,8 +98,6 @@ namespace DREngine.Editor
 
             ResourceWindowManager = new ResourceWindowManager(this);
 
-
-            if (!string.IsNullOrEmpty(STARTING_THEME)) Window.SetTheme(STARTING_THEME);
             Initialize();
             Application.Run();
         }
