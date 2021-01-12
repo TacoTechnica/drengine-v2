@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DREngine.Editor.SubWindows.Resources;
+using DREngine.Editor.SubWindows.Resources.SceneEditor;
 using DREngine.Editor.SubWindows.Resources.VNEditor;
 using DREngine.ResourceLoading;
 
@@ -81,6 +82,8 @@ namespace DREngine.Editor.SubWindows
                     return new AudioClipResourceWindow(_editor, path);
                 case "vn":
                     return new VNResourceWindow(_editor, path);
+                case "scene":
+                    return new SceneResourceWindow(_editor, path);
             }
 
             return new UnknownResourceWindow(_editor, path, extension);
