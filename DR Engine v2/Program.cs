@@ -39,6 +39,7 @@ namespace DREngine
             string projectPath = null;
             string editorPipeReadHandle = null;
             string editorPipeWriteHandle = null;
+            string startScene = null;
             var opts = new OptionSet
             {
                 {
@@ -61,6 +62,18 @@ namespace DREngine
                         editorPipeWriteHandle = v;
                         debugEditor = true;
                     }
+                },
+                {
+                    "scene:", v =>
+                    {
+                        startScene = v;
+                    }
+                },
+                {
+                    "sceneedit:", v =>
+                    {
+                        startScene = v;
+                    }
                 }
             };
             opts.Parse(args);
@@ -73,11 +86,27 @@ namespace DREngine
                 return;
             }
 
-            // Run
+            // Open
             if (useGame)
-                StartGame(projectPath, debugEditor, editorPipeReadHandle, editorPipeWriteHandle);
+            {
+                using (var game = new DRGame(projectPath))
+                {
+                    if (debugEditor)
+                    {
+                        game.InitializeEditorHookup(editorPipeReadHandle,
+                            editorPipeWriteHandle);
+                    }
+                    if (startScene != null)
+                    {
+                        game.InitializeEditorSceneTool(startScene);
+                    }
+                    game.Run();
+                }                
+            }
             else
+            {
                 StartEditor();
+            }
         }
 
         #region Public Accessors
@@ -89,16 +118,6 @@ namespace DREngine
         #endregion
 
         #region Main functions
-
-        private static void StartGame(string projectPath, bool connectToDebugEditor, string editorPipeReadHandle,
-            string editorPipeWriteHandle)
-        {
-            using (var game = new DRGame(projectPath, connectToDebugEditor, editorPipeReadHandle,
-                editorPipeWriteHandle))
-            {
-                game.Run();
-            }
-        }
 
         private static void StartEditor()
         {

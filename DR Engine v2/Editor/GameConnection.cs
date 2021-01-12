@@ -27,7 +27,7 @@ namespace DREngine.Editor
 
         public bool Running => _gameProcess != null;
 
-        public bool StartGameProcessAndConnect(string gameExecPath, string project)
+        public bool StartGameProcessAndConnect(string gameExecPath, string project, string extraArgs="")
         {
             if (Running) return false;
             Debug.LogDebug($"Running game at {gameExecPath}");
@@ -38,7 +38,7 @@ namespace DREngine.Editor
             pinfo.WindowStyle = ProcessWindowStyle.Normal;
             pinfo.FileName = gameExecPath;
             pinfo.Arguments =
-                $"--game=\"{project}\" --readpipe=\"{OutputPipe.GetClientHandleAsString()}\" --writepipe=\"{InputPipe.GetClientHandleAsString()}\"";
+                $"--game=\"{project}\" --readpipe=\"{OutputPipe.GetClientHandleAsString()}\" --writepipe=\"{InputPipe.GetClientHandleAsString()}\" {extraArgs}";
 
             _gameProcess = Process.Start(pinfo);
             // ReSharper disable once PossibleNullReferenceException
@@ -46,14 +46,7 @@ namespace DREngine.Editor
             _gameProcess.Disposed += GameProcessOnExited;
             _gameProcess.Exited += GameProcessOnExited;
 
-            Debug.LogDebug("Started game.");
-
-            // Below is ok, we will continuously be waiting.
-
-            // If DisposeLocalCopyOfClientHandle is not called, the anonymous pipe will not receive
-            // notice when the child/client process disposes its pipe stream.
-            //InputPipe.DisposeLocalCopyOfClientHandle();
-            //OutputPipe.DisposeLocalCopyOfClientHandle();
+            //Debug.LogDebug("Started game.");
 
             SendPing();
 
@@ -84,7 +77,6 @@ namespace DREngine.Editor
 
         private void OnGameClose()
         {
-            Debug.LogDebug("Game Process Closed.");
             _gameProcess.Exited -= GameProcessOnExited;
             _gameProcess = null;
             OnExit?.Invoke();

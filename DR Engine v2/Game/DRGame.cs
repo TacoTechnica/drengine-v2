@@ -28,11 +28,8 @@ namespace DREngine.Game
         public static Action<DRGame> GameProjectLoaded; // All UI overrides go here. ALl other overrides can go here also.
         #endregion
 
-        public DRGame(string projectPath = null, bool connectToDebugEditor = false, string editorPipeReadHandle = "",
-            string editorPipeWriteHandle = "") : base("DR Game Test Draft")
+        public DRGame(string projectPath = null) : base("DR Game Test Draft")
         {
-            _editorConnection = new EditorConnection(connectToDebugEditor, editorPipeReadHandle, editorPipeWriteHandle);
-
             Graphics.SynchronizeWithVerticalRetrace = true;
             // Fixed timestep causes framerate issues, not sure why. Most likely will not set to true
             //this.IsFixedTimeStep = false;
@@ -77,6 +74,20 @@ namespace DREngine.Game
             }
         }
 
+        public void InitializeEditorHookup(string editorPipeReadHandle, string editorPipeWriteHandle)
+        {
+            _editorConnection = new EditorConnection(true, editorPipeReadHandle, editorPipeWriteHandle);
+        }
+
+        public void InitializeEditorSceneTool(string sceneToEdit)
+        {
+            if (ProjectPath == null)
+            {
+                throw new InvalidOperationException("Project must be open when using scene editor mode!");
+            }
+            _sceneEditorScene = sceneToEdit;
+        }
+
         #endregion
 
         #region Public Handlers
@@ -98,24 +109,34 @@ namespace DREngine.Game
 
         public string ProjectPath = "";
 
-        private readonly EditorConnection _editorConnection;
+        private EditorConnection _editorConnection;
 
         private readonly SplashScene _splashScene;
         private readonly ProjectMainMenuScene _projectMainMenuScene;
 
+        private string _sceneEditorScene = null;
+        
         #endregion
 
         #region Misc Util
 
         private void OnProjectInit()
         {
-            // Some of these depend on game project data.
-            UI = new DRGameUI(this);
-            SceneManager.LoadScene(_projectMainMenuScene);
-
+            if (_sceneEditorScene == null)
+            {
+                // Some of these depend on game project data.
+                UI = new DRGameUI(this);
+                SceneManager.LoadScene(_projectMainMenuScene);
+            }
+            else
+            {
+                Debug.LogDebug($"TO LOAD: {_sceneEditorScene}");
+                // TODO: Load scene editor for given scene
+                // SceneManager.LoadScene(new DREditableScene(_sceneEditorScene));
+            }
         }
         #endregion
-        
+
         #region Universal Game Loop
 
         protected override void Initialize()
@@ -131,7 +152,6 @@ namespace DREngine.Game
             {
                 LoadWhenSafe(() =>
                 {
-                    Debug.LogDebug("DRGame Initialize()");
                     if (ProjectPath != null && LoadProject(ProjectPath))
                     {
                         Debug.LogDebug($"Loaded Project at {ProjectPath}");
@@ -161,7 +181,7 @@ namespace DREngine.Game
         private void WaitForEditorConnection(Action onPing)
         {
             // Wait for editor if we need to. Otherwise, immediately start.
-            if (_editorConnection.Active)
+            if (_editorConnection != null && _editorConnection.Active)
             {
                 SceneManager.LoadScene(new EditorConnectionScene(this));
                 _editorConnection.BeginReceiving();
@@ -204,8 +224,8 @@ namespace DREngine.Game
             }
 
 
-            // Run VN Script system
-            VNRunner.OnTick();
+            // Open VN Script system
+            VNRunner?.OnTick();
 
             // Update
             base.Update(gameTime);

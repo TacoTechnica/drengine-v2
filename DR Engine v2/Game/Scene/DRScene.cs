@@ -23,10 +23,7 @@ namespace DREngine.Game.Scene
         }
 
         // Temporary constructor for when we are deserialized into a temporary object.
-        public DRScene() : base(null, "")
-        {
-            Debug.LogDebug("Commencing Scene Deserialization...");
-        }
+        public DRScene() : base(null, "") { }
 
         public List<ISceneObject> Objects { get; set; } = new List<ISceneObject>();
 

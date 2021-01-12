@@ -19,17 +19,17 @@ namespace DREngine.Editor
 
         private void OnConnectionExit()
         {
-            OnStop.Invoke();
+            OnStop?.Invoke();
         }
 
-        public void RunProject(string projectPath)
+        public void RunProject(string projectPath, string extraArgs = "")
         {
             // Run ourselves.
             var gamePath = Environment.GetCommandLineArgs()[0];
             // If we're running a dll, use the executable instead.
             if (gamePath.EndsWith(".dll"))
                 gamePath = gamePath.Substring(0, gamePath.Length - ".dll".Length); // + ".exe";
-            if (_connection.StartGameProcessAndConnect(gamePath, projectPath)) OnRun?.Invoke();
+            if (_connection.StartGameProcessAndConnect(gamePath, projectPath, extraArgs)) OnRun?.Invoke();
         }
 
 
