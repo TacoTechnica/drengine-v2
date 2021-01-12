@@ -11,7 +11,7 @@ namespace DREngine.Editor.Components
         [EngineFileField("projects", "Choose Image to Copy", "*.png", "Image")]
         public string ImageToCopy = null;
 
-        public NewSpriteDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Folder")
+        public NewSpriteDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Sprite")
             : base(editor, parent, parentDirectory, title)
         {
         }

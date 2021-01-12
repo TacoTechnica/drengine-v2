@@ -13,26 +13,9 @@ namespace DREngine.Editor.Components
 
         //private Button _systemFontButton;
 
-        public NewFontDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Folder") :
+        public NewFontDialog(DREditor editor, Window parent, ProjectPath parentDirectory, string title = "New Font") :
             base(editor, parent, parentDirectory, title)
         {
-            /*
-            _systemFontButton = new Button("Load System Font");
-            this.ContentArea.PackStart(_systemFontButton, false, false, 16);
-            this.ContentArea.ReorderChild(_systemFontButton, 0);
-            _systemFontButton.Show();
-
-            _systemFontButton.Pressed += (sender, args) =>
-            {
-
-                using FontChooserDialog window = new FontChooserDialog("Font choose", this);
-                ResponseType type = (ResponseType) window.Run();
-                Debug.Log($"RESPONDED: {type}");
-                
-                Debug.Log($"{window.FontDesc?.ToFilename()} => {window.Font}, {window.FontFace?.Data?.Count}, {window.FontFamily?.Name}, {window.FontFamily?.Data?.Count}");
-
-            };
-            */
         }
 
         protected override string ItemName => "Font";

@@ -15,7 +15,7 @@ namespace DREngine.Editor.Components
         public AudioClipType ImportType = AudioClipType.Streamed;
 
         public NewAudioClipDialog(DREditor editor, Window parent, ProjectPath parentDirectory,
-            string title = "New Folder") : base(editor, parent, parentDirectory, title)
+            string title = "New Audio Clip") : base(editor, parent, parentDirectory, title)
         {
         }
 
