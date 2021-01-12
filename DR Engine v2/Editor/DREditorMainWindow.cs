@@ -2,6 +2,7 @@
 using System.IO;
 using DREngine.Editor.Components;
 using DREngine.Game.Resources;
+using DREngine.Game.VN;
 using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
@@ -155,6 +156,17 @@ namespace DREngine.Editor
                         var clip = new AudioClip();
                         clip.Type = dialog.ImportType;
                         clip.Save(toAdd);
+
+                        resourceView.AddFile(toAdd.RelativePath, true);
+                    }
+                } else if (type == typeof(VNScript))
+                {
+                    using var dialog = new NewVNScriptDialog(_editor, this, new ProjectPath(_editor, projectDir));
+                    if (dialog.RunUntilAccept())
+                    {
+                        var toAdd = dialog.GetTargetDirectory();
+                        VNScript newScript = new VNScript();
+                        newScript.Save(toAdd);
 
                         resourceView.AddFile(toAdd.RelativePath, true);
                     }
