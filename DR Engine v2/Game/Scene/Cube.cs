@@ -6,12 +6,12 @@ using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using static DREngine.Game.IDependentOnDRGame;
+using static DREngine.Game.IDependentOnResourceData;
 
 namespace DREngine.Game.Scene
 {
     //[Serializable]
-    public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnDRGame
+    public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnResourceData
     {
 
         private Vector3 _size = Vector3.One;
@@ -116,7 +116,7 @@ namespace DREngine.Game.Scene
                 _sprite = value;
                 if (_sprite != null && !_sprite.Loaded)
                 {
-                    Game.LoadWhenSafe(() => { Texture = _sprite.Texture; });
+                    CurrentData.LoadWhenSafe(() => { Texture = _sprite.Texture; });
                 }
                 else
                 {

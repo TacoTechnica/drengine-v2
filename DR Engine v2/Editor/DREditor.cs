@@ -70,6 +70,8 @@ namespace DREngine.Editor
 
             ResourceNameCache = new ResourceNameCache();
 
+            ProjectResourceConverter.OnInitEditor(this);
+
             Window = new DREditorMainWindow(this);
             Window.MakeWindow("DR Editor", 640, 480);
             Window.AddEvents((int) (EventMask.ButtonPressMask | EventMask.ButtonReleaseMask));

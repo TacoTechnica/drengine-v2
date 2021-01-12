@@ -8,7 +8,10 @@ namespace GameEngine.Game.Objects
 
         protected GameObjectRender(GamePlus game) : base(game)
         {
-            _renderAddedNode = game.SceneManager.GameRenderObjects.Add(this);
+            if (game != null)
+            {
+                _renderAddedNode = game.SceneManager.GameRenderObjects.Add(this);
+            }
         }
 
         #region Internal Control

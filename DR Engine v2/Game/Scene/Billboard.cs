@@ -3,13 +3,13 @@ using GameEngine.Game.Objects.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using static DREngine.Game.IDependentOnDRGame;
+using static DREngine.Game.IDependentOnResourceData;
 
 namespace DREngine.Game.Scene
 {
     //[Serializable]
     //[JsonConverter(typeof(SceneObjectJsonConverter))]
-    public class Billboard : GameObjectRender3D, ISceneObject, IDependentOnDRGame
+    public class Billboard : GameObjectRender3D, ISceneObject, IDependentOnResourceData
     {
         public Billboard(DRGame game, Vector3 position, Quaternion rotation) : base(game, position, rotation)
         {

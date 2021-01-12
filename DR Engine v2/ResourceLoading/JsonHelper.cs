@@ -19,7 +19,7 @@ namespace DREngine.ResourceLoading
         public static T LoadFromJson<T>(DRGame game, Path path)
         {
             var text = IOHelper.ReadTextFile(path);
-            IDependentOnDRGame.CurrentGame = game;
+            IDependentOnResourceData.CurrentGame = game;
             return JsonConvert.DeserializeObject<T>(text,
                 new JsonSerializerSettings
                     {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});

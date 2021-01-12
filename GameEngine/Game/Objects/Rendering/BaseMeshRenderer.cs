@@ -24,10 +24,16 @@ namespace GameEngine.Game.Objects.Rendering
             set
             {
                 _vertices = value;
-                if (VertexBuffer == null)
-                    VertexBuffer = new VertexBuffer(Game.GraphicsDevice, typeof(TVertex),
-                        Vertices.Length, BufferUsage.WriteOnly);
-                VertexBuffer.SetData(Vertices);
+                if (Game != null)
+                {
+                    if (VertexBuffer == null)
+                    {
+                        VertexBuffer = new VertexBuffer(Game.GraphicsDevice, typeof(TVertex),
+                            Vertices.Length, BufferUsage.WriteOnly);
+                    }
+
+                    VertexBuffer.SetData(Vertices);
+                }
             }
         }
 

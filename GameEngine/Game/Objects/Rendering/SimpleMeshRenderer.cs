@@ -18,7 +18,7 @@ namespace GameEngine.Game.Objects.Rendering
         {
             get
             {
-                if (_effect == null)
+                if (_effect == null && Game != null)
                 {
                     Assert.IsNotNull(Game.GraphicsDevice);
                     _effect = new BasicEffect(Game.GraphicsDevice)
@@ -41,13 +41,16 @@ namespace GameEngine.Game.Objects.Rendering
 
         protected override Effect PrepareEffectForDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
-            Effect.Projection = cam.ProjectionMatrix;
-            Effect.View = cam.ViewMatrix;
-            Effect.World = transform.Local;
+            if (Effect != null)
+            {
+                Effect.Projection = cam.ProjectionMatrix;
+                Effect.View = cam.ViewMatrix;
+                Effect.World = transform.Local;
 
-            _cachedOgRasterizerState = g.RasterizerState;
+                _cachedOgRasterizerState = g.RasterizerState;
 
-            g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
+                g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
+            }
 
             return Effect;
         }
@@ -62,29 +65,42 @@ namespace GameEngine.Game.Objects.Rendering
         [JsonIgnore]
         public bool VertexColorEnabled
         {
-            get => Effect.VertexColorEnabled;
-            set => Effect.VertexColorEnabled = value;
+            get => Effect?.VertexColorEnabled ?? false;
+            set
+            {
+                if (Effect != null) Effect.VertexColorEnabled = value;
+            }
         }
 
         [JsonIgnore]
         public bool LightingEnabled
         {
-            get => Effect.LightingEnabled;
-            set => Effect.LightingEnabled = value;
+            get => Effect?.LightingEnabled ?? false;
+            set
+            {
+                if (Effect != null) Effect.LightingEnabled = value;
+            }
+
         }
 
         [JsonIgnore]
         public bool TextureEnabled
         {
-            get => Effect.TextureEnabled;
-            set => Effect.TextureEnabled = value;
+            get => Effect?.TextureEnabled ?? false;
+            set
+            {
+                if (Effect != null) Effect.TextureEnabled = value;
+            }
         }
 
         [JsonIgnore]
         public Texture2D Texture
         {
-            get => Effect.Texture;
-            set => Effect.Texture = value;
+            get => Effect?.Texture;
+            set
+            {
+                if (Effect != null) Effect.Texture = value;
+            }
         }
 
         [JsonIgnore] public bool CullingEnabled = true;

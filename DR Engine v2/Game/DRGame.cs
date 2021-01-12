@@ -150,7 +150,7 @@ namespace DREngine.Game
             // Wait for editor if we need to.
             WaitForEditorConnection(() =>
             {
-                LoadWhenSafe(() =>
+                ResourceLoaderData.LoadWhenSafe(() =>
                 {
                     if (ProjectPath != null && LoadProject(ProjectPath))
                     {

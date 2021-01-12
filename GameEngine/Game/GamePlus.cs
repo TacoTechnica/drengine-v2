@@ -68,14 +68,6 @@ namespace GameEngine.Game
 
         #region Public Access
 
-        public void LoadWhenSafe(Action onSafeToLoad)
-        {
-            if (!_safeToLoad)
-                _whenSafeToLoad.AddListener(onSafeToLoad);
-            else
-                onSafeToLoad.Invoke();
-        }
-
         #endregion
 
         #region Util variables & Debug
@@ -104,8 +96,6 @@ namespace GameEngine.Game
         private readonly List<Controls> _controls = new List<Controls>();
 
         private GenericCursor _cursor = new GenericCursor();
-
-        private bool _safeToLoad;
 
         #endregion
 
@@ -144,9 +134,6 @@ namespace GameEngine.Game
 
         public EventManager UpdateFinished { get; } = new EventManager();
 
-        private readonly EventManager
-            _whenSafeToLoad = new EventManager(true); // { get; private set; } = new EventManager();
-
         /// Time
         public float Time { get; private set; }
 
@@ -173,8 +160,6 @@ namespace GameEngine.Game
             DebugEffect = new BasicEffect(GraphicsDevice);
             DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _whenSafeToLoad.InvokeAll();
-            _safeToLoad = true;
         }
 
         private void InitializeDebug()

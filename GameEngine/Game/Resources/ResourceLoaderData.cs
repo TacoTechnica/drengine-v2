@@ -1,4 +1,6 @@
+using System;
 using GameEngine.Game.Audio;
+using GameEngine.Util;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Game.Resources
@@ -12,10 +14,25 @@ namespace GameEngine.Game.Resources
         public AudioOutput AudioOutput;
         public GraphicsDevice GraphicsDevice;
 
+        private bool _safeToLoad = false;
+
+        private readonly EventManager
+            _whenSafeToLoad = new EventManager(true);
+
         public void Initialize(GraphicsDevice graphicsDevice, AudioOutput audioOutput)
         {
             AudioOutput = audioOutput;
             GraphicsDevice = graphicsDevice;
+            _safeToLoad = true;
+            _whenSafeToLoad.InvokeAll();
+        }
+
+        public void LoadWhenSafe(Action onSafeToLoad)
+        {
+            if (!_safeToLoad)
+                _whenSafeToLoad.AddListener(onSafeToLoad);
+            else
+                onSafeToLoad.Invoke();
         }
     }
 }

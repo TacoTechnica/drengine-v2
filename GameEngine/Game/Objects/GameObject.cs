@@ -29,7 +29,10 @@ namespace GameEngine.Game.Objects
         public GameObject(GamePlus game)
         {
             Game = game;
-            _gameAddedNode = game.SceneManager.GameObjects.Add(this);
+            if (game != null)
+            {
+                _gameAddedNode = game.SceneManager.GameObjects.Add(this);
+            }
 
             _gottaStart = true;
             _alive = true;
@@ -38,7 +41,10 @@ namespace GameEngine.Game.Objects
             ParentActive = true;
 
             // ReSharper disable once VirtualMemberCallInConstructor
-            Tweener = NewTweener(game);
+            if (game != null)
+            {
+                Tweener = NewTweener(game);
+            }
 
             // ReSharper disable once VirtualMemberCallInConstructor
             Awake();

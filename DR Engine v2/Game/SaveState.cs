@@ -7,33 +7,35 @@ using Newtonsoft.Json;
 
 namespace DREngine.Game
 {
-    public class SaveState : IDependentOnDRGame
+    public class SaveState : IDependentOnResourceData
     {
+        private readonly DRGame _game;
+
+
         public string ProjectName;
         public DateTime TimeSaved;
+        public VNState VNState
+        {
+            get => _game.VNRunner.State;
+            set => _game.VNRunner.State = value;
+        }
+
 
         public SaveState(DRGame game)
         {
-            Game = game;
+            _game = game;
         }
 
-        public SaveState() : this(IDependentOnDRGame.CurrentGame)
+        public SaveState() : this(IDependentOnResourceData.CurrentGame)
         {
         }
 
-        public VNState VNState
-        {
-            get => Game.VNRunner.State;
-            set => Game.VNRunner.State = value;
-        }
-
-        [JsonIgnore] public DRGame Game { get; set; }
 
         public void Save(Path file)
         {
             Debug.LogDebug($"SAVING GAME to {file}");
             TimeSaved = DateTime.Now;
-            ProjectName = Game.GameData.Name;
+            ProjectName = _game.GameData.Name;
 
             JsonHelper.SaveToJson(this, file);
         }
@@ -41,9 +43,9 @@ namespace DREngine.Game
         public bool Load(Path file)
         {
             Debug.LogDebug($"LOADING GAME from {file}");
-            var copy = JsonHelper.LoadFromJson<SaveState>(Game, file);
+            var copy = JsonHelper.LoadFromJson<SaveState>(_game, file);
 
-            var currentProject = Game.GameData.Name;
+            var currentProject = _game.GameData.Name;
             if (copy.ProjectName != currentProject)
             {
                 var noProject = currentProject == "";
@@ -63,7 +65,7 @@ namespace DREngine.Game
                 return false;
             }
 
-            // TODO: Make this cleaner.
+            // TODO: Make this cleaner/automatic.
             ProjectName = copy.ProjectName;
             TimeSaved = copy.TimeSaved;
             VNState = copy.VNState;

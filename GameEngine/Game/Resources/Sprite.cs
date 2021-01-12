@@ -38,7 +38,7 @@ namespace GameEngine.Game.Resources
             Path = path;
 
             Loaded = false;
-            game.LoadWhenSafe(() =>
+            game.ResourceLoaderData.LoadWhenSafe(() =>
             {
                 Load(game.ResourceLoaderData);
             });

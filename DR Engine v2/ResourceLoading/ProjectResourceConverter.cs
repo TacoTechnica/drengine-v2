@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DREngine.Editor;
 using DREngine.Game;
 using GameEngine.Game.Debugging;
 using GameEngine.Game.Resources;
@@ -17,6 +18,7 @@ namespace DREngine.ResourceLoading
         public const string INVALID_PATH_SIGNIFIER = "###INVALID###://";
         public const string NULL_PATH_SIGNIFIER = "(empty)";
         private static DRGame _currentGame;
+        private static DREditor _currentEditor;
 
         public override bool CanWrite { get; } = true;
         public override bool CanRead { get; } = true;
@@ -24,6 +26,11 @@ namespace DREngine.ResourceLoading
         public static void OnInitGame(DRGame game)
         {
             _currentGame = game;
+        }
+
+        public static void OnInitEditor(DREditor editor)
+        {
+            _currentEditor = editor;
         }
 
         public override void WriteJson(JsonWriter writer, object o, JsonSerializer serializer)
@@ -77,7 +84,14 @@ namespace DREngine.ResourceLoading
             if (data.StartsWith(RESOURCE_PATH_PREFIX))
             {
                 var projectRelativePath = data.Substring(RESOURCE_PATH_PREFIX.Length);
-                fullPath = new ProjectPath(_currentGame, projectRelativePath);
+                if (_currentGame != null)
+                {
+                    fullPath = new ProjectPath(_currentGame, projectRelativePath);
+                }
+                else
+                {
+                    fullPath = new ProjectPath(_currentEditor, projectRelativePath);
+                }
             }
             else if (data.StartsWith(DEFAULT_RESOURCE_PATH_PREFIX))
             {
@@ -89,8 +103,11 @@ namespace DREngine.ResourceLoading
                 return null;
             }
 
-            //Debug.Log($"FULL PATH: {data} => {fullPath}, TYPE: {objectType}");
-            return _currentGame.ResourceLoader.GetResource(fullPath, objectType);
+            if (_currentGame != null)
+            {
+                return _currentGame.ResourceLoader.GetResource(fullPath, objectType);
+            }
+            return _currentEditor.ResourceLoader.GetResource(fullPath, objectType);
         }
 
         public override bool CanConvert(Type objectType)
