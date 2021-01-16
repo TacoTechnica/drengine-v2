@@ -8,6 +8,7 @@ DR\ Engine\ v2/themes/
 *.ttf
 *.dll
 *.so
+!DR\ Engine\ v2/default_resources/**/*
 
 # Common IntelliJ Platform excludes
 
