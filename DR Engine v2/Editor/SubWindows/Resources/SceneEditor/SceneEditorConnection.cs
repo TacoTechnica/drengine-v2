@@ -1,7 +1,5 @@
 
 using System;
-using System.Diagnostics;
-using System.Timers;
 using Debug = GameEngine.Debug;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
@@ -45,7 +43,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                     case "SELECTED":
                     {
                         int selected = int.Parse(parts[1]);
-                        OnSelected.Invoke(selected);
+                        OnSelected?.Invoke(selected);
                         break;
                     }
                     case "SAVE_SUCCESS":

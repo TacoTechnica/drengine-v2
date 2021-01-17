@@ -69,6 +69,12 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             _items.Remove(_items.Children[index]);
         }
 
+        public void ForceSelect(int index)
+        {
+            _skipSelectFlag = true;
+            _items.SelectRow(_items.GetRowAtIndex(index));
+        }
+
         private void PresentNewItemDropdown()
         {
             _currentChoice?.Cancel();

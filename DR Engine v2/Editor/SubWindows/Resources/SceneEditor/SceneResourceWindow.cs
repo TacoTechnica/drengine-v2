@@ -25,7 +25,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             };
             _connection.OnSelected += selectedIndex =>
             {
-                Debug.Log($"TODO: Select object at {selectedIndex}");
+                _list.ForceSelect(selectedIndex);
             };
         }
 
@@ -43,8 +43,6 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 _connection.SendSelectObject(objectIndex);
             };
-
-            _connection = new SceneEditorConnection(_editor);
 
             // Close when we close the editor.
             _connection.OnStop += () =>

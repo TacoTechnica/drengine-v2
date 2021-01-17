@@ -149,9 +149,7 @@ namespace DREngine.Game.Scene
 
         public string Type { get; set; } = "Cube";
 
-        [JsonIgnore]
         public Vector3 FocusCenter => Transform.Position + 0.5f * Math.RotateVector(Size, Transform.Rotation);
-        [JsonIgnore]
         public float FocusDistance => 5f + Size.Length() / 2;
 
         private VertexPositionColorTexture P(float px, float py, float pz, float ux,

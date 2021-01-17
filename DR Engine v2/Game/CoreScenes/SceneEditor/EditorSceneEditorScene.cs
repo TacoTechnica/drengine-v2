@@ -90,11 +90,24 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _loadedScene.LoadSceneRaw(_game);
         }
     
-        private void SelectObject(ISceneObject sceneObject)
+        private void SelectObject(ISceneObject sceneObject, bool sendInfoToEditor = false)
         {
             if (sceneObject is GameObjectRender3D object3d)
             {
                 _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
+
+                if (sendInfoToEditor)
+                {
+                    int index = _loadedScene.Objects.IndexOf(sceneObject);
+                    if (index == -1)
+                    {
+                        Debug.LogWarning("Could not find index for 3D Editor selected object! This is an issue.");
+                    }
+                    else
+                    {
+                        _connection.SendSelected(index);
+                    }
+                }
             }
             else
             {
@@ -116,7 +129,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 {
                     if (collider.GameObject is ISceneObject sceneObject)
                     {
-                        SelectObject(sceneObject);
+                        SelectObject(sceneObject, true);
                     }
                 };
             }

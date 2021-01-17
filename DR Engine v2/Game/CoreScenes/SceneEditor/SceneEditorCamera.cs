@@ -19,15 +19,17 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         private Quaternion _targetLook;
         private Vector3 _velocity;
 
-        public float LookStrength = 16f;
-        public float MoveAcceleration = 30f;
-        public float MoveDamping = 10f;
+        public float LookStrength = 26f;
+        public float MoveAcceleration = 50f;
+        public float MoveDamping = 8f;
 
         public Action<ICollider> ColliderSelected;
 
         private Tween<Vector3> _moveTween;
 
         private DRGame _game;
+
+        private Vector2 _prevMousePos;
 
         public SceneEditorCamera(DRGame game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation,
             fov)
@@ -76,11 +78,13 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         {
             _focused = false;
             RawInput.SetMouseLock(false);
+            RawInput.SetMousePos(_prevMousePos);
         }
 
         private void OnFocus(InputActionButton obj)
         {
             _focused = true;
+            _prevMousePos = RawInput.GetMousePosition();
             RawInput.SetMouseLock(true);
         }
 
@@ -140,7 +144,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 var accel = MoveAcceleration;
                 if (_controls.Speed.Pressing)
                 {
-                    accel *= 3;
+                    accel *= 4;
                 }
 
                 _velocity += input * (accel * dt);

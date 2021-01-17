@@ -107,9 +107,6 @@ namespace DREngine.Editor
                 case NetworkHelper.ERROR_COMMAND:
                     Debug.LogError(GetPrint(data));
                     break;
-                default:
-                    Debug.LogWarning($"Invalid client command: {command}");
-                    break;
             }
         }
 
