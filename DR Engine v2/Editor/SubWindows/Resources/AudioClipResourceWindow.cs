@@ -58,7 +58,10 @@ namespace DREngine.Editor.SubWindows.Resources
                 }
             };
 
-            _fields.Modified += MarkDirty;
+            _fields.Modified += () =>
+            {
+                MarkDirty();
+            };
         }
 
         protected override void OnLoadError(bool fileExists, Exception exception)

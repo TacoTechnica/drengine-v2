@@ -24,6 +24,7 @@ namespace DREngine.Game.Scene
         [JsonIgnore] public new DRGame Game { get; set; }
 
         public string Type { get; set; } = "Billboard";
+        public Vector3 FocusCenter => Transform.Position;
 
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)

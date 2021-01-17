@@ -6,7 +6,7 @@ namespace GameEngine.Game.Collision
 {
     public interface ICollider
     {
-        public GameObject GameObject { get; }
+        public GameObjectRender3D GameObject { get; }
         bool ContainsScreen(Camera3D cam, Vector2 screenPoint);
 
         Vector3 GetRoughCenterPosition();

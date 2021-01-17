@@ -9,14 +9,14 @@ namespace GameEngine.Game.Collision
     {
         private Rectangle _rect;
 
-        public RectCollider2D(GameObject obj, Rectangle rect)
+        public RectCollider2D(GameObjectRender3D obj, Rectangle rect)
         {
             _rect = rect;
             GameObject = obj;
             obj.AddCollider(this);
         }
 
-        public RectCollider2D(GameObject obj, float x, float y, float width, float height) : this(obj,
+        public RectCollider2D(GameObjectRender3D obj, float x, float y, float width, float height) : this(obj,
             new Rectangle((int) x, (int) y, (int) width, (int) height))
         {
         }
@@ -45,7 +45,7 @@ namespace GameEngine.Game.Collision
             set => _rect.Height = (int) value;
         }
 
-        public GameObject GameObject { get; }
+        public GameObjectRender3D GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 point)
         {

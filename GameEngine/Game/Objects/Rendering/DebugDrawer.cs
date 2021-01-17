@@ -23,9 +23,13 @@ namespace GameEngine.Game.Objects.Rendering
             game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
         }
 
+        public static void DrawLine3D(GamePlus game, Camera3D cam, Vector3 from, Vector3 to, Color color)
+        {
+            DrawLine3D(game, cam, from, to, color, color);
+        }
         public static void DrawLine3D(GamePlus game, Camera3D cam, Vector3 from, Vector3 to)
         {
-            DrawLine3D(game, cam, from, to, DefaultColor, DefaultColor);
+            DrawLine3D(game, cam, from, to, DefaultColor);
         }
 
         public static void DrawLines(GamePlus game, Camera3D cam, Vector3[] lines, Color color)

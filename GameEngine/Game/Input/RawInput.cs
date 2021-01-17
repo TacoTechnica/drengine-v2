@@ -105,6 +105,10 @@ namespace GameEngine.Game.Input
         {
             _mouseLocked = enabled;
             SetMouseVisibility(!enabled);
+            if (enabled)
+            {
+                CenterMouse();
+            }
         }
 
         public static bool IsMouseLocked()
@@ -342,10 +346,7 @@ namespace GameEngine.Game.Input
 
             if (_mouseLocked)
             {
-                var r = _game.GraphicsDevice.Viewport.Bounds;
-                // We must make sure our prev state has a centered mouse.
-                var center = r.Center; //new Vector2(, _game.GraphicsDevice.Viewport.Height / 2);
-                Mouse.SetPosition(center.X, center.Y);
+                CenterMouse();
                 _prevMouseState = Mouse.GetState();
             }
 
@@ -367,6 +368,14 @@ namespace GameEngine.Game.Input
             {
                 PressedKeys.Clear();
             }
+        }
+
+        private static void CenterMouse()
+        {
+            var r = _game.GraphicsDevice.Viewport.Bounds;
+            // We must make sure our prev state has a centered mouse.
+            var center = r.Center; //new Vector2(, _game.GraphicsDevice.Viewport.Height / 2);
+            Mouse.SetPosition(center.X, center.Y);
         }
 
         private static bool CheckMouseState(MouseState m, MouseButton b)

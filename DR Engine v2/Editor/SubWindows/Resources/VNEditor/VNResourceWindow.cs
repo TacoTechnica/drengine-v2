@@ -141,7 +141,10 @@ namespace DREngine.Editor.SubWindows.Resources.VNEditor
             _fieldBoxContainer.PackStart(b, true, true, 16);
             b.Show();
 
-            b.Modified += MarkDirty;
+            b.Modified += () =>
+            {
+                MarkDirty();
+            };
         }
     }
 }

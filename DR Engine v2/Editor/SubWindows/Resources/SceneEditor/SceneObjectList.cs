@@ -10,10 +10,12 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
     {
         private ListBox _items;
 
-        public Action<Type> NewItemAdded;
-        public Action<int> ItemSelected;
+        public Action<Type> NewObjectAdded;
+        public Action<int> ObjectSelected;
 
         private IChooser _currentChoice;
+
+        private bool _skipSelectFlag = false;
 
         public SceneObjectList(DREditor editor)
         {
@@ -35,7 +37,12 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
             _items.RowSelected += (o, args) =>
             {
-                ItemSelected?.Invoke(args.Row.Index);
+                if (_skipSelectFlag)
+                {
+                    _skipSelectFlag = false;
+                    return;
+                }
+                ObjectSelected?.Invoke(args.Row.Index);
             };
         }
 
@@ -47,13 +54,13 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             }
         }
 
-        public void SetItemsVisual(IEnumerable<string> names)
+        public void LoadItems(IEnumerable<ISceneObject> objects)
         {
             Clear();
 
-            foreach (string name in names)
+            foreach (ISceneObject sceneObject in objects)
             {
-                AddItemVisual(name);
+                AddItemVisual(TypeToName(sceneObject.GetType()));
             }
         }
 
@@ -66,12 +73,13 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         {
             _currentChoice?.Cancel();
             _currentChoice = new DropdownChooser();
-            _currentChoice.MakeChoice<Type>(GetObjectTypes(), (type =>
+            _currentChoice.MakeChoice<Type>(GetObjectTypes(), type =>
             {
-                string name = type.ToString();
-                var newRow = AddItemVisual(name);
+                var newRow = AddItemVisual(TypeToName(type));
+                NewObjectAdded.Invoke(type);
+                _skipSelectFlag = true;
                 _items.SelectRow(newRow);
-            }));
+            }, TypeToName);
         }
 
         private ListBoxRow AddItemVisual(string name)
@@ -83,8 +91,14 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             label.Show();
 
             _items.Insert(newRow, _items.Children.Length);
+            newRow.Show();
 
             return newRow;
+        }
+
+        private static string TypeToName(Type type)
+        {
+            return type.Name;
         }
 
         private IEnumerable<Type> GetObjectTypes()

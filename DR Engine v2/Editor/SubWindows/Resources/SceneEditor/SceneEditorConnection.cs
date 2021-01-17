@@ -1,5 +1,8 @@
 
 using System;
+using System.Diagnostics;
+using System.Timers;
+using Debug = GameEngine.Debug;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 {
@@ -7,6 +10,9 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
     {
         private DREditor _editor;
         private DRProjectRunner _connection;
+
+        public Action OnSaved;
+        public Action<int> OnSelected;
 
         public Action OnStop
         {
@@ -20,6 +26,43 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         {
             _editor = editor;
             _connection = new DRProjectRunner();
+            
+            _connection.Connection.OnMessage += OnMessage;
+        }
+
+        private void OnMessage(string message)
+        {
+            try
+            {
+                string[] parts = message.Split(' ');
+                if (parts.Length == 0) throw new InvalidOperationException("Received Message is empty!");
+                string command = parts[0];
+                switch (command)
+                {
+                    case "SAVED":
+                        OnSaved.Invoke();
+                        break;
+                    case "SELECTED":
+                    {
+                        int selected = int.Parse(parts[1]);
+                        OnSelected.Invoke(selected);
+                        break;
+                    }
+                    case "SAVE_SUCCESS":
+                    case "LOG":
+                    case "DEBUG":
+                    case "WARNING":
+                    case "ERROR":
+                        // Ignore these.
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Invalid command: \"{command}\""); 
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Invalid message sent from Scene Editor to Editor: \"{message}\": {e}");
+            }
         }
 
         public void Open(string scene)
@@ -33,5 +76,54 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         {
             _connection.Stop();
         }
+
+        public void SendNewObject(Type type)
+        {
+            _connection.Connection.SendMessageBlocked($"NEW {type}");
+        }
+
+        public void SendSelectObject(int objectIndex)
+        {
+            _connection.Connection.SendMessageBlocked($"SELECT {objectIndex}");
+        }
+
+        public void SendDeleteObject(int objectIndex)
+        {
+            _connection.Connection.SendMessageBlocked($"DELETE {objectIndex}");
+        }
+
+        public void SendPropertyModified(int objectIndex, string propertyName, object value)
+        {
+            _connection.Connection.SendMessageBlocked($"MODIFIED {objectIndex} {propertyName} {value}");
+        }
+
+        public void SendSave()
+        {
+            _connection.Connection.SendMessageBlocked("SAVE");
+        }
+
+        public bool WaitForSave(double timeoutSeconds)
+        {
+            _connection.Connection.OnMessage += OnMessage;
+            bool saved = false;
+            void OnMessage(string obj)
+            {
+                if (obj == "SAVE_SUCCESS")
+                {
+                    saved = true;
+                }
+            }
+
+            var start = DateTime.Now;
+
+            while (!saved)
+            {
+                // Fail
+                if ((DateTime.Now - start).TotalSeconds > timeoutSeconds) return false;
+            }
+
+            return true;
+        }
+
     }
 }

@@ -4,7 +4,7 @@ namespace DREngine.Editor
 {
     public class DRProjectRunner
     {
-        private readonly GameConnection _connection = new GameConnection();
+        public readonly GameConnection Connection = new GameConnection();
         public Action<string> OnCrash;
 
         public Action OnRun;
@@ -12,10 +12,10 @@ namespace DREngine.Editor
 
         public DRProjectRunner()
         {
-            _connection.OnExit += OnConnectionExit;
+            Connection.OnExit += OnConnectionExit;
         }
 
-        public bool Running => _connection.Running;
+        public bool Running => Connection.Running;
 
         private void OnConnectionExit()
         {
@@ -29,7 +29,7 @@ namespace DREngine.Editor
             // If we're running a dll, use the executable instead.
             if (gamePath.EndsWith(".dll"))
                 gamePath = gamePath.Substring(0, gamePath.Length - ".dll".Length); // + ".exe";
-            if (_connection.StartGameProcessAndConnect(gamePath, projectPath, extraArgs)) OnRun?.Invoke();
+            if (Connection.StartGameProcessAndConnect(gamePath, projectPath, extraArgs)) OnRun?.Invoke();
         }
 
 
@@ -37,7 +37,7 @@ namespace DREngine.Editor
         {
             try
             {
-                _connection.CloseGame();
+                Connection.CloseGame();
             }
             catch (InvalidOperationException e)
             {

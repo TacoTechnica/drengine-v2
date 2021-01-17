@@ -1,6 +1,7 @@
 ﻿using System;
 using DREngine.Game.Controls;
 using DREngine.Game.CoreScenes;
+using DREngine.Game.CoreScenes.SceneEditor;
 using DREngine.Game.UI;
 using DREngine.Game.VN;
 using DREngine.ResourceLoading;
@@ -44,7 +45,6 @@ namespace DREngine.Game
 
             // Init Core Scenes
             _splashScene = new SplashScene(this, PROJECTS_DIRECTORY);
-            _projectMainMenuScene = new ProjectMainMenuScene(this);
 
             ResourceLoader = new ResourceLoader(ResourceLoaderData);
             ProjectResourceConverter.OnInitGame(this);
@@ -76,7 +76,7 @@ namespace DREngine.Game
 
         public void InitializeEditorHookup(string editorPipeReadHandle, string editorPipeWriteHandle)
         {
-            _editorConnection = new EditorConnection(true, editorPipeReadHandle, editorPipeWriteHandle);
+            EditorConnection = new EditorConnection(true, editorPipeReadHandle, editorPipeWriteHandle);
         }
 
         public void InitializeEditorSceneTool(string sceneToEdit)
@@ -109,13 +109,12 @@ namespace DREngine.Game
 
         public string ProjectPath = "";
 
-        private EditorConnection _editorConnection;
+        public EditorConnection EditorConnection { get; private set; }
 
         private readonly SplashScene _splashScene;
-        private readonly ProjectMainMenuScene _projectMainMenuScene;
 
         private string _sceneEditorScene = null;
-        
+
         #endregion
 
         #region Misc Util
@@ -126,13 +125,13 @@ namespace DREngine.Game
             {
                 // Some of these depend on game project data.
                 UI = new DRGameUI(this);
-                SceneManager.LoadScene(_projectMainMenuScene);
+                SceneManager.LoadScene(new ProjectMainMenuScene(this));
             }
             else
             {
                 Debug.LogDebug($"TO LOAD: {_sceneEditorScene}");
-                // TODO: Load scene editor for given scene
-                // SceneManager.LoadScene(new DREditableScene(_sceneEditorScene));
+                Window.AllowUserResizing = true;
+                SceneManager.LoadScene(new EditorSceneEditorScene(this, _sceneEditorScene));
             }
         }
         #endregion
@@ -181,15 +180,15 @@ namespace DREngine.Game
         private void WaitForEditorConnection(Action onPing)
         {
             // Wait for editor if we need to. Otherwise, immediately start.
-            if (_editorConnection != null && _editorConnection.Active)
+            if (EditorConnection != null && EditorConnection.Active)
             {
                 SceneManager.LoadScene(new EditorConnectionScene(this));
-                _editorConnection.BeginReceiving();
-                _editorConnection.WaitOnEditorPingAsync(onPing);
+                EditorConnection.BeginReceiving();
+                EditorConnection.WaitOnEditorPingAsync(onPing);
             }
             else
             {
-                //SceneManager.LoadScene(new EditorConnectionScene(this));
+                //SceneManager.LoadSceneRaw(new EditorConnectionScene(this));
                 onPing?.Invoke();
             }
         }
@@ -210,6 +209,7 @@ namespace DREngine.Game
                 DebugDrawColliders = !DebugDrawColliders;
             }
 
+            /*
             if (RawInput.KeyPressed(Keys.H))
             {
                 Debug.Log("SAVING");
@@ -222,6 +222,7 @@ namespace DREngine.Game
                 GameData = ProjectData.LoadFromFile(new ProjectPath(this, "project.json"));
                 //SaveState.Load(new ProjectPath(this, "TEST.save"));
             }
+            */
 
 
             // Open VN Script system

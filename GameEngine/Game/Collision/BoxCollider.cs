@@ -8,20 +8,20 @@ namespace GameEngine.Game.Collision
     {
         private BoundingBox _box;
 
-        public BoxCollider(GameObject obj, BoundingBox b)
+        public BoxCollider(GameObjectRender3D obj, BoundingBox b)
         {
             _box = b;
             GameObject = obj;
             obj.AddCollider(this);
         }
 
-        public BoxCollider(GameObject obj, Vector3 min, Vector3 max) : this(obj, new BoundingBox(min, max))
+        public BoxCollider(GameObjectRender3D obj, Vector3 min, Vector3 max) : this(obj, new BoundingBox(min, max))
         {
         }
 
         public Vector3 Min
         {
-            get => _box.Min;
+            get =>  _box.Min;
             set => _box.Min = value;
         }
 
@@ -31,22 +31,23 @@ namespace GameEngine.Game.Collision
             set => _box.Max = value;
         }
 
-        public GameObject GameObject { get; }
+        public BoundingBox WorldBox => new BoundingBox(GameObject.Transform.Position + Min, GameObject.Transform.Position + Max);
+        public GameObjectRender3D GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 screenPoint)
         {
             var r = cam.GetScreenRay(screenPoint);
-            return r.Intersects(_box).HasValue;
+            return r.Intersects(WorldBox).HasValue;
         }
 
         public Vector3 GetRoughCenterPosition()
         {
-            return (Max - Min) / 2f;
+            return GameObject.Transform.Position + (Max - Min) / 2f;
         }
 
         public void DrawDebug(GamePlus game, Camera3D cam)
         {
-            DebugDrawer.DrawAABB(game, cam, _box);
+            DebugDrawer.DrawAABB(game, cam, WorldBox);
         }
     }
 }

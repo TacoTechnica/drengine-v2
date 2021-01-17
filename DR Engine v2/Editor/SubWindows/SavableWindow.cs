@@ -82,8 +82,7 @@ namespace DREngine.Editor.SubWindows
             if (CurrentPath != null && Dirty)
             {
                 OnSave(CurrentPath);
-                Dirty = false;
-                Title = RootTitle;
+                MarkDirty(false);
             }
         }
 
@@ -140,10 +139,17 @@ namespace DREngine.Editor.SubWindows
 
         #region Very Useful Protected Functions for use in children
 
-        protected void MarkDirty()
+        protected void MarkDirty(bool dirty = true)
         {
-            Dirty = true;
-            Title = "*" + RootTitle + " * ";
+            Dirty = dirty;
+            if (dirty)
+            {
+                Title = "*" + RootTitle + " * ";
+            }
+            else
+            {
+                Title = RootTitle;
+            }
         }
 
         protected Button AddMenuBarItem(string name, Pixbuf icon = null, Action onPress = null)

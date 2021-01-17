@@ -44,6 +44,7 @@ namespace GameEngine.Game.Objects.Rendering
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
             if (Vertices.Length == 0) return;
+            if (VertexBuffer == null) return;
 
             var e = PrepareEffectForDraw(cam, g, transform);
 

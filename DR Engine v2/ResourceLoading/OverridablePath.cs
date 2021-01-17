@@ -31,7 +31,7 @@ namespace DREngine.ResourceLoading
     /// <summary>
     ///     For when we want to grab a default resource. Not used publicly.
     /// </summary>
-    internal class DefaultResourcePath : Path
+    public class DefaultResourcePath : Path
     {
         public const string DEFAULT_RESOURCE_FOLDER = "default_resources";
 

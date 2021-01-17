@@ -1,8 +1,12 @@
 ﻿//using System;
 
+using System.Diagnostics.CodeAnalysis;
+using DREngine.Game.Resources;
 using DREngine.ResourceLoading;
+using GameEngine.Game.Collision;
 using GameEngine.Game.Objects.Rendering;
 using GameEngine.Game.Resources;
+using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -11,14 +15,16 @@ using static DREngine.Game.IDependentOnResourceData;
 namespace DREngine.Game.Scene
 {
     //[Serializable]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class Cube : SimpleMeshRenderer<VertexPositionColorTexture>, ISceneObject, IDependentOnResourceData
     {
-
         private Vector3 _size = Vector3.One;
 
         private Sprite _sprite;
 
         private readonly Color _blend;
+
+        private BoxCollider _boxCollider;
 
         public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game,
             position, rotation)
@@ -28,12 +34,17 @@ namespace DREngine.Game.Scene
             _blend = Color.White;
             Size = size;
             Sprite = sprite;
+
             //Debug.LogDebug("CUBE CREATED");
         }
 
         // Required Empty constructor for deserializing
         public Cube() : this(CurrentGame, Vector3.One, null, Vector3.Zero, Quaternion.Identity)
         {
+            if (Game != null)
+            {
+                Sprite = Game.ResourceLoader.GetResource<DRSprite>(Game.GameData.OverridableResources.DefaultSurfaceTexture, Game);
+            }
         }
 
         public Vector3 Size
@@ -42,6 +53,13 @@ namespace DREngine.Game.Scene
             set
             {
                 _size = value;
+
+                if (_boxCollider == null)
+                {
+                    _boxCollider = new BoxCollider(this, Vector3.Zero, Vector3.Zero);
+                }
+
+                _boxCollider.Max = _boxCollider.Min + new Vector3(_size.X, _size.Y, -1 * _size.Z);
 
                 Vertices = new[]
                 {
@@ -107,6 +125,8 @@ namespace DREngine.Game.Scene
             }
         }
 
+
+
         [JsonConverter(typeof(ProjectResourceConverter))]
         public Sprite Sprite
         {
@@ -128,6 +148,11 @@ namespace DREngine.Game.Scene
         [JsonIgnore] public new DRGame Game { get; set; }
 
         public string Type { get; set; } = "Cube";
+
+        [JsonIgnore]
+        public Vector3 FocusCenter => Transform.Position + 0.5f * Math.RotateVector(Size, Transform.Rotation);
+        [JsonIgnore]
+        public float FocusDistance => 5f + Size.Length() / 2;
 
         private VertexPositionColorTexture P(float px, float py, float pz, float ux,
             float uy)

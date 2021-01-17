@@ -2,6 +2,7 @@ using System;
 using DREngine.Game.Scene;
 using DREngine.ResourceLoading;
 using GameEngine;
+using GameEngine.Game;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
@@ -16,6 +17,16 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         public SceneResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
             _editor = editor;
+            _connection = new SceneEditorConnection(editor);
+
+            _connection.OnSaved += () =>
+            {
+                MarkDirty(false);
+            };
+            _connection.OnSelected += selectedIndex =>
+            {
+                Debug.Log($"TODO: Select object at {selectedIndex}");
+            };
         }
 
         protected override void OnInitialize(Box container)
@@ -23,16 +34,14 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             _list = new SceneObjectList(_editor);
             Add(_list);
 
-            _list.NewItemAdded += type =>
+            _list.NewObjectAdded += type =>
             {
-                Debug.Log("NEW ITEM: TODO");
-                // TODO: Modify scene type (add)
-                // TODO: Alert game of new item
+                _connection.SendNewObject(type);
+                MarkDirty();
             };
-            _list.ItemSelected += i =>
+            _list.ObjectSelected += objectIndex =>
             {
-                Debug.Log("SELECTION: TODO");
-                // TODO: Alert game of selection
+                _connection.SendSelectObject(objectIndex);
             };
 
             _connection = new SceneEditorConnection(_editor);
@@ -49,10 +58,10 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
         protected override void OnOpen(DRScene resource, Box container)
         {
-            // Extra load must be done on scenes.
+            // Extra load must be run on scenes.
             resource.LoadScene();
 
-            _list.Clear();
+            _list.LoadItems(resource.Objects);
 
             // Tell our DR Game Window to load the scene.
             _connection.Open(resource.Path);
@@ -63,7 +72,6 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             throw exception;
         }
 
-
         protected override void OnClose()
         {
             // Close all other windows
@@ -73,5 +81,15 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             }
         }
 
+        // The DR scene window actually holds on to the scene.
+        protected override void OnSave(Path path)
+        {
+            _connection.SendSave();
+            if (!_connection.WaitForSave(5.0))
+            {
+                MarkDirty();
+                throw new InvalidOperationException($"Failed to save scene to path {path}, probably a networking issue!");
+            }
+        }
     }
 }

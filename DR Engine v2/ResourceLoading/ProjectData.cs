@@ -97,8 +97,7 @@ namespace DREngine.ResourceLoading
 
         public string GetFullDefaultResourcePath(string relative = "")
         {
-            var rootDir = System.IO.Path.GetDirectoryName(_fullProjectPath);
-            return System.IO.Path.Join(rootDir, DefaultResourcePath.DEFAULT_RESOURCE_FOLDER, relative);
+            return new DefaultResourcePath(relative);
         }
 
         public string GetRelativeDefaultResourcePath(string fullPath)
@@ -115,6 +114,7 @@ namespace DREngine.ResourceLoading
 
         public bool IsDefaultResourcePath(string fullPath)
         {
+            Debug.Log($"CHECK: {fullPath}, {GetFullDefaultResourcePath()}");
             return fullPath.StartsWith(GetFullDefaultResourcePath());
         }
 
@@ -141,6 +141,9 @@ namespace DREngine.ResourceLoading
 
             [ResourceType(typeof(DRSprite))]
             public OverridablePath DialogueNameplate = new OverridablePath("Sprites/UI/DialogBoxNameplate.png");
+            
+            [ResourceType(typeof(DRSprite))]
+            public OverridablePath DefaultSurfaceTexture = new OverridablePath("Sprites/Texture/DefaultSurface.png");
         }
 
         public class SettingsList

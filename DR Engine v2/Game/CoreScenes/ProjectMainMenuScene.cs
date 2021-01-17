@@ -39,7 +39,7 @@ namespace DREngine.Game.CoreScenes
             Debug.Log("STARTING NEW SCRIPT");
             _game.VNRunner.CallScript(script);
             
-            //_testScene.LoadScene();
+            //_testScene.LoadSceneRaw();
         }
     }
 }

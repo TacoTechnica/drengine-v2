@@ -1,15 +1,17 @@
-﻿using System;
+using System;
+using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Collision;
 using GameEngine.Game.Input;
 using GameEngine.Game.Objects.Rendering;
+using GameEngine.Game.Tween;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Math = GameEngine.Util.Math;
 
-namespace DREngine.Game.Scene
+namespace DREngine.Game.CoreScenes.SceneEditor
 {
-    [Obsolete]
-    public class FreeCamera3D : Camera3D
+    public class SceneEditorCamera : Camera3D
     {
         private readonly CamControls _controls;
 
@@ -21,20 +23,39 @@ namespace DREngine.Game.Scene
         public float MoveAcceleration = 30f;
         public float MoveDamping = 10f;
 
-        public FreeCamera3D(GamePlus game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation,
+        public Action<ICollider> ColliderSelected;
+
+        private Tween<Vector3> _moveTween;
+
+        private DRGame _game;
+
+        public SceneEditorCamera(DRGame game, Vector3 pos, Quaternion rotation, float fov = 90) : base(game, pos, rotation,
             fov)
         {
+            _game = game;
             _controls = new CamControls(game);
 
             _controls.Focus.Pressed += OnFocus;
-            _controls.UnFocus.Pressed += OnUnfocus;
+            _controls.Focus.Released += OnUnfocus;
 
             _targetLook = rotation;
 
+            _controls.Select.Pressed += OnSelect;
+            
             if (game.DebugConsole != null)
             {
                 game.DebugConsole.OnOpened += OnDebugOpened;
                 game.DebugConsole.OnClosed += OnDebugClosed;
+            }
+        }
+
+        private void OnSelect(InputActionButton obj)
+        {
+            Vector2 pos = RawInput.GetMousePosition();
+            ICollider c = _game.CollisionManager.ScreenCollisionCheckNearest(this, pos);
+            if (c != null)
+            {
+                ColliderSelected?.Invoke(c);
             }
         }
 
@@ -70,10 +91,27 @@ namespace DREngine.Game.Scene
             base.Update(dt);
         }
 
+        public void LookAt(Vector3 target, float distance)
+        {
+            //this.Tweener.TweenValue()
+            Vector3 delta = -1 * distance * Math.RotateVector(Vector3.Forward, Rotation);
+
+            _moveTween?.Cancel();
+            _moveTween = Tweener.TweenValue(Position, target + delta, value =>
+            {
+                Position = value;
+            }, 1f)
+            .SetEaseSineOut()
+            .SetOnComplete(() =>
+            {
+                _moveTween = null;
+            });
+        }
+
         private void HandleLook(float dt)
         {
             // Only move if we're locked with the mouse. Otherwise we might be doing other things.
-            if (_focused && _controls.Enabled)
+            if (_focused && _controls.Enabled && _moveTween == null)
             {
                 var input = _controls.MouseLook.Value;
                 var targetEuler = Math.ToEuler(_targetLook);
@@ -87,6 +125,7 @@ namespace DREngine.Game.Scene
                 // Move towards target asymptotically
                 Rotation = Quaternion.Lerp(Rotation, _targetLook, dt * 30);
             }
+
         }
 
         private void HandleMove(float dt)
@@ -97,7 +136,14 @@ namespace DREngine.Game.Scene
                             + Vector3.Right * _controls.RightLeft.Value
                             + Vector3.Up * _controls.UpDown.Value;
                 input = Math.RotateVector(input, Rotation);
-                _velocity += input * (MoveAcceleration * dt);
+
+                var accel = MoveAcceleration;
+                if (_controls.Speed.Pressing)
+                {
+                    accel *= 3;
+                }
+
+                _velocity += input * (accel * dt);
             }
 
             _velocity -= _velocity * (MoveDamping * dt);
@@ -107,12 +153,15 @@ namespace DREngine.Game.Scene
         private class CamControls : GameEngine.Game.Input.Controls
         {
             public readonly InputActionButton Focus;
-            public readonly InputActionAxis1D ForwardBack;
-            public readonly InputActionAxis2D MouseLook;
-            public readonly InputActionAxis1D RightLeft;
+            public readonly InputActionButton Speed;
 
-            public readonly InputActionButton UnFocus;
+            public readonly InputActionButton Select;
+
+            public readonly InputActionAxis2D MouseLook;
+            public readonly InputActionAxis1D ForwardBack;
+            public readonly InputActionAxis1D RightLeft;
             public readonly InputActionAxis1D UpDown;
+
 
             public CamControls(GamePlus game) : base(game)
             {
@@ -121,8 +170,9 @@ namespace DREngine.Game.Scene
                 UpDown = new InputActionAxis1D(this, Keys.Q, Keys.E);
                 MouseLook = new InputActionAxis2D(this, MouseAxis.Dy, MouseAxis.Dx);
 
-                Focus = new InputActionButton(this, MouseButton.Left);
-                UnFocus = new InputActionButton(this, Keys.Escape);
+                Select = new InputActionButton(this, MouseButton.Left);
+                Focus = new InputActionButton(this, MouseButton.Right);
+                Speed = new InputActionButton(this, Keys.LeftShift);
             }
         }
     }

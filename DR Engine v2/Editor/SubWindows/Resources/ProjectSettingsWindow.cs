@@ -24,7 +24,11 @@ namespace DREngine.Editor.SubWindows.Resources
         {
             _message = new Text("");
             _fields = new FieldBox(_editor, typeof(ProjectData));
-            _fields.Modified += MarkDirty;
+            _fields.Modified += () =>
+            {
+                MarkDirty();
+            };
+
 
             container.PackStart(_message, false, false, 4);
             container.PackStart(_fields, true, true, 4);
