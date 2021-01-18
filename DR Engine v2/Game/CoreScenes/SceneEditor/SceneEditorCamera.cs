@@ -104,7 +104,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _moveTween = Tweener.TweenValue(Position, target + delta, value =>
             {
                 Position = value;
-            }, 1f)
+            }, 0.5f)
             .SetEaseSineOut()
             .SetOnComplete(() =>
             {
