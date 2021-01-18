@@ -12,6 +12,7 @@ namespace GameEngine.Util
 
         public static float Deg2Rad = MathF.PI / 180F;
         public static float Rad2Deg = 180F / MathF.PI;
+        public static float PI = MathF.PI;
 
         public static float Mod(float x, float m)
         {
@@ -288,6 +289,15 @@ namespace GameEngine.Util
                 return new Color(t, p, x);
             else
                 return new Color(x, p, q);
+        }
+
+        public static double Sin(float angle)
+        {
+            return System.Math.Sin(angle);
+        }
+        public static double Cos(float angle)
+        {
+            return System.Math.Cos(angle);
         }
     }
 }

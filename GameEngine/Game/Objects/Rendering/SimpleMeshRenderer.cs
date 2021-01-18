@@ -7,8 +7,11 @@ namespace GameEngine.Game.Objects.Rendering
     public class SimpleMeshRenderer<TVertex> : BaseMeshRenderer<TVertex> where TVertex : struct, IVertexType
     {
         private RasterizerState _cachedOgRasterizerState;
+        private DepthStencilState _cachedOgStencilState;
 
         private BasicEffect _effect;
+        
+        
 
         public SimpleMeshRenderer(GamePlus game, Vector3 position, Quaternion rotation) : base(game, position, rotation)
         {
@@ -26,7 +29,7 @@ namespace GameEngine.Game.Objects.Rendering
                         Alpha = 1.0f,
                         VertexColorEnabled = true,
                         LightingEnabled = false,
-                        TextureEnabled = true
+                        TextureEnabled = (typeof(TVertex) == typeof(VertexPositionColorTexture) || typeof(TVertex) == typeof(VertexPositionTexture) || typeof(TVertex) == typeof(VertexPositionNormalTexture))
                     };
                 }
 
@@ -48,6 +51,12 @@ namespace GameEngine.Game.Objects.Rendering
                 Effect.World = transform.Local;
 
                 _cachedOgRasterizerState = g.RasterizerState;
+                _cachedOgStencilState = g.DepthStencilState;
+
+                if (IgnoreDepth)
+                {
+                    g.DepthStencilState = DepthStencilState.None; 
+                }
 
                 g.RasterizerState = CullingEnabled ? RasterizerState.CullClockwise : RasterizerState.CullNone;
             }
@@ -58,6 +67,7 @@ namespace GameEngine.Game.Objects.Rendering
         protected override void ResetGraphicsPostDraw(GraphicsDevice g)
         {
             g.RasterizerState = _cachedOgRasterizerState;
+            g.DepthStencilState = _cachedOgStencilState;
         }
 
         #region Public access to our effect
@@ -104,6 +114,8 @@ namespace GameEngine.Game.Objects.Rendering
         }
 
         [JsonIgnore] public bool CullingEnabled = true;
+
+        [JsonIgnore] public bool IgnoreDepth = false;
 
         #endregion
     }

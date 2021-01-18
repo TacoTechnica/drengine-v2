@@ -157,7 +157,7 @@ namespace GameEngine.Game
 
             // Initialize Debug Stuff
             if (_debug) InitializeDebug();
-            DebugEffect = new BasicEffect(GraphicsDevice);
+            DebugEffect = new BasicEffect(GraphicsDevice) {TextureEnabled = false, LightingEnabled = false};
             DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
 
         }

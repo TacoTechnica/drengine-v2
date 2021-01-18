@@ -18,9 +18,13 @@ namespace GameEngine.Game.Objects.Rendering
             game.DebugEffect.View = cam.ViewMatrix;
             game.DebugEffect.Projection = cam.ProjectionMatrix;
 
+            var prevDepth = game.DebugEffect.GraphicsDevice.DepthStencilState;
+            game.DebugEffect.GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
             game.DebugEffect.CurrentTechnique.Passes[0].Apply();
             var vertices = new[] {new VertexPositionColor(from, fromC), new VertexPositionColor(to, toC)};
             game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
+            game.DebugEffect.GraphicsDevice.DepthStencilState = prevDepth;
         }
 
         public static void DrawLine3D(GamePlus game, Camera3D cam, Vector3 from, Vector3 to, Color color)
@@ -36,11 +40,16 @@ namespace GameEngine.Game.Objects.Rendering
         {
             game.DebugEffect.View = cam.ViewMatrix;
             game.DebugEffect.Projection = cam.ProjectionMatrix;
+            
+            var prevDepth = game.DebugEffect.GraphicsDevice.DepthStencilState;
+            game.DebugEffect.GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
 
             game.DebugEffect.CurrentTechnique.Passes[0].Apply();
             var vertices = new VertexPositionColor[lines.Length];
             for (var i = 0; i < lines.Length; ++i) vertices[i] = new VertexPositionColor(lines[i], color);
             game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, vertices.Length / 2);
+            game.DebugEffect.GraphicsDevice.DepthStencilState = prevDepth;
         }
 
         public static void DrawLines(GamePlus game, Camera3D cam, Vector3[] lines)

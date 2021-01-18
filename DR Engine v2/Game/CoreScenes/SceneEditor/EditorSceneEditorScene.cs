@@ -22,6 +22,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
         private SceneEditorCamera _camera;
 
+        private TransformTranslator _translator;
+
         public EditorSceneEditorScene(DRGame game, Path sceneToLoad) : base(game, SCENE_NAME)
         {
             _game = game;
@@ -96,6 +98,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             {
                 _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
 
+                _translator.Transform.Position = object3d.Transform.Position;
+
                 if (sendInfoToEditor)
                 {
                     int index = _loadedScene.Objects.IndexOf(sceneObject);
@@ -119,11 +123,13 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         {
             LoadSceneFile(_scenePath);
 
-            if (_camera == null)
+            if (_camera == null || _translator == null)
             {
                 new SceneEditorGrid(_game);
                 // Add a freecam to look around the scene. This will change to a Room Editor Camera with extra features later.
                 _camera = new SceneEditorCamera(_game, Vector3.Zero, Quaternion.Identity);
+                _translator = new TransformTranslator(_game, Vector3.Zero);
+
                 // When we select a collider, select it.De
                 _camera.ColliderSelected += collider =>
                 {
