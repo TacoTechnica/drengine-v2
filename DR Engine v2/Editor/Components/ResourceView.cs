@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using DREngine.Game.Resources;
+using DREngine.Game.Scene;
 using DREngine.Game.VN;
 using GameEngine.Game.Resources;
 using Gtk;
@@ -51,6 +52,7 @@ namespace DREngine.Editor.Components
                 Append("New Sprite", () => { OnNewResource?.Invoke(projectDir, typeof(DRSprite)); });
                 Append("New AudioClip", () => { OnNewResource?.Invoke(projectDir, typeof(AudioClip)); });
                 Append("New Font", () => { OnNewResource?.Invoke(projectDir, typeof(Font)); });
+                Append("New Scene", () => { OnNewResource?.Invoke(projectDir, typeof(DRScene)); });
 
                 menu.Show();
                 menu.Popup();

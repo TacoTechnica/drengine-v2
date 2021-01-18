@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using Pango;
+using Color = Gdk.Color;
 using WrapMode = Gtk.WrapMode;
 
 namespace DREngine.Editor.Components
@@ -22,9 +23,18 @@ namespace DREngine.Editor.Components
         {
             _text = new TextView();
 
+            // This doesn't work!!!
+            RGBA fg;
+            if (!StyleContext.LookupColor("fg_color", out fg))
+            {
+                Debug.LogWarning("Failed to create text color.");
+            }
+            //Debug.Log($"Oof 2: {fg}: {(int)fg.Red} : {(int)fg.Green} : {(int)fg.Blue}");
+            string fgText = $"#{(int)(fg.Red*255):X2}{(int)(fg.Green*255):X2}{(int)(fg.Blue*255):X2}";
+
             // Tags
-            _regularTag = NewTag("log", "#113311", "#FFFFFF");
-            _debugTag = NewTag("debug", "#113311", "#CCAADD", Weight.Bold);
+            _regularTag = NewTag("log", "#113311", fgText); // "#FFFFFF"
+            _debugTag = NewTag("debug", "#113311", fgText, Weight.Bold);
             _warningTag = NewTag("warning", "#113311", "#FFCC00", Weight.Bold);
             _errorTag = NewTag("error", "#113311", "#FF1133", Weight.Bold);
 
@@ -63,8 +73,8 @@ namespace DREngine.Editor.Components
             Weight weight = Weight.Normal)
         {
             var tag = new TextTag(name);
-            tag.Background = background;
-            tag.Foreground = foreground;
+            //tag.Background = background;
+            if (foreground != null) tag.Foreground = foreground;
             tag.Weight = weight;
             _text.Buffer.TagTable.Add(tag);
             return tag;
