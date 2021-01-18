@@ -35,7 +35,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _connection.OnNewObject += AddNewObject;
             _connection.OnDeleteObject += DeleteObject;
             _connection.OnModifiedObject += ModifyObjectField;
-            _connection.OnSelectObject += OnSelectObject;
+            _connection.OnSelectObject += OnEditorSelectObject;
             _connection.OnSaveRequested += OnSaveRequested;
         }
 
@@ -44,12 +44,12 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _loadedScene.Save(_scenePath);
         }
 
-        private void OnSelectObject(int obj)
+        private void OnEditorSelectObject(int obj)
         {
             try
             {
                 ISceneObject sceneObject = _loadedScene.Objects[obj];
-                SelectObject(sceneObject);
+                SelectObject(sceneObject, true);
             }
             catch (Exception e)
             {
@@ -66,7 +66,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             if (instance is ISceneObject sceneObject)
             {
                 _loadedScene.Objects.Add(sceneObject);
-                SelectObject(sceneObject);
+                SelectObject(sceneObject, true);
             }
             else
             {
@@ -94,12 +94,17 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _loadedScene.LoadSceneRaw(_game);
         }
     
-        private void SelectObject(ISceneObject sceneObject, bool sendInfoToEditor = false)
+        private void SelectObject(ISceneObject sceneObject, bool look, bool sendInfoToEditor = false)
         {
+            _translator.SetActive(true);
+
             _selected = sceneObject;
             if (sceneObject is GameObjectRender3D object3d)
             {
-                _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
+                if (look)
+                {
+                    _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
+                }
 
                 _translator.Transform.Position = object3d.Transform.Position;
 
@@ -142,12 +147,16 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 _camera = new SceneEditorCamera(_game, Vector3.Zero, Quaternion.Identity);
                 _translator = new TransformTranslator(_game, Vector3.Zero);
 
-                // When we select a collider, select it.De
+                _translator.SetActive(false);
+
+                // When we select a collider, select it.
                 _camera.ColliderSelected += collider =>
                 {
+                    // Prioritize translator selection over collider selection.
+                    if (_translator.Selected) return;
                     if (collider.GameObject is ISceneObject sceneObject)
                     {
-                        SelectObject(sceneObject, true);
+                        SelectObject(sceneObject, false, true);
                     }
                 };
 

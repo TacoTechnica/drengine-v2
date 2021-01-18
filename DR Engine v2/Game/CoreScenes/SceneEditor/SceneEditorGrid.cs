@@ -16,6 +16,11 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
+            // Only post draw
+        }
+
+        public override void PostDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
+        {
             // Draw big lines
             float range = 10000;
             Color color = Color.White;

@@ -18,6 +18,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         public readonly TransformArrow YArrow;
         public readonly TransformArrow ZArrow;
 
+        public bool Selected => XArrow.Selected || YArrow.Selected || ZArrow.Selected;
+
         public TransformTranslator(GamePlus game, Vector3 position) : base(game, position, Quaternion.Identity)
         {
             XArrow = new TransformArrow(game, position, Math.FromEuler(0, 90, 0), Color.DarkRed, Color.Multiply(Color.Red, 2.0f));
@@ -27,13 +29,19 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             AddChild(YArrow);
             AddChild(ZArrow);
 
-            //XArrow.SetActive(false);
-            //YArrow.SetActive(false);
-            //ZArrow.SetActive(false);
+            XArrow.SetActive(false);
+            YArrow.SetActive(false);
+            ZArrow.SetActive(false);
         }
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
+            // Only post draw.
+        }
+
+        public override void PostDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
+        {
+            
             float distanceToCam = cam.GetFlatDistanceTo(Transform.Position);
 
             Vector3 scale = Vector3.One * distanceToCam * 0.05f;
@@ -47,6 +55,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             {
                 foreach (TransformArrow arrow in arrows)
                 {
+                    arrow.Draw(cam, g, arrow.Transform);
                     arrow.UpdateTransformAndSelect(Transform.Position, scale, cam);
                     arrow.UpdateSelected(cam, mousePos, clicking);
                     arrow.UpdateDrag(cam, mousePos, clicking);
@@ -71,7 +80,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             private BoxCollider _collider;
 
             private Color _regularColor, _selectColor;
-            private bool _selected = false;
+            public bool Selected { get; private set; }= false;
             private bool _prevClicking = false;
 
             private Vector3 _dragPrev;
@@ -183,11 +192,11 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 //  Stay selected on drag
                 if (clicking)
                 {
-                    if (!_selected) selected = false;
-                    if (!selected && _selected) selected = true;
+                    if (!Selected) selected = false;
+                    if (!selected && Selected) selected = true;
                 }
-                if (_selected == selected) return;
-                _selected = selected;
+                if (Selected == selected) return;
+                Selected = selected;
 
                 Color target = selected ? _selectColor : _regularColor;
 
@@ -202,7 +211,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
             public void UpdateDrag(Camera3D cam, Vector2 mousePos, bool clicking)
             {
-                if (_selected && clicking)
+                if (Selected && clicking)
                 {
                     Vector3 drag = GetClosestMouseAxis(cam, mousePos);
                     if (!_prevClicking)
