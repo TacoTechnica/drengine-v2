@@ -57,6 +57,41 @@ namespace GameEngine.Game.Objects.Rendering
             DrawLines(game, cam, lines, DefaultColor);
         }
 
+        public static void DrawGizmo(GamePlus game, Camera3D cam, Vector3 pos, Color color, float size = 1f)
+        {
+            float dist = cam.GetFlatDistanceTo(pos);
+            size *= dist * 0.06f;
+
+            Vector3 delta = Vector3.One * size;
+            
+            DrawAABB(game, cam, new BoundingBox(pos - delta, pos + delta), color);
+        }
+
+        public static void DrawGizmo(GamePlus game, Camera3D cam, Vector3 pos, float size = 1f)
+        {
+            DrawGizmo(game, cam, pos, DefaultColor, size);
+        }
+
+        public static void DrawRay(GamePlus game, Camera3D cam, Vector3 origin, Vector3 direction, Color color)
+        {
+            DrawLine3D(game, cam, origin, origin + direction*1000000f, color);
+        }
+
+        public static void DrawRay(GamePlus game, Camera3D cam, Vector3 origin, Vector3 direction)
+        {
+            DrawRay(game, cam, origin, direction, DefaultColor);
+        }
+
+        public static void DrawRay(GamePlus game, Camera3D cam, Ray ray, Color color)
+        {
+            DrawRay(game, cam, ray.Position, ray.Direction, color);
+        }
+
+        public static void DrawRay(GamePlus game, Camera3D cam, Ray ray)
+        {
+            DrawRay(game, cam, ray, DefaultColor);
+        }
+
         public static void DrawAABB(GamePlus game, Camera3D cam, BoundingBox b, Color color)
         {
             Vector3 min = b.Min,

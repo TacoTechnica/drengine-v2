@@ -73,6 +73,12 @@ namespace GameEngine.Game.Objects.Rendering
             return new Ray(Position, delta);
         }
 
+        public float GetFlatDistanceTo(Vector3 pos)
+        {
+            Vector3 relative = Vector3.Transform(pos, ViewMatrix);
+            return -1 * relative.Z;
+        }
+
         public override void Start()
         {
             Debug.Log("Cam view projection SET");

@@ -24,6 +24,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
         private TransformTranslator _translator;
 
+        private ISceneObject _selected;
+
         public EditorSceneEditorScene(DRGame game, Path sceneToLoad) : base(game, SCENE_NAME)
         {
             _game = game;
@@ -94,6 +96,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
     
         private void SelectObject(ISceneObject sceneObject, bool sendInfoToEditor = false)
         {
+            _selected = sceneObject;
             if (sceneObject is GameObjectRender3D object3d)
             {
                 _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
@@ -119,6 +122,15 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             }
         }
 
+        private void OnTranslatorDrag(Vector3 delta)
+        {
+            if (_selected != null && _selected is GameObjectRender3D obj)
+            {
+                obj.Transform.Position += delta;
+                _translator.Transform.Position = obj.Transform.Position;
+            }
+        }
+
         public override void LoadScene()
         {
             LoadSceneFile(_scenePath);
@@ -137,6 +149,19 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                     {
                         SelectObject(sceneObject, true);
                     }
+                };
+
+                _translator.XArrow.Dragged += delta =>
+                {
+                    OnTranslatorDrag(delta * Vector3.UnitX);
+                };
+                _translator.YArrow.Dragged += delta =>
+                {
+                    OnTranslatorDrag(delta * Vector3.UnitY);
+                };
+                _translator.ZArrow.Dragged += delta =>
+                {
+                    OnTranslatorDrag(delta * Vector3.UnitZ);
                 };
             }
         }

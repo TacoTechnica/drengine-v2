@@ -1,56 +1,65 @@
+using System;
 using System.Collections.Generic;
 using GameEngine.Game;
+using GameEngine.Game.Collision;
+using GameEngine.Game.Input;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Objects.Rendering;
-using GameEngine.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Math = GameEngine.Util.Math;
 
 namespace DREngine.Game.CoreScenes.SceneEditor
 {
     public class TransformTranslator : GameObjectRender3D
     {
 
-        private TransformArrow _xArrow,
-            _yArrow,
-            _zArrow;
+        public readonly TransformArrow XArrow;
+        public readonly TransformArrow YArrow;
+        public readonly TransformArrow ZArrow;
 
         public TransformTranslator(GamePlus game, Vector3 position) : base(game, position, Quaternion.Identity)
         {
-            _xArrow = new TransformArrow(game, position, Math.FromEuler(0, 90, 0), Color.Red);
-            _yArrow = new TransformArrow(game, position, Math.FromEuler(-90, 0, 0), Color.Green);
-            _zArrow = new TransformArrow(game, position, Math.FromEuler(0, 0, 0), Color.Blue);
-            AddChild(_xArrow);
-            AddChild(_yArrow);
-            AddChild(_zArrow);
-            //_xArrow.SetActive(false);
-            //_yArrow.SetActive(false);
-            //_zArrow.SetActive(false);
+            XArrow = new TransformArrow(game, position, Math.FromEuler(0, 90, 0), Color.DarkRed, Color.Multiply(Color.Red, 2.0f));
+            YArrow = new TransformArrow(game, position, Math.FromEuler(-90, 0, 0), Color.DarkGreen, Color.LimeGreen);
+            ZArrow = new TransformArrow(game, position, Math.FromEuler(0, 0, 0), Color.DarkBlue, Color.SkyBlue);
+            AddChild(XArrow);
+            AddChild(YArrow);
+            AddChild(ZArrow);
+
+            //XArrow.SetActive(false);
+            //YArrow.SetActive(false);
+            //ZArrow.SetActive(false);
         }
 
         public override void Draw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
-            float distanceToCam = (cam.Position - Transform.Position).Length();
+            float distanceToCam = cam.GetFlatDistanceTo(Transform.Position);
 
             Vector3 scale = Vector3.One * distanceToCam * 0.05f;
 
-            _xArrow.Transform.Scale = scale;
-            _yArrow.Transform.Scale = scale;
-            _zArrow.Transform.Scale = scale;
+            Vector2 mousePos = RawInput.GetMousePosition();
+            bool clicking = RawInput.MousePressing(MouseButton.Left);
 
-            _xArrow.Transform.Position = Transform.Position;
-            _yArrow.Transform.Position = Transform.Position;
-            _zArrow.Transform.Position = Transform.Position;
-            /*
-            _xArrow.Draw(cam, g, transform);
-            _yArrow.Draw(cam, g, transform);
-            _zArrow.Draw(cam, g, transform);
-            */
-            // Nothing, we have our children.
+            Run(XArrow, YArrow, ZArrow);
+
+            void Run(params TransformArrow[] arrows)
+            {
+                foreach (TransformArrow arrow in arrows)
+                {
+                    arrow.UpdateTransformAndSelect(Transform.Position, scale, cam);
+                    arrow.UpdateSelected(cam, mousePos, clicking);
+                    arrow.UpdateDrag(cam, mousePos, clicking);
+                    //arrow.DrawDebugAxis(cam, mousePos);
+                }
+            }
         }
 
-        class TransformArrow : SimpleMeshRenderer<VertexPositionColor>
+        public class TransformArrow : SimpleMeshRenderer<VertexPositionColor>
         {
+
+            public Action<Vector3> Dragged;
+            
             private static int Detail = 15;
             private static float PoleRadius = 0.2f;
             private static float PoleHeight = 5;
@@ -59,10 +68,26 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
             private static Vector3[] Verts = null;
 
-            public TransformArrow(GamePlus game, Vector3 position, Quaternion rotation, Color color) : base(game, position, rotation)
+            private BoxCollider _collider;
+
+            private Color _regularColor, _selectColor;
+            private bool _selected = false;
+            private bool _prevClicking = false;
+
+            private Vector3 _dragPrev;
+            private GamePlus _game;
+
+            public TransformArrow(GamePlus game, Vector3 position, Quaternion rotation, Color color, Color selectColor) : base(game, position, rotation)
             {
+                _game = game;
+
                 PrimitiveType = PrimitiveType.TriangleList;
                 this.IgnoreDepth = true;
+
+                _regularColor = color;
+                _selectColor = selectColor;
+
+                _collider = new BoxCollider(this, Vector3.Zero, Vector3.Zero);
 
                 if (Verts == null) {
                     // 6 triangles per detail.
@@ -133,10 +158,108 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 var v = new VertexPositionColor[Verts.Length];
                 for (int i = 0; i < Verts.Length; ++i)
                 {
-                    v[i] = new VertexPositionColor(Verts[i], color);
+                    v[i] = new VertexPositionColor(Verts[i], _regularColor);
                 }
 
                 Vertices = v;
+            }
+
+            public void UpdateTransformAndSelect(Vector3 position, Vector3 scale, Camera3D cam)
+            {
+                Transform.Position = position;
+                Transform.Scale = scale;
+
+                Vector3 center = -1 * Transform.Scale.Z * Math.RotateVector(Vector3.Forward * (PoleHeight + TipHeight / 2), Transform.Rotation);
+
+                float dist = 1.2f * Transform.Scale.Z;
+
+                _collider.Min = center - Vector3.One * dist;
+                _collider.Max = center + Vector3.One * dist;
+            }
+
+            public void UpdateSelected(Camera3D cam, Vector2 mousePos, bool clicking)
+            {
+                bool selected = _collider.ContainsScreen(cam, mousePos);
+                //  Stay selected on drag
+                if (clicking)
+                {
+                    if (!_selected) selected = false;
+                    if (!selected && _selected) selected = true;
+                }
+                if (_selected == selected) return;
+                _selected = selected;
+
+                Color target = selected ? _selectColor : _regularColor;
+
+                var v = new VertexPositionColor[Verts.Length];
+                for (int i = 0; i < Verts.Length; ++i)
+                {
+                    v[i] = new VertexPositionColor(Verts[i], target);
+                }
+
+                Vertices = v;
+            }
+
+            public void UpdateDrag(Camera3D cam, Vector2 mousePos, bool clicking)
+            {
+                if (_selected && clicking)
+                {
+                    Vector3 drag = GetClosestMouseAxis(cam, mousePos);
+                    if (!_prevClicking)
+                    {
+                        _dragPrev = drag;
+                    }
+                    Vector3 dragDelta = drag - _dragPrev;
+                    Dragged.Invoke(dragDelta);
+                    _dragPrev = drag;
+                }
+
+                _prevClicking = clicking;
+            }
+
+            /*
+            public void DrawDebugAxis(Camera3D cam, Vector2 mousePos)
+            {
+                Vector3 closest = GetClosestMouseAxis(cam, mousePos);
+                DebugDrawer.DrawGizmo(_game, cam, closest);
+            }
+            */
+
+            private Vector3 GetClosestMouseAxis(Camera3D cam, Vector2 mousePos)
+            {
+                Ray r = cam.GetScreenRay(mousePos);
+                Vector3 mouseOrigin = r.Position;
+                Vector3 mouseAxis = r.Direction;
+
+                Vector3 origin = Transform.Position;
+                Vector3 axis = -1 * Math.RotateVector(Vector3.Forward, Transform.Rotation);
+
+                return GetClosestPointOnSecondAxis(mouseOrigin, mouseAxis, origin, axis);
+            }
+
+            /// <summary>
+            /// Dang math is annoying.
+            /// </summary>
+            /// <param name="p1"> Origin of first line </param>
+            /// <param name="v1"> Axis/Direction of first line </param>
+            /// <param name="p2"> Origin of second line </param>
+            /// <param name="v2"> Axis/Direction of second line </param>
+            /// <returns> The closest point on the second line to the first line </returns>
+            private static Vector3 GetClosestPointOnSecondAxis(Vector3 p1, Vector3 v1, Vector3 p2, Vector3 v2)
+            {
+                Vector3 deltaPos = p2 - p1;
+                // Math from notebook.
+                float
+                    A = 2f * v1.LengthSquared(),
+                    B = 2f * Vector3.Dot(v1, v2),
+                    C = Vector3.Dot(v1, -1 * deltaPos),
+                    D = 2f * v2.LengthSquared(),
+                    // B again
+                    E = Vector3.Dot(v2, deltaPos);
+
+                float t2 = (((-2 * B * C) / A) - 2 * E) / (D - (B * B / A));
+
+                return p2 + v2 * t2;
             }
         }
     }
