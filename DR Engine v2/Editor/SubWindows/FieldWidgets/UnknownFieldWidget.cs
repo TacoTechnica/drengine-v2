@@ -19,7 +19,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set { }
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             var unknown = new Label(_errorMessage);
             content.Add(unknown);

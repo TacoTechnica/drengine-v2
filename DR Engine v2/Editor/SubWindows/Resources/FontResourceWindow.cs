@@ -34,7 +34,7 @@ namespace DREngine.Editor.SubWindows.Resources
             //_textEdit.Buffer.Text = DefaultTestString;
 
             _fields = new ExtraDataFieldBox(_editor, typeof(Font), true);
-            _fields.Modified += Modified;
+            _fields.Modified += (name, obj) => {Modified();};
 
             container.PackStart(scroll, true, true, 16);
             _imageView.Show();

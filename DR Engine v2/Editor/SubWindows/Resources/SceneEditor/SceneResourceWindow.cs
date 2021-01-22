@@ -3,7 +3,9 @@ using DREngine.Game.Scene;
 using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Resources;
 using Gtk;
+using Debug = System.Diagnostics.Debug;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 {
@@ -11,8 +13,11 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
     {
         private SceneEditorConnection _connection;
         private SceneObjectList _list;
+        private SceneObjectFields _fields;
 
         private DREditor _editor;
+
+        private int _currentSelected = -1;
 
         public SceneResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
@@ -25,6 +30,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             };
             _connection.OnSelected += selectedIndex =>
             {
+                _currentSelected = selectedIndex;
                 _list.ForceSelect(selectedIndex);
             };
         }
@@ -34,6 +40,19 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             _list = new SceneObjectList(_editor);
             Add(_list);
 
+            _fields = new SceneObjectFields(_editor);
+            Window fieldWindow = new Window(WindowType.Toplevel);
+            fieldWindow.Add(_fields);
+            _fields.Show();
+            fieldWindow.Show();
+            /*
+            fieldWindow.Destroyed += (sender, args) =>
+            {
+                this.Close();
+                this.Dispose();
+            };
+            */
+
             _list.NewObjectAdded += type =>
             {
                 _connection.SendNewObject(type);
@@ -41,7 +60,31 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             };
             _list.ObjectSelected += objectIndex =>
             {
+                _currentSelected = objectIndex;
                 _connection.SendSelectObject(objectIndex);
+                ISceneObject currentObject = CurrentResource.Objects[objectIndex]; 
+                _fields.LoadObject(currentObject);
+                fieldWindow.Title = $"Currently Editing: {currentObject.Name ?? "(unnamed)"}";
+            };
+
+            _fields.FieldModified += (name, obj) =>
+            {
+                // All resources are modified separately since we're in a scene.
+                if (obj is IGameResource resource)
+                {
+                    if (resource.Path is ProjectPath)
+                    {
+                        _connection.SendPropertyModifiedResource(_currentSelected, name, (ProjectPath) resource.Path);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Resource path is not a ProjectPath. If it's a Default Path, this should be patched right away!.");
+                    }
+                }
+                else
+                {
+                    _connection.SendPropertyModified(_currentSelected, name, obj);
+                }
             };
 
             // Close when we close the editor.
@@ -49,6 +92,8 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 this.Close();
                 this.Dispose();
+                fieldWindow.Close();
+                fieldWindow.Dispose();
             };
 
             RequestMinSize(100, 400);

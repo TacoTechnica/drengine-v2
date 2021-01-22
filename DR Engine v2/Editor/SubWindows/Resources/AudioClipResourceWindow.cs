@@ -58,7 +58,7 @@ namespace DREngine.Editor.SubWindows.Resources
                 }
             };
 
-            _fields.Modified += () =>
+            _fields.Modified += (name, obj) =>
             {
                 MarkDirty();
             };

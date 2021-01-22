@@ -1,4 +1,5 @@
 using System.Reflection;
+using GameEngine;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -6,7 +7,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     public class FieldWidgetAuto<T> : FieldWidget<T>
     {
         private DREditor _editor;
-        
+
         private FieldBox _fields;
         protected override T Data
         {
@@ -18,12 +19,17 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             _editor = editor;
         }
-        
-        protected override void Initialize(FieldInfo field, HBox content)
+
+        protected override void Initialize(MemberInfo field, HBox content)
         {
-            _fields = new FieldBox(_editor, typeof(T), true);
+            _fields = new FieldBox(_editor, typeof(T))  {AutoApply = true};
             content.PackStart(_fields, true, true, 16);
-            _fields.Modified += OnModify;
+            _fields.Modified += (name, obj) =>
+            {
+                //Debug.Log($"MODIFIED: {name} = {obj}");
+                //Debug.Log($"RESULT: {Data}");
+                OnModify();
+            };
             _fields.Show();
         }
     }

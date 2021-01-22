@@ -13,7 +13,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             OverrideTitle = overrideTitle;
         }
 
-        public override IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
         {
             return new FieldContainerWidget(editor);
         }

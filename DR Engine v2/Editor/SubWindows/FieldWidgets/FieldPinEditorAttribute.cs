@@ -8,9 +8,10 @@ using Microsoft.Xna.Framework;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
+    // Specify that this dictionary is a Pin field
     public class FieldPinEditorAttribute : OverrideFieldAttribute
     {
-        public override IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
         {
             return new FieldPinEditorWidget(editor);
         }
@@ -57,7 +58,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _editor = editor;
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             
             

@@ -23,7 +23,8 @@ namespace DREngine.Game.Scene
 
         [JsonIgnore] public new DRGame Game { get; set; }
 
-        public string Type { get; set; } = "Billboard";
+        public string Type { get; } = "Billboard";
+        public string Name { get; set; }
         public Vector3 FocusCenter => Transform.Position;
 
 

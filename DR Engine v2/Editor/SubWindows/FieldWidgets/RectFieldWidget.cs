@@ -27,7 +27,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             _x = new FloatView("X");
             _y = new FloatView("Y");

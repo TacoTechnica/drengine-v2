@@ -1,6 +1,7 @@
 ﻿//using System;
 
 using System.Diagnostics.CodeAnalysis;
+using DREngine.Editor.SubWindows.FieldWidgets;
 using DREngine.Game.Resources;
 using DREngine.ResourceLoading;
 using GameEngine.Game.Collision;
@@ -20,13 +21,13 @@ namespace DREngine.Game.Scene
     {
         private Vector3 _size = Vector3.One;
 
-        private Sprite _sprite;
+        private DRSprite _sprite;
 
         private readonly Color _blend;
 
         private BoxCollider _boxCollider;
 
-        public Cube(DRGame game, Vector3 size, Sprite sprite, Vector3 position, Quaternion rotation) : base(game,
+        public Cube(DRGame game, Vector3 size, DRSprite sprite, Vector3 position, Quaternion rotation) : base(game,
             position, rotation)
         {
             Game = game; // TODO: Why?
@@ -125,10 +126,8 @@ namespace DREngine.Game.Scene
             }
         }
 
-
-
         [JsonConverter(typeof(ProjectResourceConverter))]
-        public Sprite Sprite
+        public DRSprite Sprite
         {
             get => _sprite;
             set
@@ -136,7 +135,7 @@ namespace DREngine.Game.Scene
                 _sprite = value;
                 if (_sprite != null && !_sprite.Loaded)
                 {
-                    CurrentData.LoadWhenSafe(() => { Texture = _sprite.Texture; });
+                    CurrentData?.LoadWhenSafe(() => { Texture = _sprite.Texture; });
                 }
                 else
                 {
@@ -145,11 +144,17 @@ namespace DREngine.Game.Scene
             }
         }
 
-        [JsonIgnore] public new DRGame Game { get; set; }
+        [FieldIgnore]
+        [JsonIgnore]
+        public new DRGame Game { get; set; }
 
-        public string Type { get; set; } = "Cube";
+        [FieldIgnore]
+        public string Type { get; } = "Cube";
+        public string Name { get; set; }
 
+        [FieldIgnore]
         public Vector3 FocusCenter => Transform.Position + 0.5f * Math.RotateVector(Size, Transform.Rotation);
+        [FieldIgnore]
         public float FocusDistance => 5f + Size.Length() / 2;
 
         private VertexPositionColorTexture P(float px, float py, float pz, float ux,

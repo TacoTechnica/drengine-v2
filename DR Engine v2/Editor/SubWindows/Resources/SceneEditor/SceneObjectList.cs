@@ -60,7 +60,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
             foreach (ISceneObject sceneObject in objects)
             {
-                AddItemVisual(TypeToName(sceneObject.GetType()));
+                AddItemVisual(sceneObject.Name ?? TypeToName(sceneObject.GetType()));
             }
         }
 

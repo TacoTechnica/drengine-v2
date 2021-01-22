@@ -23,8 +23,8 @@ namespace DREngine.Editor.SubWindows.Resources
         protected override void OnInitialize(Box container)
         {
             _message = new Text("");
-            _fields = new FieldBox(_editor, typeof(ProjectData));
-            _fields.Modified += () =>
+            _fields = new FieldBox(_editor, typeof(ProjectData))  {AutoApply = true};
+            _fields.Modified += (name, obj) =>
             {
                 MarkDirty();
             };

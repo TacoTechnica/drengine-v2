@@ -42,7 +42,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected override T Data { get; set; }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             var choose = new Button("(empty)");
 

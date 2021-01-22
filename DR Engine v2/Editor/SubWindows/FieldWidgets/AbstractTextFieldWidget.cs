@@ -22,7 +22,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             _text = new TextView();
             _prevBuffer = _text.Buffer.Text;

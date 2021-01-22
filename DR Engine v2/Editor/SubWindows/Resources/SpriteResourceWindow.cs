@@ -175,7 +175,7 @@ namespace DREngine.Editor.SubWindows.Resources
             _fields.Modified += OnModify;
         }
 
-        private void OnModify()
+        private void OnModify(string fieldName, object obj)
         {
             _image.QueueDraw();
             

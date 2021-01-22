@@ -1,26 +1,38 @@
 using System;
 using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
+using DREngine.Game.Resources;
 using DREngine.ResourceLoading;
 using GameEngine;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Resources;
 using GameEngine.Game.UI;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace DREngine.Editor.SubWindows
 {
     public static class FieldWidgetFactory
     {
-        public static IFieldWidget CreateField(DREditor editor, FieldInfo field)
+        public static IFieldWidget CreateField(DREditor editor, MemberInfo field)
         {
             var widget = GetNewField(editor, field);
             widget.InitializeField(field);
             return widget;
         }
 
-        private static IFieldWidget GetNewField(DREditor editor, FieldInfo field)
+        private static IFieldWidget GetNewField(DREditor editor, MemberInfo field)
         {
-            var type = field.FieldType;
 
+            Type type = null;
+            if (field is FieldInfo finfo)
+            {
+               type = finfo.FieldType;
+            }
+            if (field is PropertyInfo pinfo)
+            {
+                type = pinfo.PropertyType;
+            }
             // Check for OVERRIDES
 
             // Container attribute
@@ -41,6 +53,33 @@ namespace DREngine.Editor.SubWindows
 
             // Vector2
             if (IsType(type, typeof(Vector2))) return new Vector2Widget();
+            // Vector3
+            if (IsType(type, typeof(Vector3))) return new Vector3Widget();
+
+            // Transform
+            if (IsType(type, typeof(Transform3D))) return new FieldWidgetAuto<Transform3D>(editor);
+
+            // Project Resources
+            if (IsType(type, typeof(IGameResource)))
+            {
+                JsonConverterAttribute resourceLoader;
+                try
+                {
+                    resourceLoader = field.GetCustomAttribute<JsonConverterAttribute>();
+                }
+                catch (Exception)
+                {
+                    return new UnknownFieldWidget($"Project Resource of type {type?.Name} not explicitly set to convert to Project Resource. (Blame dev)");
+                }
+
+                // We're supposed to convert to a project resource path.
+                if (IsType(resourceLoader.ConverterType, typeof(ProjectResourceConverter)))
+                {
+                    if (IsType(type, typeof(DRSprite))) return new SpriteResourceField(editor);
+                    if (IsType(type, typeof(AudioClip))) return new AudioResourceField(editor);
+                    if (IsType(type, typeof(Font))) return new FontResourceField(editor);
+                }
+            }
 
             // Misc simple types
             if (IsType(type, typeof(Rect))) return new RectFieldWidget();
@@ -57,7 +96,7 @@ namespace DREngine.Editor.SubWindows
             }
 
 
-            return new UnknownFieldWidget($"Unsupported type: {type}.");
+            return new UnknownFieldWidget($"Unsupported type: {type?.Name}.");
         }
 
         private static bool IsType(Type typeToCheck, Type type)

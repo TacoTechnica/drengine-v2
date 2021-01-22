@@ -80,7 +80,7 @@ namespace DREngine.ResourceLoading
                 return null;
 
             // Convert stored path to full path
-            string fullPath;
+            GameEngine.Game.Path fullPath;
             if (data.StartsWith(RESOURCE_PATH_PREFIX))
             {
                 var projectRelativePath = data.Substring(RESOURCE_PATH_PREFIX.Length);

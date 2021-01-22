@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using GameEngine;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -32,7 +33,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         /// <param name="target"></param>
         void Load(object target);
 
-        void InitializeField(FieldInfo field);
+        void InitializeField(MemberInfo field);
     }
 
     public abstract class FieldWidget<T> : HBox, IFieldWidget
@@ -44,7 +45,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                  (?<=[^A-Z])(?=[A-Z]) |
                  (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
 
-        private FieldInfo _field;
+        private MemberInfo _field;
 
         private object _target;
 
@@ -55,16 +56,35 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public void Apply()
         {
-            if (_target != null) _field.SetValue(_target, Value);
+            if (_target != null)
+            {
+                if (_field is FieldInfo finfo)
+                {
+                    finfo.SetValue(_target, Value);
+                } else if (_field is PropertyInfo pinfo)
+                {
+                    pinfo.SetValue(_target, Value);
+                }
+            }
+            else
+            {
+                //Debug.Log($"Field {_field.Name} of object {typeof(T)} is null.");
+            }
         }
 
         public void Load(object target)
         {
             _target = target;
-            Value = _field.GetValue(target);
+            if (_field is FieldInfo finfo)
+            {
+                Value = finfo.GetValue(_target);
+            } else if (_field is PropertyInfo pinfo)
+            {
+                Value = pinfo.GetValue(_target);
+            }
         }
 
-        public void InitializeField(FieldInfo field)
+        public void InitializeField(MemberInfo field)
         {
             _field = field;
             var label = new Label(GetFieldName(field));
@@ -89,7 +109,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             return _target;
         }
 
-        protected abstract void Initialize(FieldInfo field, HBox content);
+        protected abstract void Initialize(MemberInfo field, HBox content);
 
         protected void OnModify()
         {
@@ -97,7 +117,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             if (AutoApply) Apply();
         }
 
-        private static string GetFieldName(FieldInfo field)
+        private static string GetFieldName(MemberInfo field)
         {
             return SpaceRegex.Replace(field.Name, " ");
         }

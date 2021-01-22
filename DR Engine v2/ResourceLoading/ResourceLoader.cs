@@ -47,6 +47,11 @@ namespace DREngine.ResourceLoading
             return resource;
         }
 
+        public bool ResourceLoaded(Path path)
+        {
+            return _resources.ContainsKey(path.ToString());
+        }
+        
         public void FinishUsingResource<T>(T resource) where T : IGameResource
         {
             RemoveResourceDependent(resource.Path);
@@ -57,11 +62,6 @@ namespace DREngine.ResourceLoading
         #region Internal Control
 
         private readonly Dictionary<string, IGameResource> _resources = new Dictionary<string, IGameResource>();
-
-        private bool ResourceLoaded(Path path)
-        {
-            return _resources.ContainsKey(path.ToString());
-        }
 
         private T GetCachedResource<T>(Path path) where T : IGameResource
         {
@@ -114,6 +114,7 @@ namespace DREngine.ResourceLoading
                     var res = (IGameResource) newResource;
                     Assert.IsFalse(_resources.ContainsKey(path));
                     res.Path = path;
+
                     res.Load(_data);
                     _resources.Add(path, res);
                 }

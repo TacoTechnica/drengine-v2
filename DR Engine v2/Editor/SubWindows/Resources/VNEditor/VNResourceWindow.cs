@@ -135,13 +135,13 @@ namespace DREngine.Editor.SubWindows.Resources.VNEditor
         {
             ClearCommandFields();
             // Create fieldbox
-            FieldBox b = new FieldBox(_editor, command.GetType(), true);
+            FieldBox b = new FieldBox(_editor, command.GetType())  {AutoApply = true};
             b.LoadTarget(command);
 
             _fieldBoxContainer.PackStart(b, true, true, 16);
             b.Show();
 
-            b.Modified += () =>
+            b.Modified += (fieldName, obj) =>
             {
                 MarkDirty();
             };

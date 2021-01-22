@@ -4,6 +4,7 @@ using System.Reflection;
 using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;
+using Microsoft.VisualBasic.FileIO;
 using Action = System.Action;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -12,18 +13,24 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     {
         private readonly List<IFieldWidget> _fields = new List<IFieldWidget>();
 
-        public Action Modified;
+        public Action<string, object> Modified;
 
-        public FieldBox(DREditor editor, Type type, bool autoApply = false)
+        public bool AutoApply = false;
+
+        public Type Type;
+        
+        public FieldBox(DREditor editor, Type type, bool includeParentFields = true)
         {
-            List<FieldInfo> fields = new List<FieldInfo>(type.GetFields());
+            Type = type;
+            List<MemberInfo> fields = new List<MemberInfo>(type.GetFields());
+            fields.AddRange(type.GetProperties());
             // put BASE fields up top and NEWER fields lower
             fields.Sort((left, right) =>
             {
                 //Debug.Log($"{left.Name}: {GetDepth(left)} vs {right.Name}: {GetDepth(right)}");
                 return GetDepth(right) - GetDepth(left);
                 // How "deep" the field is declared in its sub types.
-                int GetDepth(FieldInfo field)
+                int GetDepth(object field)
                 {
                     int depth = 0;
                     Type check = type;
@@ -33,28 +40,46 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                         depth++;
                     }
 
-                    bool TypeHasField(Type type, FieldInfo field)
+                    bool TypeHasField(Type type, object field)
                     {
-                        return field.DeclaringType == type;
+                        if (field is FieldInfo finfo)
+                        {
+                            return finfo.DeclaringType == type;
+                        } else if (field is PropertyInfo pinfo)
+                        {
+                            return pinfo.DeclaringType == type;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                     return depth;
                 }
             });
             foreach (var f in fields)
             {
-                if (!f.IsPublic || f.IsStatic) continue;
+
+                if (f is FieldInfo finfo)
+                {
+                    if (!finfo.IsPublic || finfo.IsStatic) continue;
+                    if (!includeParentFields && finfo.DeclaringType != type) continue;
+                } else if (f is PropertyInfo pinfo)
+                {
+                    if (!includeParentFields && pinfo.DeclaringType != type) continue;
+                }
+
                 // ReSharper disable once VirtualMemberCallInConstructor
                 if (!ShouldSerialize(f)) continue;
                 if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
-
 
                 var widget = FieldWidgetFactory.CreateField(editor, f);
                 _fields.Add(widget);
 
                 widget.Modified += o =>
                 {
-                    if (autoApply) SaveFields();
-                    Modified?.Invoke();
+                    if (AutoApply) SaveFields();
+                    Modified?.Invoke(f.Name, o);
                 };
 
                 if (widget is Widget w)
@@ -84,7 +109,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             foreach (var field in _fields) field.Apply();
         }
 
-        protected virtual bool ShouldSerialize(FieldInfo f)
+        protected virtual bool ShouldSerialize(MemberInfo f)
         {
             return true;
         }
@@ -92,11 +117,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
     public class ExtraDataFieldBox : FieldBox
     {
-        public ExtraDataFieldBox(DREditor editor, Type type, bool autoApply = false) : base(editor, type, autoApply)
+        public ExtraDataFieldBox(DREditor editor, Type type, bool includeParentFields = true) : base(editor, type, includeParentFields)
         {
         }
 
-        protected override bool ShouldSerialize(FieldInfo f)
+        protected override bool ShouldSerialize(MemberInfo f)
         {
             return f.GetCustomAttribute<ExtraDataAttribute>() != null;
         }

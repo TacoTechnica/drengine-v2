@@ -26,7 +26,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
         }
 
-        public override IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
         {
             return new StringPathWidget(editor, Title, GetStatPath(editor), true, Filter, FilterName);
         }
@@ -44,7 +44,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
         }
 
-        public override IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
         {
             return new StringPathWidget(editor, Title, GetStatPath(editor), false, Filter, FilterName);
         }

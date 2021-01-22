@@ -32,9 +32,16 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
-            _type = field.FieldType;
+            if (field is FieldInfo finfo)
+            {
+                _type = finfo.FieldType;
+            } else if (field is PropertyInfo pinfo)
+            {
+                _type = pinfo.PropertyType;
+            }
+
             _nameToValueMap.Clear();
 
             _chooser = new ComboBoxText();

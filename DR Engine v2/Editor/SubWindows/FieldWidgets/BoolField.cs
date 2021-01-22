@@ -13,7 +13,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set => _check.Active = value;
         }
 
-        protected override void Initialize(FieldInfo field, HBox content)
+        protected override void Initialize(MemberInfo field, HBox content)
         {
             _check = new CheckMenuItem();
             content.PackStart(_check, true, true, 16);

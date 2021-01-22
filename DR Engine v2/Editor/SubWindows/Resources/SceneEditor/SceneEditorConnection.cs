@@ -1,5 +1,7 @@
 
 using System;
+using DREngine.ResourceLoading;
+using Newtonsoft.Json;
 using Debug = GameEngine.Debug;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
@@ -92,7 +94,15 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
         public void SendPropertyModified(int objectIndex, string propertyName, object value)
         {
-            _connection.Connection.SendMessageBlocked($"MODIFIED {objectIndex} {propertyName} {value}");
+            var text = JsonConvert.SerializeObject(value,
+                new JsonSerializerSettings
+                    {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+            _connection.Connection.SendMessageBlocked($"MODIFIED {objectIndex} {propertyName} {text}");
+        }
+
+        public void SendPropertyModifiedResource(int objectIndex, string propertyName, ProjectPath path)
+        {
+            _connection.Connection.SendMessageBlocked($"MODIFIED_RESOURCE {objectIndex} {propertyName} {path.GetShortName()}");
         }
 
         public void SendSave()

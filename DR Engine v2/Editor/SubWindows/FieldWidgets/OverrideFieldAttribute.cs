@@ -5,6 +5,6 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 {
     public abstract class OverrideFieldAttribute : Attribute
     {
-        public abstract IFieldWidget GetOverrideWidget(DREditor editor, FieldInfo field);
+        public abstract IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field);
     }
 }
