@@ -1,4 +1,5 @@
-﻿using GameEngine.Game.Objects;
+﻿using DREngine.Editor.SubWindows.FieldWidgets;
+using GameEngine.Game.Objects;
 using GameEngine.Game.Objects.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,8 +24,10 @@ namespace DREngine.Game.Scene
 
         [JsonIgnore] public new DRGame Game { get; set; }
 
+        [FieldIgnore]
         public string Type { get; } = "Billboard";
         public string Name { get; set; }
+        [FieldIgnore]
         public Vector3 FocusCenter => Transform.Position;
 
 

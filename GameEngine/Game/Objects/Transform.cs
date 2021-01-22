@@ -59,6 +59,11 @@ namespace GameEngine.Game.Objects
             get => _position;
             set
             {
+                if (float.IsNaN(value.X) || float.IsNaN(value.Y) || float.IsNaN(value.Z))
+                {
+                    Debug.LogError("Tried setting null position.");
+                    return;
+                }
                 _position = value;
                 _posMat = Matrix.CreateWorld(_position, Vector3.Forward, Vector3.Up);
                 UpdateWorld();
@@ -70,6 +75,11 @@ namespace GameEngine.Game.Objects
             get => _rotation;
             set
             {
+                if (float.IsNaN(value.X) || float.IsNaN(value.Y) || float.IsNaN(value.Z) || float.IsNaN(value.W))
+                {
+                    Debug.LogError("Tried setting null rotation.");
+                    return;
+                }
                 _rotation = value;
                 _rotation.Normalize();
                 _rotMat = Matrix.CreateFromQuaternion(_rotation);
@@ -82,6 +92,12 @@ namespace GameEngine.Game.Objects
             get => _scale;
             set
             {
+                if (float.IsNaN(value.X) || float.IsNaN(value.Y) || float.IsNaN(value.Z))
+                {
+                    Debug.LogError("Tried setting null scale`.");
+                    return;
+                }
+
                 _scale = value;
                 _scaleMat = Matrix.CreateScale(_scale);
                 UpdateWorld();
@@ -91,6 +107,12 @@ namespace GameEngine.Game.Objects
         private void UpdateWorld()
         {
             Local = _scaleMat * _rotMat * _posMat;
+        }
+
+
+        public override string ToString()
+        {
+            return $"[Transform3D] {{pos={_position} rot={_rotation} scale={_scale}}}";
         }
     }
 }

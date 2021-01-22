@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using GameEngine.Game.UI;
 using Gtk;
 
@@ -27,7 +28,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _x = new FloatView("X");
             _y = new FloatView("Y");

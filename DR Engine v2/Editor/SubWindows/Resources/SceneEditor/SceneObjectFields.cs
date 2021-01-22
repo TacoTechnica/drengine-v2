@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using DREngine.Game.Scene;
+using DREngine.ResourceLoading;
 using GameEngine;
 using Gtk;
 
@@ -22,17 +23,26 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
         public void LoadObject(ISceneObject sceneObject)
         {
-            if (_fields != null)
+            if (_fields == null || _fields.Target == null || sceneObject.GetType() != _fields.Target.GetType())
             {
-                this.Remove(_fields);
-                _fields.Dispose();
-            }
-            _fields = new SceneObjectFieldBox(_editor, sceneObject.GetType())  {AutoApply = true};
-            _fields.LoadTarget(sceneObject);
-            _fields.Modified += FieldModified;
+                if (_fields != null)
+                {
+                    this.Remove(_fields);
+                    _fields.Dispose();
+                    foreach (Widget w in _fields.Children)
+                    {
+                        w.Dispose();
+                    }
+                }
 
-            _fields.Show();
-            this.PackStart(_fields, false, true, 16);
+                Debug.Log($"New field loaded: {sceneObject.GetType()}");
+
+                _fields = new SceneObjectFieldBox(_editor, sceneObject.GetType())  {AutoApply = true};
+                _fields.Modified += FieldModified;
+                _fields.Show();
+                PackStart(_fields, false, true, 16);
+            }
+            _fields.LoadTarget(sceneObject);
         }
 
 
@@ -43,16 +53,9 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
             }
 
-            protected override bool ShouldSerialize(MemberInfo f)
+            protected override bool ShouldSerialize(UniFieldInfo f)
             {
-                bool parent = false;
-                if (f is FieldInfo finfo)
-                {
-                    parent = (finfo.DeclaringType != Type);
-                } else if (f is PropertyInfo pinfo)
-                {
-                    parent = (pinfo.DeclaringType != Type);
-                }
+                bool parent = f.DeclaringType != Type;
 
                 if (parent)
                 {

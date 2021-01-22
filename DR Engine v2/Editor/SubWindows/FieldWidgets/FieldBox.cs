@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;
@@ -18,19 +19,20 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         public bool AutoApply = false;
 
         public Type Type;
+
+        private bool _internalModifyFlag = false;
         
         public FieldBox(DREditor editor, Type type, bool includeParentFields = true)
         {
             Type = type;
-            List<MemberInfo> fields = new List<MemberInfo>(type.GetFields());
-            fields.AddRange(type.GetProperties());
+            List<UniFieldInfo> fields = new List<UniFieldInfo>(type.GetUniFields());
             // put BASE fields up top and NEWER fields lower
             fields.Sort((left, right) =>
             {
                 //Debug.Log($"{left.Name}: {GetDepth(left)} vs {right.Name}: {GetDepth(right)}");
                 return GetDepth(right) - GetDepth(left);
                 // How "deep" the field is declared in its sub types.
-                int GetDepth(object field)
+                int GetDepth(UniFieldInfo field)
                 {
                     int depth = 0;
                     Type check = type;
@@ -40,19 +42,9 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                         depth++;
                     }
 
-                    bool TypeHasField(Type type, object field)
+                    bool TypeHasField(Type type, UniFieldInfo field)
                     {
-                        if (field is FieldInfo finfo)
-                        {
-                            return finfo.DeclaringType == type;
-                        } else if (field is PropertyInfo pinfo)
-                        {
-                            return pinfo.DeclaringType == type;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        return field.DeclaringType == type;
                     }
                     return depth;
                 }
@@ -60,14 +52,9 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             foreach (var f in fields)
             {
 
-                if (f is FieldInfo finfo)
-                {
-                    if (!finfo.IsPublic || finfo.IsStatic) continue;
-                    if (!includeParentFields && finfo.DeclaringType != type) continue;
-                } else if (f is PropertyInfo pinfo)
-                {
-                    if (!includeParentFields && pinfo.DeclaringType != type) continue;
-                }
+                if (f.IsStatic) continue;
+                if (!includeParentFields && f.DeclaringType != type) continue;
+                if (!f.HasGetter || !f.HasSetter) continue;
 
                 // ReSharper disable once VirtualMemberCallInConstructor
                 if (!ShouldSerialize(f)) continue;
@@ -79,6 +66,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 widget.Modified += o =>
                 {
                     if (AutoApply) SaveFields();
+                    if (_internalModifyFlag) return;
                     Modified?.Invoke(f.Name, o);
                 };
 
@@ -100,8 +88,10 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         public void LoadTarget(object target)
         {
+            _internalModifyFlag = true;
             Target = target;
             foreach (var field in _fields) field.Load(target);
+            _internalModifyFlag = false;
         }
 
         public void SaveFields()
@@ -109,7 +99,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             foreach (var field in _fields) field.Apply();
         }
 
-        protected virtual bool ShouldSerialize(MemberInfo f)
+        protected virtual bool ShouldSerialize(UniFieldInfo f)
         {
             return true;
         }
@@ -121,7 +111,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
         }
 
-        protected override bool ShouldSerialize(MemberInfo f)
+        protected override bool ShouldSerialize(UniFieldInfo f)
         {
             return f.GetCustomAttribute<ExtraDataAttribute>() != null;
         }

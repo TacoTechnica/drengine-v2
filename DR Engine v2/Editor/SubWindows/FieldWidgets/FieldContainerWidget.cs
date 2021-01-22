@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -26,7 +27,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set => _subBox.LoadTarget(value);
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             var name = field.Name;
 
@@ -35,13 +36,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             if (a != null && a.OverrideTitle != null) name = a.OverrideTitle;
 
             var top = new Label(name);
-            if (field is FieldInfo finfo)
-            {
-                _subBox = new FieldBox(_editor, finfo.FieldType);
-            } else if (field is PropertyInfo pinfo)
-            {
-                _subBox = new FieldBox(_editor, pinfo.PropertyType);
-            }
+            _subBox = new FieldBox(_editor, field.FieldType);
 
             _subBox.Modified += (name, obj) =>
             {

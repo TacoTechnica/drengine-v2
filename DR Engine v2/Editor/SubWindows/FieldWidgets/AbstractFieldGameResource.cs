@@ -37,7 +37,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         protected abstract T ResourceData { get; set; }
 
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _button = new Button();
             _button.Label = "(not loaded)";

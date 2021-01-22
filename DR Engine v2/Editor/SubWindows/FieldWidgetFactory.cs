@@ -14,25 +14,17 @@ namespace DREngine.Editor.SubWindows
 {
     public static class FieldWidgetFactory
     {
-        public static IFieldWidget CreateField(DREditor editor, MemberInfo field)
+        public static IFieldWidget CreateField(DREditor editor, UniFieldInfo field)
         {
             var widget = GetNewField(editor, field);
             widget.InitializeField(field);
             return widget;
         }
 
-        private static IFieldWidget GetNewField(DREditor editor, MemberInfo field)
+        private static IFieldWidget GetNewField(DREditor editor, UniFieldInfo field)
         {
 
-            Type type = null;
-            if (field is FieldInfo finfo)
-            {
-               type = finfo.FieldType;
-            }
-            if (field is PropertyInfo pinfo)
-            {
-                type = pinfo.PropertyType;
-            }
+            Type type = field.FieldType;
             // Check for OVERRIDES
 
             // Container attribute

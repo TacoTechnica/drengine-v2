@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using DREngine.Editor.Components;
 using DREngine.Game.Resources;
+using DREngine.ResourceLoading;
 using Gtk;
 using Microsoft.Xna.Framework;
 
@@ -11,7 +12,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     // Specify that this dictionary is a Pin field
     public class FieldPinEditorAttribute : OverrideFieldAttribute
     {
-        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, UniFieldInfo field)
         {
             return new FieldPinEditorWidget(editor);
         }
@@ -58,7 +59,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _editor = editor;
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             
             

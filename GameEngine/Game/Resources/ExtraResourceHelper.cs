@@ -7,6 +7,13 @@ using Newtonsoft.Json;
 
 namespace GameEngine.Game.Resources
 {
+    /// <summary>
+    /// This class is extremely useful for reference during development.
+    ///
+    /// It saves (serializes) + loads (de-serializes) fields from a Resource.
+    ///
+    /// This serializing and deserializing of SPECIFIC fields is very useful in general.
+    /// </summary>
     public class ExtraResourceHelper
     {
         public static void SaveExtraData(object target, string path)
@@ -53,33 +60,8 @@ namespace GameEngine.Game.Resources
                     continue;
                 }
 
-                var value = toLoad[name];
-                var autoType = value.GetType();
-                var realType = targetField.FieldType;
-
-                if (!IsType(realType, autoType))
-                {
-                    // Fields don't match, will have to re-parse.
-                    if (autoType != typeof(string) && realType != typeof(float) && realType != typeof(int))
-                        // Enum
-                        if (!IsType(autoType, typeof(long)) && IsType(realType, typeof(Enum)))
-                            Debug.LogWarning(
-                                $"[Extra Resource] Weird mismatch on field {name}: Parsed {autoType} (<< not string!!) but we need {realType}");
-
-                    //continue;
-
-                    // Parse string as single json thing.
-                    var valueJsonString = "\"" + value + "\"";
-
-
-                    value = JsonConvert.DeserializeObject(valueJsonString, realType);
-                    if (value == null)
-                    {
-                        Debug.LogWarning(
-                            $"[Extra Resource] Parse was null?? Parsed from {valueJsonString} to type {realType}");
-                        continue;
-                    }
-                }
+                var value = ConvertObjectFromJson(toLoad[name], targetField.FieldType);
+                if (value == null) continue;
 
                 targetField.SetValue(target, value);
             }
@@ -94,6 +76,38 @@ namespace GameEngine.Game.Resources
         {
             // type is the parent here
             return type.IsAssignableFrom(typeToCheck);
+        }
+
+        public static object ConvertObjectFromJson(object straightForwardObject, Type targetType)
+        {
+            var autoType = straightForwardObject.GetType();
+
+            if (!IsType(targetType, autoType))
+            {
+                // Fields don't match, will have to re-parse.
+                if (autoType != typeof(string) && targetType != typeof(float) && targetType != typeof(int))
+                    // Enum
+                    if (!IsType(autoType, typeof(long)) && IsType(targetType, typeof(Enum)))
+                        Debug.LogWarning(
+                            $"[Extra Resource] Weird mismatch on object {straightForwardObject}: Parsed {autoType} but we need {targetType}");
+
+                //continue;
+
+                // Parse string as single json thing.
+                var valueJsonString = "\"" + straightForwardObject + "\"";
+
+
+                object value = JsonConvert.DeserializeObject(valueJsonString, targetType);
+                if (value == null)
+                {
+                    Debug.LogWarning(
+                        $"[Extra Resource] Parse was null?? Parsed from {valueJsonString} to type {targetType}");
+                }
+
+                return value;
+            }
+
+            return straightForwardObject;
         }
     }
 }

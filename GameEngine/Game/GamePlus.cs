@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Timers;
 using GameEngine.Game.Audio;
 using GameEngine.Game.Collision;
@@ -174,10 +175,11 @@ namespace GameEngine.Game
                 "/usr/share/fonts/TTF/consola.ttf",
                 "/usr/share/fonts/TTF/arial.ttf"
             };
+            StringBuilder debugTry = new StringBuilder();
             var foundValid = false;
             foreach (var path in pathsToTry)
             {
-                Debug.LogDebug($"Trying {path}...");
+                debugTry.Append($"\"{path}\" ");
                 try
                 {
                     debugFont = new Font(this, path, 16);
@@ -185,15 +187,15 @@ namespace GameEngine.Game
                 }
                 catch (Exception e)
                 {
-                    Debug.LogDebug($"(Failed: {e.Message})");
+                    // Failed
                     continue;
                 }
-
+                // Succeeded
                 break;
             }
 
             if (!foundValid)
-                throw new ContentLoadException($"Failed to load default debug font from: {pathsToTry}. " +
+                throw new ContentLoadException($"Failed to load default debug font from: {pathsToTry}. Tried [{debugTry}].\n" +
                                                "Either add a font to the content pipeline at \"Debug/DebugFont\" or " +
                                                "make sure one of the tried system fonts is available.");
             DebugConsole = new DebugConsole(this,

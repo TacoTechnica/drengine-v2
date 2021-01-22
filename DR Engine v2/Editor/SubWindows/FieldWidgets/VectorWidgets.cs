@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 using Microsoft.Xna.Framework;
 using Action = System.Action;
@@ -22,7 +23,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _x = new FloatView();
             _y = new FloatView();
@@ -52,7 +53,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _x = new FloatView();
             _y = new FloatView();

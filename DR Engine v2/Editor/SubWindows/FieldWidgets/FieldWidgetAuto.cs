@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using GameEngine;
 using Gtk;
 
@@ -20,7 +21,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             _editor = editor;
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _fields = new FieldBox(_editor, typeof(T))  {AutoApply = true};
             content.PackStart(_fields, true, true, 16);

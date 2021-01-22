@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using DREngine.Editor.Components;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -42,7 +43,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected override T Data { get; set; }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             var choose = new Button("(empty)");
 

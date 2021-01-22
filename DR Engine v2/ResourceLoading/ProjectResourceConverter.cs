@@ -80,28 +80,7 @@ namespace DREngine.ResourceLoading
                 return null;
 
             // Convert stored path to full path
-            GameEngine.Game.Path fullPath;
-            if (data.StartsWith(RESOURCE_PATH_PREFIX))
-            {
-                var projectRelativePath = data.Substring(RESOURCE_PATH_PREFIX.Length);
-                if (_currentGame != null)
-                {
-                    fullPath = new ProjectPath(_currentGame, projectRelativePath);
-                }
-                else
-                {
-                    fullPath = new ProjectPath(_currentEditor, projectRelativePath);
-                }
-            }
-            else if (data.StartsWith(DEFAULT_RESOURCE_PATH_PREFIX))
-            {
-                var defaultRelativePath = data.Substring(DEFAULT_RESOURCE_PATH_PREFIX.Length);
-                fullPath = new DefaultResourcePath(defaultRelativePath);
-            }
-            else
-            {
-                return null;
-            }
+            GameEngine.Game.Path fullPath = ShortNameToPath(data);
 
             if (_currentGame != null)
             {
@@ -113,6 +92,25 @@ namespace DREngine.ResourceLoading
         public override bool CanConvert(Type objectType)
         {
             return typeof(IGameResource).IsAssignableFrom(objectType);
+        }
+
+        public static GameEngine.Game.Path ShortNameToPath(string shortPath)
+        {
+            if (shortPath.StartsWith(RESOURCE_PATH_PREFIX))
+            {
+                var projectRelativePath = shortPath.Substring(RESOURCE_PATH_PREFIX.Length);
+                if (_currentGame != null)
+                {
+                    return new ProjectPath(_currentGame, projectRelativePath);
+                }
+                return new ProjectPath(_currentEditor, projectRelativePath);
+            }
+            if (shortPath.StartsWith(DEFAULT_RESOURCE_PATH_PREFIX))
+            {
+                var defaultRelativePath = shortPath.Substring(DEFAULT_RESOURCE_PATH_PREFIX.Length);
+                return new DefaultResourcePath(defaultRelativePath);
+            }
+            return null;
         }
     }
 }

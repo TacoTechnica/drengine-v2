@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -22,7 +23,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _text = new TextView();
             _prevBuffer = _text.Buffer.Text;

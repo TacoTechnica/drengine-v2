@@ -129,7 +129,7 @@ namespace DREngine.Game
             }
             else
             {
-                Debug.LogDebug($"TO LOAD: {_sceneEditorScene}");
+                Debug.LogDebug($"Opening Scene to Edit: {_sceneEditorScene}");
                 Window.AllowUserResizing = true;
                 SceneManager.LoadScene(new EditorSceneEditorScene(this, _sceneEditorScene));
             }

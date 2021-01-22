@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -13,7 +14,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set => _check.Active = value;
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             _check = new CheckMenuItem();
             content.PackStart(_check, true, true, 16);

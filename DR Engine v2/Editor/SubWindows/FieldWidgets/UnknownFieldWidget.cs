@@ -1,4 +1,5 @@
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -6,6 +7,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
     public class UnknownFieldWidget : FieldWidget<object>
     {
         private readonly string _errorMessage;
+
+        private object _data;
 
         public UnknownFieldWidget(string errorMessage)
         {
@@ -15,11 +18,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         // Empty
         protected override object Data
         {
-            get => null;
-            set { }
+            get => _data;
+            set => _data = value;
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
             var unknown = new Label(_errorMessage);
             content.Add(unknown);

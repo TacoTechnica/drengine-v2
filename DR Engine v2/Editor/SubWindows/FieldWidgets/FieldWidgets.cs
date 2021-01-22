@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using DREngine.ResourceLoading;
 using GameEngine;
 using Gtk;
 
@@ -33,7 +34,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         /// <param name="target"></param>
         void Load(object target);
 
-        void InitializeField(MemberInfo field);
+        void InitializeField(UniFieldInfo field);
     }
 
     public abstract class FieldWidget<T> : HBox, IFieldWidget
@@ -45,7 +46,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                  (?<=[^A-Z])(?=[A-Z]) |
                  (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
 
-        private MemberInfo _field;
+        private UniFieldInfo _field;
 
         private object _target;
 
@@ -58,33 +59,21 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         {
             if (_target != null)
             {
-                if (_field is FieldInfo finfo)
-                {
-                    finfo.SetValue(_target, Value);
-                } else if (_field is PropertyInfo pinfo)
-                {
-                    pinfo.SetValue(_target, Value);
-                }
+                _field.SetValue(_target, Value);
             }
             else
             {
-                //Debug.Log($"Field {_field.Name} of object {typeof(T)} is null.");
+                //Debug.Log($"UniFieldInfo {_field.Name} of object {typeof(T)} is null.");
             }
         }
 
         public void Load(object target)
         {
             _target = target;
-            if (_field is FieldInfo finfo)
-            {
-                Value = finfo.GetValue(_target);
-            } else if (_field is PropertyInfo pinfo)
-            {
-                Value = pinfo.GetValue(_target);
-            }
+            Value = _field.GetValue(_target);
         }
 
-        public void InitializeField(MemberInfo field)
+        public void InitializeField(UniFieldInfo field)
         {
             _field = field;
             var label = new Label(GetFieldName(field));
@@ -109,7 +98,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             return _target;
         }
 
-        protected abstract void Initialize(MemberInfo field, HBox content);
+        protected abstract void Initialize(UniFieldInfo field, HBox content);
 
         protected void OnModify()
         {
@@ -117,7 +106,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             if (AutoApply) Apply();
         }
 
-        private static string GetFieldName(MemberInfo field)
+        private static string GetFieldName(UniFieldInfo field)
         {
             return SpaceRegex.Replace(field.Name, " ");
         }

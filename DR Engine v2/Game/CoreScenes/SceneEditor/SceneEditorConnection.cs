@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using DREngine.ResourceLoading;
 using GameEngine;
+using GameEngine.Game;
+using GameEngine.Game.Objects;
+using GameEngine.Game.Resources;
 using Newtonsoft.Json;
 
 namespace DREngine.Game.CoreScenes.SceneEditor
@@ -12,7 +17,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         public Action<Type> OnNewObject;
         public Action<int> OnDeleteObject;
         public Action<int> OnSelectObject;
-        public Action<int, string, object> OnModifiedObject;
+        public Action<int, string, string> OnModifiedObject;
+        public Action<int, string, Path> OnResourceModifiedObject;
 
         public Action OnSaveRequested;
 
@@ -33,7 +39,13 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _connection.SendMessageBlocked($"SELECTED {index}");
         }
 
-        // TODO: Transform Changed
+        public void SendTransformChanged(int index, Transform3D transform)
+        {
+            var text = JsonConvert.SerializeObject(transform,
+                new JsonSerializerSettings
+                    {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+            _connection.SendMessageBlocked($"TRANSFORM {index} {text}");
+        }
 
         private void OnEditorMessage(string message)
         {
@@ -48,28 +60,28 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                         Type type = JsonConvert.DeserializeObject<Type>("\"" + parts[1] + ", DR Engine\"",
                             new JsonSerializerSettings
                                 {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
-                        OnNewObject.Invoke(type);
+                        OnNewObject?.Invoke(type);
                         break;
                     case "DELETE":
                     {
                         int index = int.Parse(parts[1]);
-                        OnDeleteObject.Invoke(index);
+                        OnDeleteObject?.Invoke(index);
                         break;
                     }
                     case "SELECT":
                     {
                         int index = int.Parse(parts[1]);
-                        OnSelectObject.Invoke(index);
+                        OnSelectObject?.Invoke(index);
                         break;
                     }
                     case "MODIFIED":
                     {
                         int index = int.Parse(parts[1]);
                         string fieldName = parts[2];
-                        object newValue = JsonConvert.DeserializeObject<object>(parts[3],
-                            new JsonSerializerSettings
-                                {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
-                        OnModifiedObject.Invoke(index, fieldName, newValue);
+
+                        string objectData = JoinRemainder(parts, 3);
+
+                        OnModifiedObject?.Invoke(index, fieldName, objectData);
                         break;
                     }
                     case "SAVE":
@@ -77,6 +89,17 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                         // We assume that whatever was invoked succeeded.
                         _connection.SendMessageBlocked("SAVE_SUCCESS");
                         break;
+                    case "MODIFIED_RESOURCE":
+                    {
+                        int index = int.Parse(parts[1]);
+                        string fieldName = parts[2];
+                        string shortPath = JoinRemainder(parts, 3);;
+
+                        Path resultPath = ProjectResourceConverter.ShortNameToPath(shortPath);
+
+                        OnResourceModifiedObject?.Invoke(index, fieldName, resultPath);
+                        break;
+                    }
                     default:
                         throw new InvalidOperationException($"Invalid Command: \"{command}\"");
                 }
@@ -85,6 +108,17 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             {
                 Debug.LogError($"RECEIVED INVALID MESSAGE: \"{message}\". Error: {e.ToString()}");
             }
+        }
+
+        public static string JoinRemainder(string[] parts, int startIndex)
+        {
+            StringBuilder result = new StringBuilder();
+            for (int i = startIndex; i < parts.Length; ++i)
+            {
+                result.Append(parts[i]);
+            }
+
+            return result.ToString();
         }
     }
 }

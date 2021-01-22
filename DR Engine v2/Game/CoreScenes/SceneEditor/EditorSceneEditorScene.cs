@@ -1,10 +1,15 @@
 using System;
-
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using DREngine.Game.Scene;
+using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Objects;
+using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace DREngine.Game.CoreScenes.SceneEditor
 {
@@ -35,9 +40,11 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             _connection.OnNewObject += AddNewObject;
             _connection.OnDeleteObject += DeleteObject;
             _connection.OnModifiedObject += ModifyObjectField;
+            _connection.OnResourceModifiedObject += ModifyResourceField;
             _connection.OnSelectObject += OnEditorSelectObject;
             _connection.OnSaveRequested += OnSaveRequested;
         }
+
 
         private void OnSaveRequested()
         {
@@ -79,9 +86,43 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             throw new NotImplementedException();
         }
 
-        private void ModifyObjectField(int arg1, string arg2, object arg3)
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        private void ModifyObjectField(int index, string fieldName, string data)
         {
-            throw new NotImplementedException();
+
+            ISceneObject sceneObject = null;
+            try
+            {
+                sceneObject = _loadedScene.Objects[index];
+                if (sceneObject == null) throw new InvalidOperationException("Null object");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Invalid object index: {index} {e}");
+            }
+
+            try
+            {
+                UniFieldInfo f = sceneObject.GetType().GetUniField(fieldName);
+
+                object newValue = JsonConvert.DeserializeObject(data, f.FieldType,
+                    new JsonSerializerSettings
+                        {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+
+                // TODO: Is this necessary? Streamline this field de-serialization process please.
+                newValue = ExtraResourceHelper.ConvertObjectFromJson(newValue, f.FieldType);
+                f.SetValue(sceneObject, newValue);
+            }
+            catch (Exception)
+            {
+                Debug.LogWarning("FAILED TO UPDATE FIELD.");
+                throw;
+            }
+        }
+
+        private void ModifyResourceField(int index, string fieldName, Path path)
+        {
+            Debug.LogWarning("Not implemented (yet)");
         }
 
         private void LoadSceneFile(Path path)
@@ -106,7 +147,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                     _camera.LookAt(sceneObject.FocusCenter, sceneObject.FocusDistance);
                 }
 
-                _translator.Transform.Position = object3d.Transform.Position;
+                _translator.Target = object3d;
 
                 if (sendInfoToEditor)
                 {
@@ -123,6 +164,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             }
             else
             {
+                _translator.Target = null;
                 Debug.Log($"Unable to select object as it is not a 3d object: {sceneObject}");
             }
         }
@@ -132,7 +174,7 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             if (_selected != null && _selected is GameObjectRender3D obj)
             {
                 obj.Transform.Position += delta;
-                _translator.Transform.Position = obj.Transform.Position;
+                _connection.SendTransformChanged(_loadedScene.Objects.IndexOf(_selected), obj.Transform);
             }
         }
 

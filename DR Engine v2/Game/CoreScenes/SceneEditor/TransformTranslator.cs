@@ -18,6 +18,8 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         public readonly TransformArrow YArrow;
         public readonly TransformArrow ZArrow;
 
+        public GameObjectRender3D Target;
+
         public bool Selected => XArrow.Selected || YArrow.Selected || ZArrow.Selected;
 
         public TransformTranslator(GamePlus game, Vector3 position) : base(game, position, Quaternion.Identity)
@@ -41,7 +43,11 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
         public override void PostDraw(Camera3D cam, GraphicsDevice g, Transform3D transform)
         {
-            
+
+            if (Target == null) return;
+
+            Transform.Position = Target.Transform.Position;
+
             float distanceToCam = cam.GetFlatDistanceTo(Transform.Position);
 
             Vector3 scale = Vector3.One * distanceToCam * 0.05f;

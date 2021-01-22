@@ -71,7 +71,6 @@ namespace DREngine.Editor
             _gameProcess.Close();
             OnGameClose();
 
-            Debug.LogDebug("Game Closed Successfully!");
             return true;
         }
 
@@ -79,6 +78,7 @@ namespace DREngine.Editor
         {
             _gameProcess.Exited -= GameProcessOnExited;
             _gameProcess = null;
+            Debug.LogDebug("Game Closed.");
             OnExit?.Invoke();
         }
 

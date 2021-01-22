@@ -1,6 +1,7 @@
 
 using System;
 using DREngine.ResourceLoading;
+using GameEngine.Game.Objects;
 using Newtonsoft.Json;
 using Debug = GameEngine.Debug;
 
@@ -13,6 +14,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
         public Action OnSaved;
         public Action<int> OnSelected;
+        public Action<int, Transform3D> OnTransformModified;
 
         public Action OnStop
         {
@@ -46,6 +48,18 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                     {
                         int selected = int.Parse(parts[1]);
                         OnSelected?.Invoke(selected);
+                        break;
+                    }
+                    case "TRANSFORM":
+                    {
+                        int index = int.Parse(parts[1]);
+                        string transformData =
+                            Game.CoreScenes.SceneEditor.SceneEditorConnection.JoinRemainder(parts, 2);
+
+                        Transform3D result = JsonConvert.DeserializeObject<Transform3D>(transformData,
+                            new JsonSerializerSettings
+                                {TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented});
+                        OnTransformModified?.Invoke(index, result);
                         break;
                     }
                     case "SAVE_SUCCESS":

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using DREngine.ResourceLoading;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -32,15 +33,11 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             }
         }
 
-        protected override void Initialize(MemberInfo field, HBox content)
+        protected override void Initialize(UniFieldInfo field, HBox content)
         {
-            if (field is FieldInfo finfo)
-            {
-                _type = finfo.FieldType;
-            } else if (field is PropertyInfo pinfo)
-            {
-                _type = pinfo.PropertyType;
-            }
+
+            _type = field.FieldType;
+
 
             _nameToValueMap.Clear();
 

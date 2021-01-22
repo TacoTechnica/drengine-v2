@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using DREngine.ResourceLoading;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
 {
@@ -13,7 +14,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             OverrideTitle = overrideTitle;
         }
 
-        public override IFieldWidget GetOverrideWidget(DREditor editor, MemberInfo field)
+        public override IFieldWidget GetOverrideWidget(DREditor editor, UniFieldInfo field)
         {
             return new FieldContainerWidget(editor);
         }

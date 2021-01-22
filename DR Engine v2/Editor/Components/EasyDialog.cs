@@ -23,7 +23,7 @@ namespace DREngine.Editor.Components
         public EasyDialog(DREditor editor, Window parent, string title = "New Project", params object[] buttondata) :
             base(title, parent, DialogFlags.DestroyWithParent, buttondata)
         {
-            var fields = new FieldBox(editor, GetType()) {AutoApply = true};
+            var fields = new FieldBox(editor, GetType(), false) {AutoApply = true};
             Post = new Text("");
 
             ContentArea.PackStart(fields, true, true, 16);

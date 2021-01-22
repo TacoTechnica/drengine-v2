@@ -3,9 +3,9 @@ using DREngine.Game.Scene;
 using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using Gtk;
-using Debug = System.Diagnostics.Debug;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 {
@@ -18,6 +18,10 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         private DREditor _editor;
 
         private int _currentSelected = -1;
+
+        private Window _fieldWindow;
+
+        private bool _invokingFlag;
 
         public SceneResourceWindow(DREditor editor, ProjectPath resPath) : base(editor, resPath)
         {
@@ -32,7 +36,9 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 _currentSelected = selectedIndex;
                 _list.ForceSelect(selectedIndex);
+                SelectField(selectedIndex);
             };
+            _connection.OnTransformModified += SetTransform;
         }
 
         protected override void OnInitialize(Box container)
@@ -41,10 +47,10 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             Add(_list);
 
             _fields = new SceneObjectFields(_editor);
-            Window fieldWindow = new Window(WindowType.Toplevel);
-            fieldWindow.Add(_fields);
+            _fieldWindow = new Window(WindowType.Toplevel);
+            _fieldWindow.Add(_fields);
             _fields.Show();
-            fieldWindow.Show();
+            _fieldWindow.Show();
             /*
             fieldWindow.Destroyed += (sender, args) =>
             {
@@ -62,13 +68,12 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 _currentSelected = objectIndex;
                 _connection.SendSelectObject(objectIndex);
-                ISceneObject currentObject = CurrentResource.Objects[objectIndex]; 
-                _fields.LoadObject(currentObject);
-                fieldWindow.Title = $"Currently Editing: {currentObject.Name ?? "(unnamed)"}";
+                SelectField(objectIndex);
             };
 
             _fields.FieldModified += (name, obj) =>
             {
+                //Debug.Log($"MODIFIED FIELD: {name}");
                 // All resources are modified separately since we're in a scene.
                 if (obj is IGameResource resource)
                 {
@@ -85,6 +90,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                 {
                     _connection.SendPropertyModified(_currentSelected, name, obj);
                 }
+                MarkDirty();
             };
 
             // Close when we close the editor.
@@ -92,8 +98,8 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 this.Close();
                 this.Dispose();
-                fieldWindow.Close();
-                fieldWindow.Dispose();
+                _fieldWindow.Close();
+                _fieldWindow.Dispose();
             };
 
             RequestMinSize(100, 400);
@@ -133,6 +139,33 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                 MarkDirty();
                 throw new InvalidOperationException($"Failed to save scene to path {path}, probably a networking issue!");
             }
+        }
+
+        private void SelectField(int objectIndex)
+        {
+            if (_invokingFlag) return;
+            _invokingFlag = true;
+            Application.Invoke((o, e) =>
+            {
+                ISceneObject currentObject = CurrentResource.Objects[objectIndex];
+                _fields.LoadObject(currentObject);
+                _fieldWindow.Title = $"Currently Editing: {currentObject.Name ?? "(unnamed)"}";
+                _invokingFlag = false;
+            });
+        }
+        private void SetTransform(int objectIndex, Transform3D transform)
+        {
+            ISceneObject currentObject = CurrentResource.Objects[objectIndex];
+            if (currentObject is GameObjectRender3D object3d)
+            {
+                object3d.Transform = transform;
+                MarkDirty();
+            }
+            else
+            {
+                Debug.LogWarning($"(tried applying transform) Scene Object {currentObject} is not a 3D object! It is a {currentObject.GetType()}");
+            }
+            SelectField(objectIndex);
         }
     }
 }
