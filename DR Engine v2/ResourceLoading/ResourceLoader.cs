@@ -54,6 +54,11 @@ namespace DREngine.ResourceLoading
         
         public void FinishUsingResource<T>(T resource) where T : IGameResource
         {
+
+            if (resource == null)
+            {
+                Debug.LogError("Failed to get resource path as it is null.");
+            }
             RemoveResourceDependent(resource.Path);
         }
 

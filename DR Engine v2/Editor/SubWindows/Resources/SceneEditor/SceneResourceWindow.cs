@@ -61,6 +61,12 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
             _list.NewObjectAdded += type =>
             {
+                ISceneObject newObject = (ISceneObject)Activator.CreateInstance(type);;
+
+                if (newObject == null) throw new InvalidOperationException($"Type {type} failed to create an ISceneObject!");
+
+                CurrentResource.Objects.Add(newObject);
+
                 _connection.SendNewObject(type);
                 MarkDirty();
             };
@@ -148,6 +154,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             Application.Invoke((o, e) =>
             {
                 ISceneObject currentObject = CurrentResource.Objects[objectIndex];
+                if (currentObject == null) throw new InvalidOperationException("Tried selecting a null object, what?");
                 _fields.LoadObject(currentObject);
                 _fieldWindow.Title = $"Currently Editing: {currentObject.Name ?? "(unnamed)"}";
                 _invokingFlag = false;

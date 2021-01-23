@@ -24,7 +24,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
         protected override string ResourceToString(T resource)
         {
-            return resource.Path.GetShortName();
+            return resource?.Path?.GetShortName();
         }
 
         protected override void OnPathSelected(string path)

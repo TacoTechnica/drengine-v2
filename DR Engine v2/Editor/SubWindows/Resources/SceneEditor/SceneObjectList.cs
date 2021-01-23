@@ -83,7 +83,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             {
                 var newRow = AddItemVisual(TypeToName(type));
                 NewObjectAdded.Invoke(type);
-                _skipSelectFlag = true;
+                //_skipSelectFlag = true;
                 _items.SelectRow(newRow);
             }, TypeToName);
         }

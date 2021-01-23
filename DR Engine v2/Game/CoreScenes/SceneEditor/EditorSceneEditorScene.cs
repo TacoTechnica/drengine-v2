@@ -122,7 +122,31 @@ namespace DREngine.Game.CoreScenes.SceneEditor
 
         private void ModifyResourceField(int index, string fieldName, Path path)
         {
-            Debug.LogWarning("Not implemented (yet)");
+            ISceneObject sceneObject = null;
+            try
+            {
+                sceneObject = _loadedScene.Objects[index];
+                if (sceneObject == null) throw new InvalidOperationException("Null object");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Invalid object index: {index} {e}");
+            }
+
+            try
+            {
+                UniFieldInfo f = sceneObject?.GetType().GetUniField(fieldName);
+
+                _game.ResourceLoader.FinishUsingResource((IGameResource)f?.GetValue(sceneObject));
+                var newValue = _game.ResourceLoader.GetResource(path, f?.FieldType);
+
+                f?.SetValue(sceneObject, newValue);
+            }
+            catch (Exception)
+            {
+                Debug.LogWarning("FAILED TO UPDATE FIELD.");
+                throw;
+            }
         }
 
         private void LoadSceneFile(Path path)
