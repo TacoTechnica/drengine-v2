@@ -116,6 +116,10 @@ namespace DREngine.Game.CoreScenes.SceneEditor
             for (int i = startIndex; i < parts.Length; ++i)
             {
                 result.Append(parts[i]);
+                if (i != parts.Length - 1)
+                {
+                    result.Append(" ");
+                }
             }
 
             return result.ToString();
