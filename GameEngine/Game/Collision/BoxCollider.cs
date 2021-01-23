@@ -31,23 +31,33 @@ namespace GameEngine.Game.Collision
             set => _box.Max = value;
         }
 
-        public BoundingBox WorldBox => new BoundingBox(GameObject.Transform.Position + Min, GameObject.Transform.Position + Max);
+        //public BoundingBox WorldBox => new BoundingBox(GameObject.Transform.Position + Min, GameObject.Transform.Position + Max);
         public GameObjectRender3D GameObject { get; }
 
         public bool ContainsScreen(Camera3D cam, Vector2 screenPoint)
         {
-            var r = cam.GetScreenRay(screenPoint);
-            return r.Intersects(WorldBox).HasValue;
+            Matrix invTransform = GameObject.Transform.GetInverse();
+
+            var worldRay = cam.GetScreenRay(screenPoint);
+
+            var localRay = new Ray(Vector3.Transform(worldRay.Position, invTransform), Vector3.TransformNormal(worldRay.Direction, invTransform));
+
+            return localRay.Intersects(_box).HasValue;
         }
 
         public Vector3 GetRoughCenterPosition()
         {
-            return GameObject.Transform.Position + (Max - Min) / 2f;
+            Matrix invTransform = GameObject.Transform.GetInverse();
+            Vector3 max = Vector3.Transform(_box.Max, invTransform),
+                min = Vector3.Transform(_box.Min, invTransform);
+            return GameObject.Transform.Position + (max - min) / 2f;
         }
 
         public void DrawDebug(GamePlus game, Camera3D cam)
         {
-            DebugDrawer.DrawAABB(game, cam, WorldBox);
+            DebugDrawer.World = GameObject.Transform.Local;
+            DebugDrawer.DrawAABB(game, cam, _box);
+            DebugDrawer.World = Matrix.Identity;
         }
     }
 }

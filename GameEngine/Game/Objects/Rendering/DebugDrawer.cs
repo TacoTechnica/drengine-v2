@@ -11,6 +11,9 @@ namespace GameEngine.Game.Objects.Rendering
     /// </summary>
     public static class DebugDrawer
     {
+
+        public static Matrix World = Matrix.Identity;
+        
         private static Color DefaultColor
         {
             get
@@ -28,6 +31,7 @@ namespace GameEngine.Game.Objects.Rendering
         {
             game.DebugEffect.View = cam.ViewMatrix;
             game.DebugEffect.Projection = cam.ProjectionMatrix;
+            game.DebugEffect.World = World;
 
             var prevDepth = game.DebugEffect.GraphicsDevice.DepthStencilState;
             game.DebugEffect.GraphicsDevice.DepthStencilState = DepthStencilState.None;
@@ -52,7 +56,8 @@ namespace GameEngine.Game.Objects.Rendering
         {
             game.DebugEffect.View = cam.ViewMatrix;
             game.DebugEffect.Projection = cam.ProjectionMatrix;
-            
+            game.DebugEffect.World = World;
+
             var prevDepth = game.DebugEffect.GraphicsDevice.DepthStencilState;
             game.DebugEffect.GraphicsDevice.DepthStencilState = DepthStencilState.None;
 

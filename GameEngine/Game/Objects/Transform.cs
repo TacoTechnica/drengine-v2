@@ -15,6 +15,9 @@ namespace GameEngine.Game.Objects
         private Vector3 _scale = Vector3.One;
         private Matrix _scaleMat = Matrix.Identity;
 
+        private bool _cachedInverseUpToDate = false;
+        private Matrix _cachedInverse = Matrix.Identity;
+
         public Transform3D()
         {
             // Do nothing we chilling
@@ -107,6 +110,28 @@ namespace GameEngine.Game.Objects
         private void UpdateWorld()
         {
             Local = _scaleMat * _rotMat * _posMat;
+            _cachedInverseUpToDate = false;
+        }
+
+        public Matrix GetInverse()
+        {
+            if (_cachedInverseUpToDate) return _cachedInverse;
+            Matrix invPosMat = Matrix.CreateWorld(-1 * _position, Vector3.Forward, Vector3.Up);
+            Matrix invRotMat = Matrix.CreateFromQuaternion(Quaternion.Inverse(_rotation));
+            Matrix invScaleMat;
+            try
+            {
+                invScaleMat = Matrix.CreateScale(1.0f / _scale.X, 1.0f / _scale.Y, 1.0f / _scale.Z);
+            }
+            catch (Exception e)
+            {
+                _cachedInverse = Matrix.Identity;
+                return Matrix.Identity;
+            }
+
+            _cachedInverseUpToDate = true;
+            _cachedInverse = invPosMat * invRotMat * invScaleMat;
+            return _cachedInverse;
         }
 
 

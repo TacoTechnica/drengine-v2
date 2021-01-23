@@ -184,12 +184,10 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 Transform.Position = position;
                 Transform.Scale = scale;
 
-                Vector3 center = -1 * Transform.Scale.Z * Math.RotateVector(Vector3.Forward * (PoleHeight + TipHeight / 2), Transform.Rotation);
+                Vector3 center = Vector3.Backward * (PoleHeight + TipHeight / 2);
 
-                float dist = 1.2f * Transform.Scale.Z;
-
-                _collider.Min = center - Vector3.One * dist;
-                _collider.Max = center + Vector3.One * dist;
+                _collider.Min = center - Vector3.One;
+                _collider.Max = center + Vector3.One;
             }
 
             public void UpdateSelected(Camera3D cam, Vector2 mousePos, bool clicking)
