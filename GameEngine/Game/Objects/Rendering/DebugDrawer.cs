@@ -1,5 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Math = GameEngine.Util.Math;
 
 namespace GameEngine.Game.Objects.Rendering
 {
@@ -9,7 +11,16 @@ namespace GameEngine.Game.Objects.Rendering
     /// </summary>
     public static class DebugDrawer
     {
-        private static readonly Color DefaultColor = Color.Green;
+        private static Color DefaultColor
+        {
+            get
+            {
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                double time = (DateTime.Now - epoch).TotalSeconds;
+                time /= 2.0;
+                return Math.FromHsv((float) (time % 1), 1, 1);
+            }
+        }
 
         private static SpriteFont _debugFont;
 
@@ -22,6 +33,7 @@ namespace GameEngine.Game.Objects.Rendering
             game.DebugEffect.GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             game.DebugEffect.CurrentTechnique.Passes[0].Apply();
+            game.DebugEffect.VertexColorEnabled = true;
             var vertices = new[] {new VertexPositionColor(from, fromC), new VertexPositionColor(to, toC)};
             game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
             game.DebugEffect.GraphicsDevice.DepthStencilState = prevDepth;
