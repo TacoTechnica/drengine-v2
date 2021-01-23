@@ -47,6 +47,8 @@ namespace DREngine.Editor.SubWindows
             if (IsType(type, typeof(Vector2))) return new Vector2Widget();
             // Vector3
             if (IsType(type, typeof(Vector3))) return new Vector3Widget();
+            // Quaternion
+            if (IsType(type, typeof(Quaternion))) return new QuaternionEulerFieldWidget();
 
             // Transform
             if (IsType(type, typeof(Transform3D))) return new FieldWidgetAuto<Transform3D>(editor);
