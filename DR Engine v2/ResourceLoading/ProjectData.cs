@@ -114,7 +114,6 @@ namespace DREngine.ResourceLoading
 
         public bool IsDefaultResourcePath(string fullPath)
         {
-            Debug.Log($"CHECK: {fullPath}, {GetFullDefaultResourcePath()}");
             return fullPath.StartsWith(GetFullDefaultResourcePath());
         }
 
