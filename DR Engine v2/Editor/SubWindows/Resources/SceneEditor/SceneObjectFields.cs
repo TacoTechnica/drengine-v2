@@ -35,8 +35,6 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                     }
                 }
 
-                Debug.Log($"New field loaded: {sceneObject.GetType()}");
-
                 _fields = new SceneObjectFieldBox(_editor, sceneObject.GetType())  {AutoApply = true};
                 _fields.Modified += FieldModified;
                 _fields.Show();
@@ -70,6 +68,18 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                 }
                 
                 return base.ShouldSerialize(f);
+            }
+
+            protected override bool GetOverridePriority(UniFieldInfo field, ref int priority)
+            {
+                switch (field.Name)
+                {
+                    case "Name":
+                        priority = 1000000; // Name goes on top.
+                        return true;
+                    default:
+                        return false;
+                }
             }
         }
         

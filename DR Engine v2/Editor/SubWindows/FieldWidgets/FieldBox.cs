@@ -6,6 +6,7 @@ using GameEngine;
 using GameEngine.Game.Resources;
 using Gtk;
 using Microsoft.VisualBasic.FileIO;
+using Newtonsoft.Json;
 using Action = System.Action;
 
 namespace DREngine.Editor.SubWindows.FieldWidgets
@@ -29,8 +30,20 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             // put BASE fields up top and NEWER fields lower
             fields.Sort((left, right) =>
             {
-                //Debug.Log($"{left.Name}: {GetDepth(left)} vs {right.Name}: {GetDepth(right)}");
-                return GetDepth(right) - GetDepth(left);
+                return GetSortOrder(right) - GetSortOrder(left);
+
+                int GetSortOrder(UniFieldInfo field)
+                {
+                    int priority = 0;
+                    if (GetOverridePriority(field, ref priority))
+                    {
+                        return priority;
+                    }
+                    FieldPriorityAttribute priorityOverride = field.GetCustomAttribute<FieldPriorityAttribute>();
+                    priority = priorityOverride?.Priority ?? 0;
+                    return priority*1000 + GetDepth(field);
+                }
+
                 // How "deep" the field is declared in its sub types.
                 int GetDepth(UniFieldInfo field)
                 {
@@ -59,6 +72,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
                 // ReSharper disable once VirtualMemberCallInConstructor
                 if (!ShouldSerialize(f)) continue;
                 if (f.GetCustomAttribute<FieldIgnoreAttribute>() != null) continue;
+                if (f.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 
                 var widget = FieldWidgetFactory.CreateField(editor, f);
                 _fields.Add(widget);
@@ -102,6 +116,12 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
         protected virtual bool ShouldSerialize(UniFieldInfo f)
         {
             return true;
+        }
+
+        protected virtual bool GetOverridePriority(UniFieldInfo field, ref int priority)
+        {
+            priority = 0;
+            return false;
         }
     }
 
