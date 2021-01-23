@@ -1,9 +1,7 @@
 using System;
-using System.Reflection;
 using DREngine.Editor.SubWindows.FieldWidgets;
 using DREngine.Game.Scene;
 using DREngine.ResourceLoading;
-using GameEngine;
 using Gtk;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
@@ -23,7 +21,7 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
         public void LoadObject(ISceneObject sceneObject)
         {
-            if (_fields == null || _fields.Target == null || sceneObject.GetType() != _fields.Target.GetType())
+            if (_fields?.Target == null || sceneObject.GetType() != _fields.Target.GetType())
             {
                 if (_fields != null)
                 {

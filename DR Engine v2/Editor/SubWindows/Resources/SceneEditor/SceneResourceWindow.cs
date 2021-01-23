@@ -5,7 +5,11 @@ using GameEngine;
 using GameEngine.Game;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
+using Gdk;
 using Gtk;
+using Key = Gdk.Key;
+using Window = Gtk.Window;
+using WindowType = Gtk.WindowType;
 
 namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 {
@@ -51,6 +55,21 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             _fieldWindow.Add(_fields);
             _fields.Show();
             _fieldWindow.Show();
+
+            // Field window save/close hookup
+            _fieldWindow.KeyPressEvent += (o, args) =>
+            {
+                var control = (args.Event.State & ModifierType.ControlMask) != 0;
+                var key = args.Event.Key;
+                if (control)
+                    if (key == Key.S || key == Key.s)
+                    {
+                        Save();
+                        return;
+                    }
+
+                if (key == Key.Escape) Close();
+            };
             /*
             fieldWindow.Destroyed += (sender, args) =>
             {

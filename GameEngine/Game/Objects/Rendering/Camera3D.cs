@@ -31,7 +31,6 @@ namespace GameEngine.Game.Objects.Rendering
             Rotation = rotation;
             Fov = fov;
 
-            Debug.Log("ADDED CAMERA");
             _camListReference = Game.SceneManager.Cameras.Add(this);
         }
 
@@ -81,7 +80,6 @@ namespace GameEngine.Game.Objects.Rendering
 
         public override void Start()
         {
-            Debug.Log("Cam view projection SET");
             UpdateViewAndProjection();
         }
 

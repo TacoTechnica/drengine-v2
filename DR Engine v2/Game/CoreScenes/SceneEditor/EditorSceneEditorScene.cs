@@ -6,13 +6,19 @@ using DREngine.Game.Scene;
 using DREngine.ResourceLoading;
 using GameEngine;
 using GameEngine.Game;
+using GameEngine.Game.Input;
 using GameEngine.Game.Objects;
 using GameEngine.Game.Resources;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
 
 namespace DREngine.Game.CoreScenes.SceneEditor
 {
+    /// <summary>
+    /// The editor scene for the scene editor.
+    /// Christ this name is stupid.
+    /// </summary>
     public class EditorSceneEditorScene : BaseSceneLoader
     {
         private const string SCENE_NAME = "__SCENE_EDITOR_SCREEN__";
@@ -152,7 +158,6 @@ namespace DREngine.Game.CoreScenes.SceneEditor
         private void LoadSceneFile(Path path)
         {
             _scenePath = path;
-            Debug.Log("TEMP DEBUG: Loaded scene file without actually placing its items.");
             _loadedScene = _game.ResourceLoader.GetResource<DRScene>(path);
             _loadedScene.Load(_game.ResourceLoaderData);
             // Load the scene into the current game. This is a bit jank but it works I think.
@@ -238,6 +243,29 @@ namespace DREngine.Game.CoreScenes.SceneEditor
                 {
                     OnTranslatorDrag(delta * Vector3.UnitZ);
                 };
+                
+                Saver saver = new Saver(_game);
+                saver.Saved += () =>
+                {
+                    _connection.SendSaved();
+                    OnSaveRequested();
+                };
+            }
+        }
+        
+        private class Saver : GameObject
+        {
+            public Action Saved;
+            public Saver(GamePlus game) : base(game)
+            {
+            }
+
+            public override void Update(float dt)
+            {
+                if (RawInput.KeyPressing(Keys.LeftControl) && RawInput.KeyPressed(Keys.S))
+                {
+                    Saved?.Invoke();
+                }
             }
         }
     }

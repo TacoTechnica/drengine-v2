@@ -79,8 +79,8 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
 
                 widget.Modified += o =>
                 {
-                    if (AutoApply) SaveFields();
                     if (_internalModifyFlag) return;
+                    if (AutoApply) SaveFields();
                     Modified?.Invoke(f.Name, o);
                 };
 
