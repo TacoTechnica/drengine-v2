@@ -60,7 +60,8 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
 
             foreach (ISceneObject sceneObject in objects)
             {
-                AddItemVisual(sceneObject.Name ?? TypeToName(sceneObject.GetType()));
+                if (sceneObject.Name == "") sceneObject.Name = null;
+                AddItemVisual(sceneObject.Name ?? TypeToName(sceneObject.GetType()), sceneObject.GetType());
             }
         }
 
@@ -81,20 +82,16 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
             _currentChoice = new DropdownChooser();
             _currentChoice.MakeChoice<Type>(GetObjectTypes(), type =>
             {
-                var newRow = AddItemVisual(TypeToName(type));
+                var newRow = AddItemVisual(TypeToName(type), type);
                 NewObjectAdded.Invoke(type);
                 //_skipSelectFlag = true;
                 _items.SelectRow(newRow);
             }, TypeToName);
         }
 
-        private ListBoxRow AddItemVisual(string name)
+        private ListBoxRow AddItemVisual(string name, Type type)
         {
-            ListBoxRow newRow = new ListBoxRow();
-
-            Label label = new Label(name);
-            newRow.Add(label);
-            label.Show();
+            Row newRow = new Row(name, type);
 
             _items.Insert(newRow, _items.Children.Length);
             newRow.Show();
@@ -111,6 +108,42 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
         {
             yield return typeof(Cube);
             yield return typeof(Billboard);
+        }
+
+        public void RenameObject(int objectIndex, string name)
+        {
+            ((Row) _items.GetRowAtIndex(objectIndex)).Name = name;
+        }
+
+        public void ResetObjectName(int objectIndex)
+        {
+            ((Row) _items.GetRowAtIndex(objectIndex)).ResetDefaultName();
+        }
+
+        private class Row : ListBoxRow
+        {
+
+            public string Name
+            {
+                get => _label.Text;
+                set => _label.Text = value;
+            }
+            
+            private Label _label;
+            private Type _type;
+
+            public Row(string name, Type type)
+            {
+                _type = type;
+                _label = new Label(name);
+                Add(_label);
+                _label.Show();
+            }
+
+            public void ResetDefaultName()
+            {
+                Name = TypeToName(_type);
+            }
         }
     }
 }

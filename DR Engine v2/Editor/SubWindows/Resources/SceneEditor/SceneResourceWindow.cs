@@ -94,6 +94,18 @@ namespace DREngine.Editor.SubWindows.Resources.SceneEditor
                 }
                 else
                 {
+                    // Special case: We are modifying the object's name.
+                    if (name == "Name")
+                    {
+                        if (obj == null || obj == "")
+                        {
+                            _list.ResetObjectName(_currentSelected);
+                        }
+                        else
+                        {
+                            _list.RenameObject(_currentSelected, obj.ToString());
+                        }
+                    }
                     _connection.SendPropertyModified(_currentSelected, name, obj);
                 }
                 MarkDirty();

@@ -1,4 +1,3 @@
-using System.Reflection;
 using DREngine.ResourceLoading;
 using Gtk;
 
@@ -19,7 +18,7 @@ namespace DREngine.Editor.SubWindows.FieldWidgets
             set
             {
                 _modifiedFlag = true;
-                _text.Buffer.Text = DataToString(value);
+                _text.Buffer.Text = (value == null)? "" : DataToString(value);
             }
         }
 
