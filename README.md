@@ -1,5 +1,7 @@
 # drengine-v2
 
+## CURRENTLY DISCONTINUED, see https://github.com/adrisj7/dang-engine for new project that runs in the web
+
 A Fanganronpa creator. Let the fan chaos commence.
 
 TODO: Give the folks at home a description on what the heck this is.
